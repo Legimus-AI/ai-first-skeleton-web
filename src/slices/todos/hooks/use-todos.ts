@@ -16,7 +16,7 @@ export function useTodos(params?: Partial<ListQuery>) {
 	return useQuery({
 		queryKey: [...TODOS_KEY, params],
 		queryFn: async () => {
-			const res = await api.api.todos.$get({ query: params ?? {} })
+			const res = await api.get('/api/todos', params as Record<string, string | number>)
 			await throwIfNotOk(res)
 			const json = await res.json()
 			return todoListResponseSchema.parse(json)
@@ -28,7 +28,7 @@ export function useCreateTodo() {
 	const queryClient = useQueryClient()
 	return useMutation({
 		mutationFn: async (input: CreateTodo) => {
-			const res = await api.api.todos.$post({ json: input })
+			const res = await api.post('/api/todos', input)
 			await throwIfNotOk(res)
 			const json = await res.json()
 			return todoResponseSchema.parse(json)
@@ -47,10 +47,7 @@ export function useUpdateTodo() {
 	const queryClient = useQueryClient()
 	return useMutation({
 		mutationFn: async ({ id, ...input }: UpdateTodo & { id: string }) => {
-			const res = await api.api.todos[':id'].$patch({
-				param: { id },
-				json: input,
-			})
+			const res = await api.patch(`/api/todos/${id}`, input)
 			await throwIfNotOk(res)
 			const json = await res.json()
 			return todoResponseSchema.parse(json)
@@ -68,7 +65,7 @@ export function useDeleteTodo() {
 	const queryClient = useQueryClient()
 	return useMutation({
 		mutationFn: async (id: string) => {
-			const res = await api.api.todos[':id'].$delete({ param: { id } })
+			const res = await api.delete(`/api/todos/${id}`)
 			await throwIfNotOk(res)
 			const json = await res.json()
 			return todoResponseSchema.parse(json)

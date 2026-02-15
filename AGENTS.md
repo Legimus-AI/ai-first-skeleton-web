@@ -18,7 +18,7 @@ React 19 SPA with Vite, TanStack Router, TanStack Query, and Tailwind CSS.
 - **Max ~200 lines per file.** Split into subcomponents if larger.
 - **Composition over props.** If a component has >5 props, split into subcomponents. Prefer children/slots over mega-prop objects.
 - Use TanStack Query for all server state (no local state for API data)
-- Use Hono RPC client (`hc<AppType>`) for type-safe API calls
+- Use `api` from `@/lib/api-client` for all API calls (backend-agnostic fetch wrapper)
 - Import types from `@repo/shared` for forms (React Hook Form + Zod)
 - Tailwind CSS only — no CSS files, no CSS-in-JS
 - Use CVA (`class-variance-authority`) for component variants
@@ -114,10 +114,26 @@ src/slices/<name>/
 ## API calls
 
 ```ts
-// Type-safe via Hono RPC — types flow from backend routes
+// Backend-agnostic API client — works with any AI-First Skeleton backend
 import { api } from '@/lib/api-client'
-const res = await api.api.todos.$get()
+import { throwIfNotOk } from '@/lib/api-error'
+
+// GET with query params
+const res = await api.get('/api/todos', { page: '1', limit: '20' })
+await throwIfNotOk(res)
+const json = await res.json()
+
+// POST with body
+const res = await api.post('/api/todos', { title: 'Buy milk' })
+
+// PATCH with path param + body
+const res = await api.patch(`/api/todos/${id}`, { completed: true })
+
+// DELETE
+const res = await api.delete(`/api/todos/${id}`)
 ```
+
+Response types come from `@repo/shared` (Zod schemas), validated at runtime.
 
 ## Theming system
 
@@ -234,7 +250,7 @@ This skeleton provides locale awareness for formatting only. Multi-language supp
 - Use `useEffect` for data fetching — use TanStack Query
 - Edit `routeTree.gen.ts` — it's auto-generated
 - Use hardcoded colors (`text-gray-*`, `bg-white`, `[#hex]`) — use theme tokens
-- Use raw `fetch()` — use Hono RPC client (`api.api.slice.$method()`)
+- Use raw `fetch()` — use the `api` client from `@/lib/api-client`
 - Use array index as `key` in lists — use unique IDs
 - Store derived state in `useState` — compute inline
 - Put multiple components in one file — one component per file

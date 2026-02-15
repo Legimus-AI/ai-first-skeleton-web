@@ -3,15 +3,17 @@
 # Frontend Component Repo
 
 This repo is meant to be cloned into a backend skeleton's `apps/web/` directory.
-It depends on `@repo/shared` (Zod schemas) and `@repo/api` (AppType for Hono RPC).
+It depends on `@repo/shared` (Zod schemas) for response validation.
 
-## How it works
+## API client architecture
 
-When placed inside a backend repo at `apps/web/`, pnpm workspaces resolves:
-- `@repo/shared` → `packages/shared/` (Zod schemas, shared types)
-- `@repo/api` → `apps/api/` (AppType for Hono RPC type inference)
+Uses a simple fetch wrapper (`src/lib/api-client.ts`) — no Hono RPC, no openapi-fetch.
+This makes the frontend compatible with ANY backend that follows the AI-First API contract:
+- Same endpoint paths (`/api/<slice>`, `/api/<slice>/:id`)
+- Same response shapes (`{ data, meta }` for lists, `{ data }` for single)
+- Same error shapes (`{ error: { code, message, requestId } }`)
 
-No code changes needed — the workspace resolution handles everything.
+Types come from `@repo/shared` (Zod schemas), resolved via pnpm workspaces.
 
 ## After placing in a backend repo
 
