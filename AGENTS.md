@@ -24,6 +24,24 @@ React 19 SPA with Vite, TanStack Router, TanStack Query, and Tailwind CSS.
 - Use CVA (`class-variance-authority`) for component variants
 - Use `cn()` helper (`clsx` + `tailwind-merge`) for conditional classes
 
+### Type Organization
+
+**Never create `types/` directories or `types.ts` barrel files.** Types follow colocation rules:
+
+| Type category | Where it lives | Example |
+|---------------|---------------|---------|
+| Domain types (`Todo`, `CreateTodo`, `TodoListResponse`) | `@repo/shared` — always import, never redefine | `import type { Todo } from '@repo/shared'` |
+| Component props | Inline in the component file | `interface TodoFormProps { todo?: Todo }` |
+| Hook options | Inline in the hook file | `interface UseTodosOptions { page?: number }` |
+| Form data | Inline via Zod infer | `type FormData = z.infer<typeof formSchema>` |
+| UI primitive props | In the `ui/*.tsx` file | `export type ButtonProps = ...` |
+| Frontend-only service types | In `lib/<service>.ts` next to the fetch function | `interface GeocodingResult { ... }` |
+
+**Key rules:**
+- **Never duplicate types from `@repo/shared`** — if a type exists in shared, import it. Redefining causes silent drift.
+- **No standalone type files** — types live next to the code that uses them (colocation > organization by file type).
+- **The frontend never talks to external APIs directly** — all data flows through the backend. If that changes, create `lib/<service>.ts` with types + fetch function together.
+
 ### Component Patterns
 
 - **No derived state.** If a value can be computed from props or query data, derive it inline — don't store it in `useState`. Example: `const isEmpty = items.length === 0` (not `const [isEmpty, setIsEmpty] = useState(false)`).
@@ -257,3 +275,5 @@ This skeleton provides locale awareness for formatting only. Multi-language supp
 - Use `dangerouslySetInnerHTML` — sanitize with DOMPurify if absolutely needed
 - Delete without confirmation — destructive actions need confirm dialog or undo
 - Hardcode locale in Intl APIs — always use `locale` from `@/env`
+- Create `types/` directories or `types.ts` files — types live next to the code that uses them
+- Redefine types from `@repo/shared` — always import, never duplicate
