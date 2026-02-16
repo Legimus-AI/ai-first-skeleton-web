@@ -261,6 +261,14 @@ This skeleton provides locale awareness for formatting only. Multi-language supp
 - Language switcher component
 - Route-level locale detection
 
+## Documentation Sync (CRITICAL)
+
+When you change a pattern in this frontend skeleton, you MUST also update the architecture spec:
+
+1. **What triggers a spec update:** New UI convention, new component pattern, new routing approach, changed state management, new testing pattern
+2. **Where to update:** `Legimus-AI/ai-first-architecture` — edit the relevant doc in `docs/`, bump version in `CHANGELOG.md`
+3. **When:** Same commit/PR as the skeleton change. Never "later".
+
 ## Do NOT
 
 - Import from `@repo/api` at runtime (only `import type` for AppType)
