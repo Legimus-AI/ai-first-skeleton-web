@@ -21,9 +21,9 @@ jobs:
       # Neither pnpm nor npm can install with workspace:* deps, so download Biome directly.
       - name: Install Biome
         env:
-          BIOME_VERSION: "1.9.4"
+          BIOME_VERSION: "2.4.4"
         run: |
-          curl -sSfL "https://github.com/biomejs/biome/releases/download/cli/v${BIOME_VERSION}/biome-linux-x64" -o biome
+          curl -sSfL "https://github.com/biomejs/biome/releases/download/%40biomejs%2Fbiome%40${BIOME_VERSION}/biome-linux-x64" -o biome
           chmod +x biome
 
       - name: Lint
