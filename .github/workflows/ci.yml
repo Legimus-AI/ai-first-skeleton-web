@@ -17,14 +17,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
       # Component repo depends on @repo/shared (workspace).
-      # Install only Biome standalone — pnpm would fail on workspace resolution.
+      # Neither pnpm nor npm can install with workspace:* deps, so download Biome directly.
       - name: Install Biome
-        run: npm install --no-save @biomejs/biome
+        run: |
+          BIOME_VERSION=$(curl -sI https://github.com/biomejs/biome/releases/latest | grep -i '^location:' | grep -oP 'cli/v[\d.]+' | grep -oP '[\d.]+')
+          curl -sSfL "https://github.com/biomejs/biome/releases/download/cli/v${BIOME_VERSION}/biome-linux-x64" -o biome
+          chmod +x biome
 
       - name: Lint
-        run: npx biome check src
+        run: ./biome check src
