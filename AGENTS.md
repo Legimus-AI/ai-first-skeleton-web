@@ -92,6 +92,8 @@ Every data-driven component must handle all states:
 | **Error** | Inline message or toast via `sonner` |
 | **Success** | Toast for mutations |
 
+**Skeleton loading over spinners/overlays:** Always use `<Skeleton />` placeholders that match the final layout shape and size. Never use spinning overlays, full-page loaders, or generic "Loading..." text. Skeletons prevent cumulative layout shift (CLS) and give users a preview of what's coming.
+
 **Layout stability:** Reserve space for async content — skeletons must match the final layout dimensions. Images must have explicit `width`/`height` or `aspect-ratio`.
 
 ### Forms & Mutations
@@ -269,6 +271,21 @@ When you change a pattern in this frontend skeleton, you MUST also update the ar
 2. **Where to update:** `Legimus-AI/ai-first-architecture` — edit the relevant doc in `docs/`, bump version in `CHANGELOG.md`
 3. **When:** Same commit/PR as the skeleton change. Never "later".
 
+## When Stuck (Anti-Thrashing Protocol)
+
+If you hit repeated failures on the same task:
+
+| Failures | Action |
+|----------|--------|
+| 1 | Retry with different approach |
+| 2 | Isolate: write minimal reproducible case |
+| 3 | Freeze scope + write failing test |
+| 4 | Escalate to human with 3 hypotheses |
+
+Full protocol: [`docs/protocols/anti-thrashing.md`](docs/protocols/anti-thrashing.md)
+
+Before implementing, declare confidence (1-10). If < 5, write plan only — do not code.
+
 ## Do NOT
 
 - Import from `@repo/api` at runtime (only `import type` for AppType)
@@ -285,3 +302,4 @@ When you change a pattern in this frontend skeleton, you MUST also update the ar
 - Hardcode locale in Intl APIs — always use `locale` from `@/env`
 - Create `types/` directories or `types.ts` files — types live next to the code that uses them
 - Redefine types from `@repo/shared` — always import, never duplicate
+- Use spinning overlays or generic loaders — use `<Skeleton />` placeholders
