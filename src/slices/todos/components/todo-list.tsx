@@ -99,10 +99,7 @@ export function TodoList() {
 								className="h-4 w-4 rounded border-input"
 							/>
 							<span
-								className={cn(
-									'text-sm',
-									todo.completed && 'text-muted-foreground line-through',
-								)}
+								className={cn('text-sm', todo.completed && 'text-muted-foreground line-through')}
 							>
 								{todo.title}
 							</span>
