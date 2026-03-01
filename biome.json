@@ -34,6 +34,12 @@
 			}
 		}
 	},
+	"css": {
+		"parser": {
+			"cssModules": false,
+			"tailwindDirectives": true
+		}
+	},
 	"javascript": {
 		"formatter": {
 			"quoteStyle": "single",
@@ -41,6 +47,6 @@
 		}
 	},
 	"files": {
-		"ignore": ["node_modules", "dist", "coverage", "*.gen.*"]
+		"includes": ["src/**", "!node_modules", "!dist", "!coverage", "!*.gen.*"]
 	}
 }

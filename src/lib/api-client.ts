@@ -12,15 +12,16 @@ function buildUrl(path: string, params?: Record<string, string | number | undefi
 }
 
 async function request(path: string, options?: RequestInit): Promise<Response> {
+	const { headers, ...rest } = options ?? {}
 	return fetch(path, {
-		headers: { 'Content-Type': 'application/json', ...options?.headers },
-		...options,
+		...rest,
+		headers: { 'Content-Type': 'application/json', ...headers },
 	})
 }
 
 export const api = {
 	get: (path: string, params?: Record<string, string | number | undefined>) =>
-		fetch(buildUrl(path, params)),
+		request(buildUrl(path, params)),
 
 	post: (path: string, body: unknown) =>
 		request(path, { method: 'POST', body: JSON.stringify(body) }),

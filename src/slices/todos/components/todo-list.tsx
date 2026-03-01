@@ -1,3 +1,7 @@
+import { zodResolver } from '@hookform/resolvers/zod'
+import { type CreateTodo, createTodoSchema } from '@repo/shared'
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
 import { cn } from '@/lib/cn'
 import {
 	AlertDialog,
@@ -11,10 +15,7 @@ import {
 } from '@/ui/alert-dialog'
 import { Button } from '@/ui/button'
 import { Input } from '@/ui/input'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { type CreateTodo, createTodoSchema } from '@repo/shared'
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { Skeleton } from '@/ui/skeleton'
 import { useCreateTodo, useDeleteTodo, useTodos, useUpdateTodo } from '../hooks/use-todos'
 
 export function TodoList() {
@@ -55,7 +56,24 @@ export function TodoList() {
 		}
 	}
 
-	if (isLoading) return <p className="text-muted-foreground">Loading todos...</p>
+	if (isLoading)
+		return (
+			<div className="mx-auto max-w-lg space-y-6">
+				<div className="flex gap-2">
+					<Skeleton className="h-10 flex-1" />
+					<Skeleton className="h-10 w-16" />
+				</div>
+				<div className="divide-y divide-border rounded-md border border-border">
+					{Array.from({ length: 3 }).map((_, i) => (
+						<div key={`skeleton-${i.toString()}`} className="flex items-center gap-3 px-4 py-3">
+							<Skeleton className="h-4 w-4 rounded" />
+							<Skeleton className="h-4 flex-1" />
+							<Skeleton className="h-8 w-16" />
+						</div>
+					))}
+				</div>
+			</div>
+		)
 	if (error) return <p className="text-destructive">Error: {error.message}</p>
 
 	return (

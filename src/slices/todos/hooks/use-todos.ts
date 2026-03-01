@@ -1,14 +1,14 @@
-import { api } from '@/lib/api-client'
-import { throwIfNotOk } from '@/lib/api-error'
 import {
 	type CreateTodo,
 	type ListQuery,
-	type UpdateTodo,
 	todoListResponseSchema,
 	todoResponseSchema,
+	type UpdateTodo,
 } from '@repo/shared'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
+import { api } from '@/lib/api-client'
+import { throwIfNotOk } from '@/lib/api-error'
 
 const TODOS_KEY = ['todos'] as const
 
@@ -16,7 +16,7 @@ export function useTodos(params?: Partial<ListQuery>) {
 	return useQuery({
 		queryKey: [...TODOS_KEY, params],
 		queryFn: async () => {
-			const res = await api.get('/api/todos', params as Record<string, string | number>)
+			const res = await api.get('/api/todos', params)
 			await throwIfNotOk(res)
 			const json = await res.json()
 			return todoListResponseSchema.parse(json)

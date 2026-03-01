@@ -1,7 +1,7 @@
-import { cn } from '@/lib/cn'
 import * as AlertDialogPrimitive from '@radix-ui/react-alert-dialog'
 import type { ComponentPropsWithoutRef, ElementRef } from 'react'
 import { forwardRef } from 'react'
+import { cn } from '@/lib/cn'
 
 const AlertDialog = AlertDialogPrimitive.Root
 

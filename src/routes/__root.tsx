@@ -1,7 +1,7 @@
+import { createRootRoute, Outlet } from '@tanstack/react-router'
 import { ErrorBoundary } from '@/components/error-boundary'
 import { Toaster } from '@/ui/sonner'
 import { ThemeToggle } from '@/ui/theme-toggle'
-import { Outlet, createRootRoute } from '@tanstack/react-router'
 
 export const Route = createRootRoute({
 	component: () => (

@@ -8,7 +8,11 @@ function ErrorFallback({ error }: { error: unknown }) {
 			<div className="text-center">
 				<h1 className="mb-2 text-2xl font-bold text-destructive">Something went wrong</h1>
 				<p className="mb-4 text-muted-foreground">{message}</p>
-				<button type="button" onClick={() => globalThis.location.reload()} className="underline">
+				<button
+					type="button"
+					onClick={() => globalThis.location.reload()}
+					className="underline transition-colors duration-150"
+				>
 					Reload page
 				</button>
 			</div>
