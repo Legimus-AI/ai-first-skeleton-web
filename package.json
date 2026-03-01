@@ -5,6 +5,8 @@
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
+		"route:generate": "node ./scripts/generate-routes.mjs",
+		"prebuild": "pnpm route:generate",
 		"build": "vite build",
 		"preview": "vite preview",
 		"lint": "biome check src",
@@ -13,6 +15,7 @@
 		"test": "vitest run --passWithNoTests",
 		"test:watch": "vitest",
 		"test:coverage": "vitest run --coverage --passWithNoTests",
+		"pretypecheck": "pnpm route:generate",
 		"typecheck": "tsc --noEmit",
 		"verify": "biome check src && tsc --noEmit && vitest run --passWithNoTests",
 		"prepare": "lefthook install"
@@ -47,6 +50,7 @@
 		"lefthook": "^2.1.0",
 		"@tailwindcss/vite": "^4.0.0",
 		"@tanstack/router-devtools": "^1.100.0",
+		"@tanstack/router-generator": "^1.100.0",
 		"@tanstack/router-plugin": "^1.100.0",
 		"@types/react": "^19.0.0",
 		"@types/react-dom": "^19.0.0",
