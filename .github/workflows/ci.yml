@@ -17,18 +17,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 9
-
       - uses: actions/setup-node@v4
         with:
           node-version: 22
 
       # Component repo depends on @repo/shared (workspace).
-      # Install only Biome as a standalone tool for linting.
+      # Install only Biome standalone — pnpm would fail on workspace resolution.
       - name: Install Biome
-        run: pnpm add -D @biomejs/biome
+        run: npm install --no-save @biomejs/biome
 
       - name: Lint
         run: npx biome check src
