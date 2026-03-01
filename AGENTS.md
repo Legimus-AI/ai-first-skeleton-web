@@ -286,6 +286,29 @@ Full protocol: [`docs/protocols/anti-thrashing.md`](docs/protocols/anti-thrashin
 
 Before implementing, declare confidence (1-10). If < 5, write plan only — do not code.
 
+## Observability
+
+The skeleton is pre-wired for observability tools (Sentry, Clarity, OpenTelemetry) without including them as dependencies.
+
+### What's in place
+
+- **`X-Request-Id` exposed via CORS** — the backend includes `exposeHeaders: ['X-Request-Id']`, so browser JS can read the header
+- **`res.requestId` on all API responses** — `api-client.ts` extracts `X-Request-Id` and attaches it as `res.requestId` on every `Response` object (not just errors)
+- **Structured debug payload in ErrorBoundary** — "Copy debug info" button copies JSON with `message`, `requestId`, `code`, `url`, `timestamp`, `userAgent`
+- **Commented import slots in `main.tsx`** — uncomment `import './lib/sentry'` or `import './lib/clarity'` to enable
+
+### Adding an observability tool
+
+Step-by-step recipes in `docs/recipes/`:
+
+| Tool | Recipe | What it does |
+|------|--------|-------------|
+| Sentry | [`sentry.md`](docs/recipes/sentry.md) | Error tracking + performance traces |
+| Microsoft Clarity | [`clarity.md`](docs/recipes/clarity.md) | Session replay + heatmaps |
+| OpenTelemetry | [`opentelemetry.md`](docs/recipes/opentelemetry.md) | Distributed tracing (Jaeger/Tempo) |
+
+Each integration is a 1-file addition (`src/lib/<tool>.ts`) + env var.
+
 ## Do NOT
 
 - Import from `@repo/api` at runtime (only `import type` for AppType)

@@ -5,6 +5,10 @@ import { createRoot } from 'react-dom/client'
 import { router } from './router'
 import './styles.css'
 
+// --- Observability (uncomment to enable) ---
+// import './lib/sentry'    // Sentry error tracking + performance
+// import './lib/clarity'   // Microsoft Clarity session replay
+
 const queryClient = new QueryClient({
 	defaultOptions: {
 		queries: { retry: 1, staleTime: 5_000 },

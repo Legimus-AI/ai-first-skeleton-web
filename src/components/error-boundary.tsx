@@ -3,14 +3,24 @@ import { ErrorBoundary as ReactErrorBoundary } from 'react-error-boundary'
 import { ApiError } from '@/lib/api-error'
 import { Button } from '@/ui/button'
 
+function buildDebugPayload(error: unknown): string {
+	const base = {
+		message: error instanceof Error ? error.message : String(error),
+		requestId: error instanceof ApiError ? error.requestId : undefined,
+		code: error instanceof ApiError ? error.code : undefined,
+		url: globalThis.location.href,
+		timestamp: new Date().toISOString(),
+		userAgent: navigator.userAgent,
+	}
+	return JSON.stringify(base, null, 2)
+}
+
 function ErrorFallback({ error }: { error: unknown }) {
 	const message = error instanceof Error ? error.message : 'An unexpected error occurred'
 	const requestId = error instanceof ApiError ? error.requestId : undefined
 
-	const copyRequestId = () => {
-		if (requestId) {
-			navigator.clipboard.writeText(requestId)
-		}
+	const copyDebugInfo = () => {
+		navigator.clipboard.writeText(buildDebugPayload(error))
 	}
 
 	return (
@@ -19,15 +29,15 @@ function ErrorFallback({ error }: { error: unknown }) {
 				<h1 className="mb-2 text-2xl font-bold text-destructive">Something went wrong</h1>
 				<p className="mb-4 text-muted-foreground">{message}</p>
 				{requestId && (
-					<div className="mb-4 flex items-center justify-center gap-2">
-						<code className="rounded bg-muted px-2 py-1 font-mono text-xs text-muted-foreground">
-							{requestId}
-						</code>
-						<Button variant="outline" size="sm" onClick={copyRequestId}>
-							Copy ID
-						</Button>
-					</div>
+					<code className="mb-4 block rounded bg-muted px-2 py-1 font-mono text-xs text-muted-foreground">
+						{requestId}
+					</code>
 				)}
+				<div className="mb-4 flex items-center justify-center gap-2">
+					<Button variant="outline" size="sm" onClick={copyDebugInfo}>
+						Copy debug info
+					</Button>
+				</div>
 				<button
 					type="button"
 					onClick={() => globalThis.location.reload()}
