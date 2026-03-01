@@ -15,9 +15,9 @@ async function request(path: string, options?: RequestInit): Promise<Response> {
 	const { headers, body, ...rest } = options ?? {}
 	return fetch(path, {
 		...rest,
-		body,
+		...(body != null && { body }),
 		headers: {
-			...(body !== undefined && { 'Content-Type': 'application/json' }),
+			...(body != null && { 'Content-Type': 'application/json' }),
 			...headers,
 		},
 	})
