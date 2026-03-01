@@ -12,10 +12,14 @@ function buildUrl(path: string, params?: Record<string, string | number | undefi
 }
 
 async function request(path: string, options?: RequestInit): Promise<Response> {
-	const { headers, ...rest } = options ?? {}
+	const { headers, body, ...rest } = options ?? {}
 	return fetch(path, {
 		...rest,
-		headers: { 'Content-Type': 'application/json', ...headers },
+		body,
+		headers: {
+			...(body !== undefined && { 'Content-Type': 'application/json' }),
+			...headers,
+		},
 	})
 }
 

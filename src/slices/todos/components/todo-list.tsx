@@ -2,6 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { type CreateTodo, createTodoSchema } from '@repo/shared'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { ApiError } from '@/lib/api-error'
 import { cn } from '@/lib/cn'
 import {
 	AlertDialog,
@@ -39,7 +40,7 @@ export function TodoList() {
 		createTodo.mutate(input, {
 			onSuccess: () => reset(),
 			onError: (err) => {
-				const fields = (err as Error & { fields?: Record<string, string> }).fields
+				const fields = err instanceof ApiError ? err.fields : undefined
 				if (fields) {
 					for (const [field, message] of Object.entries(fields)) {
 						setError(field as keyof CreateTodo, { message })
@@ -90,20 +91,22 @@ export function TodoList() {
 			<ul className="divide-y divide-border rounded-md border border-border">
 				{data?.data.map((todo) => (
 					<li key={todo.id} className="flex items-center gap-3 px-4 py-3">
-						<input
-							type="checkbox"
-							checked={todo.completed}
-							onChange={() => updateTodo.mutate({ id: todo.id, completed: !todo.completed })}
-							className="h-4 w-4 rounded border-input"
-						/>
-						<span
-							className={cn(
-								'flex-1 text-sm',
-								todo.completed && 'text-muted-foreground line-through',
-							)}
-						>
-							{todo.title}
-						</span>
+						<label className="flex flex-1 cursor-pointer items-center gap-3">
+							<input
+								type="checkbox"
+								checked={todo.completed}
+								onChange={() => updateTodo.mutate({ id: todo.id, completed: !todo.completed })}
+								className="h-4 w-4 rounded border-input"
+							/>
+							<span
+								className={cn(
+									'text-sm',
+									todo.completed && 'text-muted-foreground line-through',
+								)}
+							>
+								{todo.title}
+							</span>
+						</label>
 						<Button
 							variant="destructive"
 							size="sm"

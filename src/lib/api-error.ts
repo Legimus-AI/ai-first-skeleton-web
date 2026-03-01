@@ -1,10 +1,15 @@
 import { type ErrorCode, errorResponseSchema } from '@repo/shared'
 
-export interface ApiError {
-	code: ErrorCode
-	message: string
-	requestId?: string | undefined
-	fields?: Record<string, string> | undefined
+export class ApiError extends Error {
+	constructor(
+		message: string,
+		public readonly code: ErrorCode,
+		public readonly requestId?: string,
+		public readonly fields?: Record<string, string>,
+	) {
+		super(message)
+		this.name = 'ApiError'
+	}
 }
 
 export async function parseApiError(res: Response): Promise<ApiError> {
@@ -13,24 +18,16 @@ export async function parseApiError(res: Response): Promise<ApiError> {
 		const parsed = errorResponseSchema.safeParse(json)
 		if (parsed.success) {
 			const { code, message, requestId, fields } = parsed.data.error
-			return { code, message, requestId, fields }
+			return new ApiError(message, code, requestId, fields)
 		}
 	} catch {
 		// Response body not parseable
 	}
-	return {
-		code: 'INTERNAL_ERROR',
-		message: `Request failed with status ${res.status}`,
-	}
+	return new ApiError(`Request failed with status ${res.status}`, 'INTERNAL_ERROR')
 }
 
 export async function throwIfNotOk(res: Response): Promise<void> {
 	if (!res.ok) {
-		const error = await parseApiError(res)
-		throw Object.assign(new Error(error.message), {
-			code: error.code,
-			requestId: error.requestId,
-			fields: error.fields,
-		})
+		throw await parseApiError(res)
 	}
 }

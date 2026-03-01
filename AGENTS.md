@@ -177,7 +177,7 @@ Reusable components in `src/ui/` (shadcn/ui copy-paste pattern — we OWN these)
 
 | Component | File | Notes |
 |-----------|------|-------|
-| Button | `button.tsx` | CVA variants: default, destructive, outline, secondary, ghost, link |
+| Button | `button.tsx` | CVA variants: primary, destructive, outline, secondary, ghost, link |
 | Input | `input.tsx` | Styled with theme tokens |
 | Card | `card.tsx` | Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter |
 | Badge | `badge.tsx` | CVA variants: default, secondary, destructive, outline |
@@ -188,7 +188,7 @@ Reusable components in `src/ui/` (shadcn/ui copy-paste pattern — we OWN these)
 | Dialog | `dialog.tsx` | Modal forms and detail views |
 | DropdownMenu | `dropdown-menu.tsx` | Row actions in tables/lists |
 
-Use `cn()` from `src/lib/utils.ts` to merge classes: `cn('base-class', conditional && 'active-class')`.
+Use `cn()` from `src/lib/cn.ts` to merge classes: `cn('base-class', conditional && 'active-class')`.
 
 ## Error handling
 
@@ -197,8 +197,8 @@ All API errors are typed and structured:
 ```typescript
 import { throwIfNotOk } from '@/lib/api-error'
 
-const res = await api.api.todos.$get()
-await throwIfNotOk(res) // throws { code, message, requestId }
+const res = await api.get('/api/todos')
+await throwIfNotOk(res) // throws ApiError { code, message, requestId }
 ```
 
 Error codes from `@repo/shared`: `VALIDATION_ERROR`, `NOT_FOUND`, `UNAUTHORIZED`, `FORBIDDEN`, `CONFLICT`, `RATE_LIMITED`, `INTERNAL_ERROR`.
