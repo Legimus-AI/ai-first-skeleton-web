@@ -11,7 +11,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  lint-typecheck:
+  lint:
     runs-on: ubuntu-latest
 
     steps:
@@ -25,11 +25,10 @@ jobs:
         with:
           node-version: 22
 
-      # Component repo — no lock file. Install without frozen-lockfile.
-      - run: pnpm install --no-frozen-lockfile
+      # Component repo depends on @repo/shared (workspace).
+      # Install only Biome as a standalone tool for linting.
+      - name: Install Biome
+        run: pnpm add -D @biomejs/biome
 
       - name: Lint
-        run: pnpm lint
-
-      # Typecheck skipped: requires @repo/shared workspace (only available in monorepo).
-      # Full typecheck runs in the parent monorepo CI.
+        run: npx biome check src
