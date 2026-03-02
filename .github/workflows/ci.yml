@@ -28,3 +28,18 @@ jobs:
 
       - name: Lint
         run: ./biome check src
+
+  # ─── Why tests are NOT run here ───────────────────────────────────────
+  # This skeleton depends on @repo/shared (workspace:*), which means
+  # `pnpm install` fails outside the monorepo context. Biome can be
+  # downloaded as a standalone binary (see above), but vitest, jsdom,
+  # React, and all other deps require a full node_modules install.
+  #
+  # Tests follow a branch-based strategy in the MONOREPO CI instead:
+  #   - dev branch  → vitest --changed origin/dev --run --passWithNoTests
+  #   - main branch → vitest run --coverage --passWithNoTests (full suite)
+  #
+  # If this skeleton is ever extracted into a standalone repo (replacing
+  # workspace:* with published package versions), add a test job here
+  # mirroring that same pattern.
+  # ──────────────────────────────────────────────────────────────────────
