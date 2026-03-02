@@ -318,6 +318,25 @@ When you change a pattern in this frontend skeleton, you MUST also update the ar
 2. **Where to update:** `Legimus-AI/ai-first-architecture` — edit the relevant doc in `docs/`, bump version in `CHANGELOG.md`
 3. **When:** Same commit/PR as the skeleton change. Never "later".
 
+## README Sync (MANDATORY)
+
+After ANY of these changes, update `README.md` in the same commit/PR:
+
+- New command/script added to `package.json`
+- New environment variable required
+- New slice/module created
+- New UI component added to `src/ui/`
+- Architecture change (new dependency, new pattern, new directory)
+
+**What to update in README:**
+- **Commands table** — every `pnpm` script with a one-line description
+- **Environment variables** — every required env var with description and example
+- **Project structure** — if directories were added/removed/renamed
+- **UI components** — available primitives in `src/ui/`
+- **Key features** — if user-visible functionality changed
+
+**Rule:** A developer reading ONLY the README should understand what the project does, how to run it, and what commands are available. If they can't, the README is incomplete.
+
 ## When Stuck (Anti-Thrashing Protocol)
 
 If you hit repeated failures on the same task:
