@@ -162,6 +162,33 @@ Every data-driven component must handle all states:
 - **No secrets in frontend code.** All env vars exposed to the browser are PUBLIC — never store API keys, tokens, or credentials
 - **Validate user-provided URLs** before rendering in `href`/`src` — block `javascript:` protocol
 
+### Centralized Env Config
+
+- **All environment variables must be accessed through Vite's `import.meta.env.VITE_*` pattern, never via `process.env`.** Vite statically replaces `import.meta.env.VITE_*` at build time — `process.env` does not exist in the browser and will silently be `undefined`.
+- **For typed access, use a centralized env config file** if one exists (e.g., `src/env.ts`), or create one that validates env vars at startup. This gives you type safety, a single source of truth, and early failure if a required variable is missing.
+- **When adding new env vars:** prefix with `VITE_` for client-side access. Variables without the `VITE_` prefix are not exposed to the browser bundle (Vite security boundary).
+
+```ts
+// src/env.ts — centralized, validated, typed
+const env = {
+  apiUrl: import.meta.env.VITE_API_URL,
+  locale: import.meta.env.VITE_LOCALE ?? 'en-US',
+} as const
+
+if (!env.apiUrl) throw new Error('VITE_API_URL is required')
+
+export { env }
+```
+
+```ts
+// CORRECT — typed, validated, fails fast
+import { env } from '@/env'
+fetch(`${env.apiUrl}/api/todos`)
+
+// WRONG — untyped, no validation, undefined at runtime
+fetch(`${process.env.API_URL}/api/todos`)
+```
+
 ## Slice structure
 
 ```
