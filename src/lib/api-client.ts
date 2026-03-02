@@ -20,6 +20,7 @@ function buildUrl(path: string, params?: Record<string, string | number | undefi
 async function request(path: string, options?: RequestInit): Promise<Response> {
 	const { headers: customHeaders, body, ...rest } = options ?? {}
 	const res = await fetch(path, {
+		credentials: 'include',
 		...rest,
 		...(body != null && { body }),
 		headers: {
