@@ -3,6 +3,7 @@ import { type CreateApiKey, createApiKeySchema } from '@repo/shared'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
+import { locale } from '@/env'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -50,6 +51,8 @@ export function ApiKeysPage() {
 		}
 	}
 
+	const formatDate = (date: string) => new Date(date).toLocaleDateString(locale)
+
 	const copyToClipboard = async (text: string) => {
 		await navigator.clipboard.writeText(text)
 		toast.success('Copied to clipboard')
@@ -57,7 +60,7 @@ export function ApiKeysPage() {
 
 	if (isLoading)
 		return (
-			<div className="mx-auto max-w-lg space-y-6">
+			<div className="space-y-6">
 				{/* Heading + description */}
 				<Skeleton className="h-7 w-32" />
 				<Skeleton className="h-4 w-full" />
@@ -86,7 +89,7 @@ export function ApiKeysPage() {
 	if (error) return <p className="text-destructive">Error: {error.message}</p>
 
 	return (
-		<div className="mx-auto max-w-lg space-y-6">
+		<div className="space-y-6">
 			<h2 className="text-xl font-semibold text-foreground">API Keys</h2>
 			<p className="text-sm text-muted-foreground">
 				Create API keys to authenticate programmatic access. Keys use the same permissions as your
@@ -120,7 +123,7 @@ export function ApiKeysPage() {
 							type="button"
 							variant="outline"
 							size="sm"
-							onClick={() => copyToClipboard(newRawKey)}
+							onClick={() => void copyToClipboard(newRawKey)}
 						>
 							Copy
 						</Button>
@@ -145,9 +148,9 @@ export function ApiKeysPage() {
 							<p className="text-sm font-medium text-foreground">{key.name}</p>
 							<p className="text-xs text-muted-foreground font-mono">{key.keyPrefix}...</p>
 							<p className="text-xs text-muted-foreground">
-								Created {new Date(key.createdAt).toLocaleDateString()}
-								{key.lastUsedAt && ` · Last used ${new Date(key.lastUsedAt).toLocaleDateString()}`}
-								{key.expiresAt && ` · Expires ${new Date(key.expiresAt).toLocaleDateString()}`}
+								Created {formatDate(key.createdAt)}
+								{key.lastUsedAt && ` · Last used ${formatDate(key.lastUsedAt)}`}
+								{key.expiresAt && ` · Expires ${formatDate(key.expiresAt)}`}
 							</p>
 						</div>
 						<Button
