@@ -1,3 +1,8 @@
+import { zodResolver } from '@hookform/resolvers/zod'
+import { type CreateApiKey, createApiKeySchema } from '@repo/shared'
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -10,11 +15,7 @@ import {
 } from '@/ui/alert-dialog'
 import { Button } from '@/ui/button'
 import { Input } from '@/ui/input'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { type CreateApiKey, createApiKeySchema } from '@repo/shared'
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { toast } from 'sonner'
+import { Skeleton } from '@/ui/skeleton'
 import { useApiKeys, useCreateApiKey, useDeleteApiKey } from '../hooks/use-api-keys'
 
 export function ApiKeysPage() {
@@ -54,7 +55,34 @@ export function ApiKeysPage() {
 		toast.success('Copied to clipboard')
 	}
 
-	if (isLoading) return <p className="text-muted-foreground">Loading API keys...</p>
+	if (isLoading)
+		return (
+			<div className="mx-auto max-w-lg space-y-6">
+				{/* Heading + description */}
+				<Skeleton className="h-7 w-32" />
+				<Skeleton className="h-4 w-full" />
+
+				{/* Create form */}
+				<div className="flex gap-2">
+					<Skeleton className="h-10 flex-1" />
+					<Skeleton className="h-10 w-20" />
+				</div>
+
+				{/* Key list */}
+				<div className="divide-y divide-border rounded-md border border-border">
+					{Array.from({ length: 3 }).map((_, i) => (
+						<div key={`skeleton-${i.toString()}`} className="flex items-center gap-3 px-4 py-3">
+							<div className="flex-1 space-y-2">
+								<Skeleton className="h-4 w-28" />
+								<Skeleton className="h-3 w-20" />
+								<Skeleton className="h-3 w-40" />
+							</div>
+							<Skeleton className="h-8 w-16" />
+						</div>
+					))}
+				</div>
+			</div>
+		)
 	if (error) return <p className="text-destructive">Error: {error.message}</p>
 
 	return (
@@ -67,7 +95,11 @@ export function ApiKeysPage() {
 
 			{/* Create form */}
 			<form onSubmit={handleSubmit(onSubmit)} className="flex gap-2">
-				<Input {...register('name')} placeholder="Key name (e.g. Production)" error={!!errors.name} />
+				<Input
+					{...register('name')}
+					placeholder="Key name (e.g. Production)"
+					error={!!errors.name}
+				/>
 				<Button type="submit" disabled={createApiKey.isPending}>
 					{createApiKey.isPending ? 'Creating...' : 'Create'}
 				</Button>
