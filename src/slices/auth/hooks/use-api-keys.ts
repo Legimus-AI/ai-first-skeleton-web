@@ -1,15 +1,15 @@
-import { api } from '@/lib/api-client'
-import { throwIfNotOk } from '@/lib/api-error'
 import {
 	type ApiKey,
 	type ApiKeysResponse,
+	apiKeysResponseSchema,
 	type CreateApiKey,
 	type CreateApiKeyResponse,
-	apiKeysResponseSchema,
 	createApiKeyResponseSchema,
 } from '@repo/shared'
 import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
+import { api } from '@/lib/api-client'
+import { throwIfNotOk } from '@/lib/api-error'
 
 export const apiKeysQueryOptions = queryOptions({
 	queryKey: ['auth', 'api-keys'],

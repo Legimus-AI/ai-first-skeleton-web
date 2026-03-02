@@ -1,11 +1,11 @@
+import { zodResolver } from '@hookform/resolvers/zod'
+import { type Login, loginSchema } from '@repo/shared'
+import { createFileRoute, Link } from '@tanstack/react-router'
+import { useForm } from 'react-hook-form'
 import { useLogin } from '@/slices/auth/hooks/use-auth'
 import { Button } from '@/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/ui/card'
 import { Input } from '@/ui/input'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { type Login, loginSchema } from '@repo/shared'
-import { Link, createFileRoute } from '@tanstack/react-router'
-import { useForm } from 'react-hook-form'
 
 export const Route = createFileRoute('/login')({
 	component: LoginPage,
@@ -44,9 +44,7 @@ function LoginPage() {
 								error={!!errors.email}
 								autoComplete="email"
 							/>
-							{errors.email && (
-								<p className="text-xs text-destructive">{errors.email.message}</p>
-							)}
+							{errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
 						</div>
 						<div className="space-y-1">
 							<label htmlFor="password" className="text-sm font-medium">

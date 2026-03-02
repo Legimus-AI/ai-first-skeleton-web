@@ -1,15 +1,15 @@
-import { api } from '@/lib/api-client'
-import { throwIfNotOk } from '@/lib/api-error'
 import {
 	type AuthResponse,
+	authResponseSchema,
 	type Login,
 	type Register,
 	type User,
-	authResponseSchema,
 } from '@repo/shared'
 import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { toast } from 'sonner'
+import { api } from '@/lib/api-client'
+import { throwIfNotOk } from '@/lib/api-error'
 
 export const authQueryOptions = queryOptions({
 	queryKey: ['auth', 'me'],
