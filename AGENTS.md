@@ -73,6 +73,17 @@ import type { TodoFormProps } from './types'
 - **No derived state.** If a value can be computed from props or query data, derive it inline — don't store it in `useState`. Example: `const isEmpty = items.length === 0` (not `const [isEmpty, setIsEmpty] = useState(false)`).
 - **Stable keys in lists.** Always use unique IDs as `key`, never array index. Index keys cause subtle bugs with reordering and state.
 - **Logic in hooks, not components.** Components render UI. Business logic, data transformations, and complex state belong in custom hooks (`use-*.ts`).
+- **Persist UI state in URL query params.** All user-facing config (active tab, selected filters, sort order, pagination, selections) MUST be reflected in URL query params. Initialize state from params on mount, sync changes back via `replaceState`. Page refresh must restore the exact view — never lose user context.
+
+```ts
+// CORRECT — state survives refresh, shareable URLs
+const [tab] = useSearch({ from: '/dashboard', select: (s) => s.tab ?? 'overview' })
+
+// WRONG — state lost on refresh
+const [tab, setTab] = useState('overview')
+```
+
+**Why:** Users expect browser back/forward and refresh to preserve their view. Shareable URLs with state reduce support friction. AI agents can link directly to specific views.
 
 ### Responsive Design (Mobile-First)
 
@@ -353,3 +364,4 @@ Each integration is a 1-file addition (`src/lib/<tool>.ts`) + env var.
 - Redefine types from `@repo/shared` — always import, never duplicate
 - Use spinning overlays or generic loaders — use `<Skeleton />` placeholders
 - Use relative paths (`../../`) for cross-directory imports — use `@/` alias instead
+- Store UI state (tabs, filters, sort) in `useState` alone — persist in URL query params so refresh restores the view
