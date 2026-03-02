@@ -356,6 +356,19 @@ Step-by-step recipes in `docs/recipes/`:
 
 Each integration is a 1-file addition (`src/lib/<tool>.ts`) + env var.
 
+## React Performance (non-obvious rules)
+
+These are patterns an AI agent won't follow by default — enforce them:
+
+- **No barrel imports.** Import from the specific file, not from `index.ts` re-exports. Barrel files defeat tree-shaking and increase bundle size: `import { Button } from '@/ui/button'` not `import { Button } from '@/ui'`.
+- **`Promise.all()` for independent async ops.** Never `await` sequentially when calls don't depend on each other: `const [users, posts] = await Promise.all([fetchUsers(), fetchPosts()])`.
+- **Lazy load heavy components.** Use `React.lazy()` + `<Suspense>` for routes and components over ~50KB (charts, editors, modals with rich content).
+- **Lazy state initialization.** When initial state is expensive to compute, pass a function: `useState(() => computeExpensiveDefault())` not `useState(computeExpensiveDefault())`.
+- **Immutable array methods.** Use `toSorted()`, `toReversed()`, `toSpliced()` instead of mutating `sort()`, `reverse()`, `splice()`. Prevents accidental state mutation.
+- **`content-visibility: auto`** on long lists/grids with many items. Skips rendering off-screen items. Add to the list container: `className="[content-visibility:auto] [contain-intrinsic-size:auto_500px]"`.
+- **Animate wrappers, not SVGs.** Never put `transition-*` or `animate-*` directly on `<svg>`. Wrap in a `<span>` or `<div>` and animate that — SVG animation triggers expensive repaints.
+- **Minimize RSC serialization.** When passing data across server/client boundaries, send only the fields the client needs — not full database objects.
+
 ## Do NOT
 
 - Import from `@repo/api` at runtime (only `import type` for AppType)
