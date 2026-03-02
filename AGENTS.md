@@ -24,6 +24,32 @@ React 19 SPA with Vite, TanStack Router, TanStack Query, and Tailwind CSS.
 - Use CVA (`class-variance-authority`) for component variants
 - Use `cn()` helper (`clsx` + `tailwind-merge`) for conditional classes
 
+### Import Paths
+
+**Always use the `@/` alias for cross-directory imports.** The alias maps `@/` → `src/` (configured in `tsconfig.json` and Vite).
+
+```ts
+// CORRECT — deterministic, works from any file
+import { api } from '@/lib/api-client'
+import { cn } from '@/lib/cn'
+import { Button } from '@/ui/button'
+import { useTodos } from '@/slices/todos/hooks/use-todos'
+
+// WRONG — fragile, error-prone level counting
+import { api } from '../../../lib/api-client'
+import { Button } from '../../ui/button'
+```
+
+**Relative imports (`./`) are only for same-directory or direct sibling files:**
+
+```ts
+// OK — same directory
+import { TodoForm } from './TodoForm'
+import type { TodoFormProps } from './types'
+```
+
+**Why:** AI agents generate imports automatically. `@/lib/api-client` is always correct regardless of file depth. `../../../lib/api-client` requires counting directory levels — one mistake breaks the build silently.
+
 ### Type Organization
 
 **Never create `types/` directories or `types.ts` barrel files.** Types follow colocation rules:
@@ -326,3 +352,4 @@ Each integration is a 1-file addition (`src/lib/<tool>.ts`) + env var.
 - Create `types/` directories or `types.ts` files — types live next to the code that uses them
 - Redefine types from `@repo/shared` — always import, never duplicate
 - Use spinning overlays or generic loaders — use `<Skeleton />` placeholders
+- Use relative paths (`../../`) for cross-directory imports — use `@/` alias instead
