@@ -11,6 +11,16 @@ React 19 SPA with Vite, TanStack Router, TanStack Query, and Tailwind CSS.
 | Test | `pnpm test` |
 | Type check | `pnpm typecheck` |
 
+## Design Brief (MANDATORY)
+
+Before generating any new view, page, or component with visual/interaction decisions:
+
+1. **Read `DESIGN_BRIEF.md`** at the repo root (or `apps/web/DESIGN_BRIEF.md`)
+2. **If Layer 1 is empty** → ask the user to fill questions 1-6 first. Do NOT generate final UI without this context — only wireframes/exploratory layouts.
+3. **If filled** → use it as constraints for all visual, layout, density, and interaction decisions.
+
+The Design Brief ensures consistent UI across sessions and agents. It captures the vertical, user profile, error cost, and trust model — which determine UI patterns more than aesthetic preferences.
+
 ## Rules
 
 - **Functional components only.** No class components.
