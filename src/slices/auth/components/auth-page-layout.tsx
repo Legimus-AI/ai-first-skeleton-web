@@ -12,6 +12,8 @@ interface AuthPageLayoutProps {
 	footer: ReactNode
 	/** Form submit handler. */
 	onSubmit: () => void
+	/** Optional social login buttons rendered above the form fields. */
+	socialLogin?: ReactNode
 }
 
 export function AuthPageLayout({
@@ -20,6 +22,7 @@ export function AuthPageLayout({
 	children,
 	footer,
 	onSubmit,
+	socialLogin,
 }: AuthPageLayoutProps) {
 	return (
 		<div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -29,7 +32,10 @@ export function AuthPageLayout({
 					<CardDescription>{description}</CardDescription>
 				</CardHeader>
 				<form onSubmit={onSubmit}>
-					<CardContent className="space-y-4">{children}</CardContent>
+					<CardContent className="space-y-4">
+						{socialLogin}
+						{children}
+					</CardContent>
 					<CardFooter className="flex flex-col gap-3">{footer}</CardFooter>
 				</form>
 			</Card>

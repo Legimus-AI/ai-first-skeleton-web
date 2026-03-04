@@ -1,5 +1,5 @@
 {
-	"$schema": "https://biomejs.dev/schemas/2.4.0/schema.json",
+	"$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
 	"vcs": {
 		"enabled": true,
 		"clientKind": "git",
@@ -36,8 +36,7 @@
 	},
 	"css": {
 		"parser": {
-			"cssModules": false,
-			"tailwindDirectives": true
+			"cssModules": false
 		}
 	},
 	"javascript": {
@@ -47,6 +46,7 @@
 		}
 	},
 	"files": {
-		"includes": ["src/**", "!node_modules", "!dist", "!coverage", "!*.gen.*"]
+		"include": ["src/**"],
+		"ignore": ["node_modules", "dist", "coverage", "*.gen.*"]
 	}
 }

@@ -15,7 +15,7 @@ interface AuthFormFieldProps {
 	/** Whether the field has a validation error. */
 	hasError: boolean
 	/** Validation error message to display below the input. */
-	errorMessage?: string
+	errorMessage?: string | undefined
 	/** HTML autocomplete attribute for browser autofill. */
 	autoComplete?: string
 }

@@ -4,6 +4,7 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 import { useForm } from 'react-hook-form'
 import { AuthFormField } from '@/slices/auth/components/auth-form-field'
 import { AuthPageLayout } from '@/slices/auth/components/auth-page-layout'
+import { GoogleOAuthButton } from '@/slices/auth/components/google-oauth-button'
 import { useLogin } from '@/slices/auth/hooks/use-auth'
 import { Button } from '@/ui/button'
 
@@ -28,6 +29,7 @@ function LoginPage() {
 			title="Login"
 			description="Sign in to your account"
 			onSubmit={handleSubmit(onSubmit)}
+			socialLogin={<GoogleOAuthButton />}
 			footer={
 				<>
 					<Button type="submit" className="w-full" disabled={login.isPending}>
