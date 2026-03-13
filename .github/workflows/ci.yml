@@ -15,13 +15,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # Component repo depends on @repo/shared (workspace).
       # Neither pnpm nor npm can install with workspace:* deps, so download Biome directly.
       - name: Install Biome
         env:
-          BIOME_VERSION: "2.4.4"
+          BIOME_VERSION: "2.4.7"
         run: |
           curl -sSfL "https://github.com/biomejs/biome/releases/download/%40biomejs%2Fbiome%40${BIOME_VERSION}/biome-linux-x64" -o biome
           chmod +x biome
