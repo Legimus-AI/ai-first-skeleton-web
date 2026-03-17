@@ -7,7 +7,7 @@ const envSchema = z.object({
 	VITE_GOOGLE_AUTH: z
 		.string()
 		.transform((v) => v === 'true')
-		.default('false'),
+		.default(false),
 })
 
 export type Env = z.infer<typeof envSchema>
