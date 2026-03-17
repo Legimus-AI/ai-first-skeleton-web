@@ -364,20 +364,11 @@ After ANY of these changes, update `README.md` in the same commit/PR:
 
 **Rule:** A developer reading ONLY the README should understand what the project does, how to run it, and what commands are available. If they can't, the README is incomplete.
 
-## When Stuck (Anti-Thrashing Protocol)
+## Workflow
 
-If you hit repeated failures on the same task:
-
-| Failures | Action |
-|----------|--------|
-| 1 | Retry with different approach |
-| 2 | Isolate: write minimal reproducible case |
-| 3 | Freeze scope + write failing test |
-| 4 | Escalate to human with 3 hypotheses |
-
-Full protocol: [`docs/protocols/anti-thrashing.md`](docs/protocols/anti-thrashing.md)
-
-Before implementing, declare confidence (1-10). If < 5, write plan only — do not code.
+- **Plan-first:** Every feature starts with a plan — create `docs/plans/<feature>.md` from template before coding. Confidence < 5 = plan only, no implementation.
+- **Anti-thrashing gate:** 4 consecutive failures on same task = mandatory human escalation. Never brute-force past repeated failures. Full protocol: [`docs/protocols/anti-thrashing.md`](docs/protocols/anti-thrashing.md)
+- **Decisions are logged:** Append to `docs/DECISIONS.ndjson` when choosing between alternatives. Never modify or delete existing entries.
 
 ## Observability
 
