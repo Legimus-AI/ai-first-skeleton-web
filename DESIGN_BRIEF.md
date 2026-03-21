@@ -35,6 +35,8 @@
 
 <!-- Example: "Desktop, office, long sessions, low stress" or "Mobile, on the go, 30-second sessions, hurried" -->
 
+> **After filling Layer 1**, the `/start-new-project` skill will automatically generate a color palette based on your answers and apply it to `src/styles.css`. See the palette mapping table in the skill documentation.
+
 ## Layer 2 — Interaction Model
 
 ### 7. Flow Type
@@ -68,6 +70,18 @@
 
 ### 16. Dominant Emotion
 > What should the user feel? (control / speed / accompaniment / delight / safety)
+
+## Applied Palette
+
+> Fill this section after running the color palette generation step.
+
+| Token | Light | Dark | Hex | Use |
+|-------|-------|------|-----|-----|
+| primary | | | | CTAs, active nav, links |
+| destructive | | | | Errors, alerts, delete |
+| accent | | | | Highlights, hover states |
+
+Generated from Design Brief on YYYY-MM-DD.
 
 ---
 

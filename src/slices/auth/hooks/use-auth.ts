@@ -49,6 +49,11 @@ export function useLogin() {
 	})
 }
 
+// NOTE: Register creates a new organization for each user.
+// For multi-user projects, implement an invite flow:
+//   1. POST /api/v1/auth/invite — sends invite with org ID
+//   2. GET /api/v1/auth/accept-invite/:token — joins existing org
+// See: AGENTS.md "Multi-User" section for guidance.
 export function useRegister() {
 	const queryClient = useQueryClient()
 	const navigate = useNavigate()

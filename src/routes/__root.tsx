@@ -41,8 +41,12 @@ function RootLayout() {
 					to="/"
 					className="text-sm font-semibold tracking-tight text-foreground transition-colors duration-150 hover:text-muted-foreground"
 				>
-					App
+					App {/* ← Change to your project name */}
 				</Link>
+				{/* Add your page navigation links here. Example:
+				<Link to="/dashboard" className="text-sm text-muted-foreground transition-colors duration-150 hover:text-foreground">Dashboard</Link>
+				<Link to="/settings" className="text-sm text-muted-foreground transition-colors duration-150 hover:text-foreground">Settings</Link>
+				Use useRouterState to detect active route for styling. */}
 				<div className="flex items-center gap-2">
 					<UserMenu />
 					<ThemeToggle />
