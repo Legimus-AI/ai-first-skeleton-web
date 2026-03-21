@@ -36,8 +36,7 @@
 	},
 	"css": {
 		"parser": {
-			"cssModules": false,
-			"tailwindDirectives": true
+			"cssModules": false
 		}
 	},
 	"javascript": {
@@ -47,6 +46,6 @@
 		}
 	},
 	"files": {
-		"includes": ["**/src/**", "!**/node_modules", "!**/dist", "!**/coverage", "!**/*.gen.*"]
+		"include": ["**/src/**", "!**/node_modules", "!**/dist", "!**/coverage", "!**/*.gen.*"]
 	}
 }
