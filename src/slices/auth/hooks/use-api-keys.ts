@@ -14,7 +14,7 @@ import { throwIfNotOk } from '@/lib/api-error'
 export const apiKeysQueryOptions = queryOptions({
 	queryKey: ['auth', 'api-keys'],
 	queryFn: async (): Promise<ApiKey[]> => {
-		const res = await api.get('/api/auth/api-keys')
+		const res = await api.get('/api/v1/auth/api-keys')
 		await throwIfNotOk(res)
 		const json: unknown = await res.json()
 		const parsed: ApiKeysResponse = apiKeysResponseSchema.parse(json)
@@ -30,7 +30,7 @@ export function useCreateApiKey() {
 	const queryClient = useQueryClient()
 	return useMutation({
 		mutationFn: async (input: CreateApiKey): Promise<CreateApiKeyResponse> => {
-			const res = await api.post('/api/auth/api-keys', input)
+			const res = await api.post('/api/v1/auth/api-keys', input)
 			await throwIfNotOk(res)
 			const json: unknown = await res.json()
 			return createApiKeyResponseSchema.parse(json)
@@ -48,7 +48,7 @@ export function useDeleteApiKey() {
 	const queryClient = useQueryClient()
 	return useMutation({
 		mutationFn: async (keyId: string) => {
-			const res = await api.delete(`/api/auth/api-keys/${keyId}`)
+			const res = await api.delete(`/api/v1/auth/api-keys/${keyId}`)
 			await throwIfNotOk(res)
 		},
 		onSuccess: () => {

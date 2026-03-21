@@ -14,7 +14,7 @@ import { throwIfNotOk } from '@/lib/api-error'
 export const authQueryOptions = queryOptions({
 	queryKey: ['auth', 'me'],
 	queryFn: async (): Promise<User | null> => {
-		const res = await api.get('/api/auth/me')
+		const res = await api.get('/api/v1/auth/me')
 		if (res.status === 401) return null
 		await throwIfNotOk(res)
 		const json: unknown = await res.json()
@@ -34,7 +34,7 @@ export function useLogin() {
 	const navigate = useNavigate()
 	return useMutation({
 		mutationFn: async (input: Login) => {
-			const res = await api.post('/api/auth/login', input)
+			const res = await api.post('/api/v1/auth/login', input)
 			await throwIfNotOk(res)
 			const json: unknown = await res.json()
 			return authResponseSchema.parse(json)
@@ -54,7 +54,7 @@ export function useRegister() {
 	const navigate = useNavigate()
 	return useMutation({
 		mutationFn: async (input: Register) => {
-			const res = await api.post('/api/auth/register', input)
+			const res = await api.post('/api/v1/auth/register', input)
 			await throwIfNotOk(res)
 			const json: unknown = await res.json()
 			return authResponseSchema.parse(json)
@@ -74,7 +74,7 @@ export function useLogout() {
 	const navigate = useNavigate()
 	return useMutation({
 		mutationFn: async () => {
-			const res = await api.post('/api/auth/logout', {})
+			const res = await api.post('/api/v1/auth/logout', {})
 			await throwIfNotOk(res)
 		},
 		onSuccess: () => {
