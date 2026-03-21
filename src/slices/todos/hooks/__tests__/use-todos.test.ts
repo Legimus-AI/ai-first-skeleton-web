@@ -73,7 +73,7 @@ describe('useTodos', () => {
 		expect(result.current.data?.data).toHaveLength(1)
 		expect(result.current.data?.data[0]?.title).toBe('Buy milk')
 		expect(result.current.data?.meta.total).toBe(1)
-		expect(mockedGet).toHaveBeenCalledWith('/api/todos', undefined)
+		expect(mockedGet).toHaveBeenCalledWith('/api/v1/todos', undefined)
 	})
 
 	it('passes query params to API client', async () => {
@@ -93,7 +93,7 @@ describe('useTodos', () => {
 
 		await waitFor(() => expect(result.current.isSuccess).toBe(true))
 
-		expect(mockedGet).toHaveBeenCalledWith('/api/todos', { page: 2, limit: 10 })
+		expect(mockedGet).toHaveBeenCalledWith('/api/v1/todos', { page: 2, limit: 10 })
 	})
 
 	it('handles API errors gracefully', async () => {

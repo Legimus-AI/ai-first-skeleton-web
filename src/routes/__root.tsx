@@ -36,11 +36,21 @@ function UserMenu() {
 function RootLayout() {
 	return (
 		<ErrorBoundary>
-			<div className="fixed right-2 top-2 z-50 flex items-center gap-2 sm:right-4 sm:top-4">
-				<UserMenu />
-				<ThemeToggle />
+			<header className="fixed inset-x-0 top-0 z-50 flex h-12 items-center justify-between border-b border-border bg-background px-4">
+				<Link
+					to="/"
+					className="text-sm font-semibold tracking-tight text-foreground transition-colors duration-150 hover:text-muted-foreground"
+				>
+					App
+				</Link>
+				<div className="flex items-center gap-2">
+					<UserMenu />
+					<ThemeToggle />
+				</div>
+			</header>
+			<div className="pt-12">
+				<Outlet />
 			</div>
-			<Outlet />
 			<Toaster />
 		</ErrorBoundary>
 	)
