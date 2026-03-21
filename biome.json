@@ -46,6 +46,6 @@
 		}
 	},
 	"files": {
-		"include": ["**/src/**", "!**/node_modules", "!**/dist", "!**/coverage", "!**/*.gen.*"]
+		"includes": ["**/src/**", "!**/node_modules", "!**/dist", "!**/coverage", "!**/*.gen.*"]
 	}
 }
