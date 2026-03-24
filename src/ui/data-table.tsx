@@ -3,6 +3,20 @@ import type { ReactNode } from 'react'
 import { cn } from '@/lib/cn'
 import { Skeleton } from '@/ui/skeleton'
 
+function SortIcon({
+	sort,
+	order,
+	columnKey,
+}: {
+	sort?: string
+	order?: 'asc' | 'desc'
+	columnKey: string
+}) {
+	if (sort !== columnKey) return <ArrowUpDown className="h-3 w-3 opacity-40" />
+	if (order === 'asc') return <ArrowUp className="h-3 w-3" />
+	return <ArrowDown className="h-3 w-3" />
+}
+
 export interface Column<T> {
 	key: string
 	label: string
@@ -136,15 +150,7 @@ export function DataTable<T>({
 										className="inline-flex items-center gap-1 transition-colors duration-150 hover:text-foreground"
 									>
 										{col.label}
-										{sort === col.key ? (
-											order === 'asc' ? (
-												<ArrowUp className="h-3 w-3" />
-											) : (
-												<ArrowDown className="h-3 w-3" />
-											)
-										) : (
-											<ArrowUpDown className="h-3 w-3 opacity-40" />
-										)}
+										<SortIcon sort={sort} order={order} columnKey={col.key} />
 									</button>
 								) : (
 									col.label
