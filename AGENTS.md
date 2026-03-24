@@ -244,6 +244,49 @@ src/slices/<name>/
 └── routes.ts      ← TanStack Router route (if slice has its own page)
 ```
 
+## Layout Architecture
+
+The app uses a **sidebar layout shell** for all authenticated views:
+
+```
+__root.tsx          → ErrorBoundary + Toaster (minimal — no navigation)
+  ├── login.tsx     → public (no layout shell)
+  ├── register.tsx  → public (no layout shell)
+  └── _authed.tsx   → AppLayout wraps all authenticated routes
+       ├── index.tsx     → Home (inside sidebar layout)
+       ├── api-keys.tsx  → API Keys (inside sidebar layout)
+       └── <new-pages>   → Add new views here
+```
+
+### Key components
+
+| Component | File | Purpose |
+|-----------|------|---------|
+| AppLayout | `@/components/app-layout` | Shell: Sidebar + MobileHeader + content area |
+| Sidebar primitives | `@/ui/sidebar` | SidebarProvider, Sidebar, SidebarHeader, SidebarContent, SidebarGroup, SidebarItem, SidebarFooter |
+
+### Customizing navigation
+
+Edit `DefaultSidebarNav()` in `src/components/app-layout.tsx` to add/remove sidebar items:
+
+```tsx
+<SidebarGroup label="Your Domain">
+  <Link to="/products">
+    <SidebarItem active={pathname.startsWith('/products')}>
+      <Package className="h-4 w-4" />
+      Products
+    </SidebarItem>
+  </Link>
+</SidebarGroup>
+```
+
+### Layout rules
+
+- **Public routes** (login, register) render WITHOUT the sidebar layout
+- **Authenticated routes** render INSIDE `<AppLayout>` via `_authed.tsx`
+- **Views only own content** — never include sidebar/header logic in views
+- **Responsive:** Mobile gets hamburger menu + overlay sidebar. Desktop gets fixed sidebar.
+
 ## Routing
 
 - File-based routing via TanStack Router + Vite plugin
@@ -309,6 +352,7 @@ Reusable components in `src/ui/` (shadcn/ui copy-paste pattern — we OWN these)
 | AlertDialog | `alert-dialog.tsx` | Confirmation for destructive actions |
 | Dialog | `dialog.tsx` | Modal forms and detail views |
 | DropdownMenu | `dropdown-menu.tsx` | Row actions in tables/lists |
+| Sidebar | `sidebar.tsx` | SidebarProvider, Sidebar, SidebarHeader, SidebarContent, SidebarGroup, SidebarItem, SidebarFooter |
 
 Use `cn()` from `src/lib/cn.ts` to merge classes: `cn('base-class', conditional && 'active-class')`.
 
