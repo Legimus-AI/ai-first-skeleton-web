@@ -189,6 +189,52 @@ fetch(`${env.apiUrl}/api/todos`)
 fetch(`${process.env.API_URL}/api/todos`)
 ```
 
+## Generic CRUD Components
+
+Reusable components for building CRUD views. All list pages MUST use these — never build inline tables or custom pagination.
+
+| Component | File | Purpose |
+|-----------|------|---------|
+| DataTable | `@/ui/data-table` | Generic table with columns, sorting, selection, loading skeleton, empty state |
+| CrudPageHeader | `@/ui/crud-page-header` | Page title + search slot + action button + bulk actions bar |
+| SearchInput | `@/ui/search-input` | Debounced search input with icon and clear button |
+| Pagination | `@/ui/pagination` | Previous/Next buttons with page info |
+| FormDialog | `@/ui/form-dialog` | Dialog with React Hook Form + Zod validation (render prop for fields) |
+| ConfirmDelete | `@/ui/confirm-delete` | Confirmation dialog for destructive actions |
+
+**Golden reference:** See `slices/todos/` for how to compose these into a complete CRUD view.
+
+## Definition of Done: CRUD Slice (frontend)
+
+When backend is already complete, a frontend CRUD slice is done ONLY when ALL of:
+
+### Required files
+- `hooks/use-<name>.ts` — exports useXs, useCreateX, useUpdateX, useDeleteX
+- `components/<name>-list.tsx` — uses DataTable, CrudPageHeader, SearchInput, Pagination
+- Form component or FormDialog usage — create + edit with Zod validation
+- ConfirmDelete usage — destructive actions require confirmation
+- Route registered under `src/routes/_authed/`
+
+### Required behavior
+- Loading: DataTable shows skeleton rows
+- Empty: descriptive message + CTA (icon + text + button)
+- Error: toast on mutation failure
+- Search: debounced search input filtering results
+- Pagination: prev/next buttons with page info
+- Sort: at least 1 sortable column
+
+### Gate (mandatory — cannot skip)
+- `pnpm lint` passes
+- `pnpm typecheck` passes
+- `pnpm build` passes
+- `pnpm test` passes (includes INV-091, INV-092, INV-093 architecture tests)
+
+### Prohibited
+- "coming soon", "placeholder", "TODO", empty components
+- Inline tables (must use DataTable)
+- Custom pagination (must use Pagination)
+- Backend slices without frontend views
+
 ## Slice structure
 
 ```

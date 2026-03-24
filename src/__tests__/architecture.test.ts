@@ -306,6 +306,108 @@ describe('Architecture rules (INVARIANTS.md)', () => {
 		}
 	})
 
+	// --- INV-091: No placeholder text in component JSX ---
+
+	it('No placeholder text in component JSX (INV-091)', () => {
+		const violations: string[] = []
+		const forbidden =
+			/coming\s+soon|placeholder\s+component|todo:|not\s+implemented|implement\s+later/i
+
+		for (const file of allTsxFiles) {
+			const content = readFileSync(file, 'utf-8')
+			const relPath = relative(SRC_DIR, file)
+			const lines = content.split('\n')
+
+			for (let i = 0; i < lines.length; i++) {
+				const line = lines[i] ?? ''
+				if (line.trimStart().startsWith('//')) continue
+				if (line.trimStart().startsWith('*')) continue
+				if (line.trimStart().startsWith('import ')) continue
+
+				if (forbidden.test(line)) {
+					violations.push(`${relPath}:${i + 1} — placeholder text detected`)
+				}
+			}
+		}
+
+		if (violations.length > 0) {
+			expect.fail(
+				`Placeholder text found (INV-091):\n${violations.map((v) => `  - ${v}`).join('\n')}\n\nFix: Implement the feature fully using generic CRUD components. Never use "coming soon" or "TODO" stubs.`,
+			)
+		}
+	})
+
+	// --- INV-092: CRUD list components must use generic components ---
+
+	it('List components use generic CRUD components (INV-092)', () => {
+		const listFiles = collectFiles(SLICES_DIR, ['.tsx']).filter((f) => f.match(/-list\.tsx$/))
+		const violations: string[] = []
+
+		for (const file of listFiles) {
+			const content = readFileSync(file, 'utf-8')
+			const relPath = relative(SRC_DIR, file)
+
+			if (!content.includes("from '@/ui/data-table'")) {
+				violations.push(`${relPath} — missing DataTable import from @/ui/data-table`)
+			}
+			if (!content.includes("from '@/ui/pagination'")) {
+				violations.push(`${relPath} — missing Pagination import from @/ui/pagination`)
+			}
+		}
+
+		if (violations.length > 0) {
+			expect.fail(
+				`List components not using generic CRUD components (INV-092):\n${violations.map((v) => `  - ${v}`).join('\n')}\n\nFix: Import DataTable from @/ui/data-table and Pagination from @/ui/pagination. Do not build inline tables.`,
+			)
+		}
+	})
+
+	// --- INV-093: CRUD hooks must export list, create, update, delete ---
+
+	it('CRUD hooks export all 4 operations (INV-093)', () => {
+		// Only check slices that have a *-list.tsx component (= CRUD slices)
+		const crudSlices = getSliceNames().filter((name) => {
+			const compsDir = join(SLICES_DIR, name, 'components')
+			try {
+				return readdirSync(compsDir).some((f) => f.endsWith('-list.tsx'))
+			} catch {
+				return false
+			}
+		})
+		const hookFiles = crudSlices.flatMap((name) =>
+			collectFiles(join(SLICES_DIR, name), ['.ts']).filter(
+				(f) => f.match(/hooks\/use-[^/]+\.ts$/) && !f.includes('__tests__'),
+			),
+		)
+		const violations: string[] = []
+
+		for (const file of hookFiles) {
+			const content = readFileSync(file, 'utf-8')
+			const relPath = relative(SRC_DIR, file)
+
+			const hasUseList = /export\s+function\s+use[A-Z]\w+s\(/.test(content)
+			const hasCreate = /export\s+function\s+useCreate[A-Z]/.test(content)
+			const hasUpdate = /export\s+function\s+useUpdate[A-Z]/.test(content)
+			const hasDelete = /export\s+function\s+useDelete[A-Z]/.test(content)
+
+			const missing: string[] = []
+			if (!hasUseList) missing.push('useList (useXs)')
+			if (!hasCreate) missing.push('useCreate')
+			if (!hasUpdate) missing.push('useUpdate')
+			if (!hasDelete) missing.push('useDelete')
+
+			if (missing.length > 0) {
+				violations.push(`${relPath} — missing: ${missing.join(', ')}`)
+			}
+		}
+
+		if (violations.length > 0) {
+			expect.fail(
+				`Incomplete CRUD hooks (INV-093):\n${violations.map((v) => `  - ${v}`).join('\n')}\n\nFix: Every CRUD hook file must export useXs, useCreateX, useUpdateX, useDeleteX.`,
+			)
+		}
+	})
+
 	// --- INVARIANT #6: No local schema redefinitions ---
 
 	it('No z.object() definitions in slices/ (schemas belong in @repo/shared)', () => {

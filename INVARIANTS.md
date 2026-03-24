@@ -59,6 +59,12 @@ Non-negotiable rules enforced by `architecture.test` and CI. Violations block me
 
 - **INV-090:** No `types/` directories or `types.ts` barrel files. Types live next to the code that uses them (colocation > organization by file type).
 
+## CRUD Completeness
+
+- **INV-091:** No placeholder text in component JSX. Forbidden patterns: `coming soon`, `placeholder`, `todo:`, `not implemented`, `implement later`. Use generic CRUD components to build complete views — never stub with placeholder UI.
+- **INV-092:** CRUD list components MUST use generic components from `@/ui/`: `DataTable`, `CrudPageHeader`, `SearchInput`, and `Pagination`. Inline tables, custom search inputs, and manual pagination in slice components are prohibited. Domain-specific code only — layout is handled by generics.
+- **INV-093:** Every hooks file in a CRUD slice MUST export list, create, update, and delete hooks (matching pattern `useXs`, `useCreateX`, `useUpdateX`, `useDeleteX`). Incomplete hook files indicate unfinished work.
+
 ## Testing
 
 - **INV-100:** Architecture rules are tested. INVARIANTS rules are enforced by `src/__tests__/architecture.test.ts`. Adding a new invariant means adding a corresponding test.
