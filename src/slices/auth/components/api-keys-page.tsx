@@ -100,7 +100,7 @@ export function ApiKeysPage() {
 			<form onSubmit={handleSubmit(onSubmit)} className="flex gap-2">
 				<Input
 					{...register('name')}
-					placeholder="Key name (e.g. Production)"
+					placeholder="Key name (e.g. Production)" aria-label="API key name"
 					error={!!errors.name}
 				/>
 				<Button type="submit" disabled={createApiKey.isPending}>

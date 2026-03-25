@@ -446,6 +446,101 @@ describe('Architecture rules (INVARIANTS.md)', () => {
 		}
 	})
 
+	// --- INV-021: No useEffect for data fetching ---
+
+	it('No useEffect used alongside API calls (INV-021)', () => {
+		const violations: string[] = []
+
+		for (const file of allTsFiles) {
+			if (file.includes('__tests__')) continue
+			if (file.includes('lib/')) continue
+
+			const content = readFileSync(file, 'utf-8')
+			const relPath = relative(SRC_DIR, file)
+
+			const hasUseEffect = content.includes('useEffect')
+			const hasApiCall =
+				/\bapi\.(get|post|patch|delete)\b/.test(content) || /\bfetch\s*\(/.test(content)
+
+			if (hasUseEffect && hasApiCall) {
+				violations.push(
+					`${relPath} — useEffect + API call in same file. Use TanStack Query instead.`,
+				)
+			}
+		}
+
+		if (violations.length > 0) {
+			expect.fail(
+				`useEffect used for data fetching (INV-021):\n${violations.map((v) => `  - ${v}`).join('\n')}\n\nFix: Replace useEffect + fetch/api with a TanStack Query hook (useQuery/useMutation).`,
+			)
+		}
+	})
+
+	// --- INV-070: Every form field must have a label ---
+
+	it('Input elements have associated labels (INV-070)', () => {
+		const sliceTsxFiles = collectFiles(SLICES_DIR, ['.tsx'])
+		const violations: string[] = []
+
+		for (const file of sliceTsxFiles) {
+			const content = readFileSync(file, 'utf-8')
+			const relPath = relative(SRC_DIR, file)
+			const lines = content.split('\n')
+
+			for (let i = 0; i < lines.length; i++) {
+				const line = lines[i] ?? ''
+				if (line.trimStart().startsWith('//')) continue
+
+				// Detect <Input or <input that renders a visible field (not checkbox/hidden)
+				if (
+					/<(?:Input|input)\b/.test(line) &&
+					!line.includes('type="checkbox"') &&
+					!line.includes('type="hidden"')
+				) {
+					// Check surrounding ~5 lines for a label or aria-label
+					const context = lines.slice(Math.max(0, i - 5), i + 8).join('\n')
+					const hasLabel = /htmlFor=|<label|aria-label/.test(context)
+					if (!hasLabel) {
+						violations.push(`${relPath}:${i + 1} — <Input> without label or aria-label nearby`)
+					}
+				}
+			}
+		}
+
+		if (violations.length > 0) {
+			expect.fail(
+				`Form inputs without labels (INV-070):\n${violations.map((v) => `  - ${v}`).join('\n')}\n\nFix: Add <label htmlFor="id"> before the input, or add aria-label to the input.`,
+			)
+		}
+	})
+
+	// --- INV-071: Anti double-submit ---
+
+	it('Mutations use isPending for submit buttons (INV-071)', () => {
+		const sliceTsxFiles = collectFiles(SLICES_DIR, ['.tsx'])
+		const violations: string[] = []
+
+		for (const file of sliceTsxFiles) {
+			const content = readFileSync(file, 'utf-8')
+			const relPath = relative(SRC_DIR, file)
+
+			// Files that call useMutation-derived hooks (useCreate*, useUpdate*, useDelete*)
+			const hasMutation = /useCreate[A-Z]|useUpdate[A-Z]|useDelete[A-Z]/.test(content)
+			if (!hasMutation) continue
+
+			// Must reference isPending somewhere (for submit button disabled state)
+			if (!content.includes('isPending')) {
+				violations.push(`${relPath} — uses mutation hooks but never references isPending`)
+			}
+		}
+
+		if (violations.length > 0) {
+			expect.fail(
+				`Mutations without isPending guard (INV-071):\n${violations.map((v) => `  - ${v}`).join('\n')}\n\nFix: Use mutation.isPending to disable submit buttons during mutations.`,
+			)
+		}
+	})
+
 	// --- INVARIANT #6: No local schema redefinitions ---
 
 	it('No z.object() definitions in slices/ (schemas belong in @repo/shared)', () => {
