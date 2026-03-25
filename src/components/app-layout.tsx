@@ -60,6 +60,7 @@ function SidebarUserFooter() {
 				<div className="min-w-0 flex-1">
 					<p className="truncate text-sm font-medium text-foreground">{user.email}</p>
 				</div>
+				<ThemeToggle />
 				<Button
 					variant="ghost"
 					size="sm"
