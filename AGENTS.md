@@ -414,6 +414,13 @@ Reusable components in `src/ui/` (shadcn/ui copy-paste pattern — we OWN these)
 | Dialog | `dialog.tsx` | Modal forms and detail views |
 | DropdownMenu | `dropdown-menu.tsx` | Row actions in tables/lists |
 | Sidebar | `sidebar.tsx` | SidebarProvider, Sidebar, SidebarHeader, SidebarContent, SidebarGroup, SidebarItem, SidebarFooter |
+| Tabs | `tabs.tsx` | Tabs, TabsList, TabsTrigger, TabsContent (Radix) — for detail pages |
+| Tooltip | `tooltip.tsx` | Tooltip shorthand + TooltipProvider/Root/Trigger/Content — for icon buttons |
+| StatusBadge | `status-badge.tsx` | CVA variants: active, inactive, warning, error, processing — with dot indicator |
+| Breadcrumb | `breadcrumb.tsx` | Navigation trail for detail pages (Assistants > PetBot > Config) |
+| Avatar | `avatar.tsx` | User initials circle or image — sizes: sm, md, lg |
+| Textarea | `textarea.tsx` | Multi-line input styled with theme tokens |
+| Select | `select.tsx` | Native select styled with theme tokens |
 
 Use `cn()` from `src/lib/cn.ts` to merge classes: `cn('base-class', conditional && 'active-class')`.
 

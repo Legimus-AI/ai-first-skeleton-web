@@ -8,32 +8,32 @@
 ### 1. User Job
 > What does the user come here to do? What's the primary task?
 
-<!-- Example: "Monitor investment portfolio performance" or "Find and buy shoes under $50" -->
+Manage entities via CRUD — list, search, create, edit, configure, and monitor resources. <!-- Replace with your specific user job -->
 
 ### 2. User Profile
 > Who is the real user? (role, expertise level, usage frequency)
 
-<!-- Example: "Financial analyst, expert, daily 8hrs" or "Casual shopper, novice, monthly" -->
+Technical SaaS admin, intermediate to expert, daily 2-4 hours. <!-- Replace with your actual user profile -->
 
 ### 3. Error Cost
 > What happens if the user makes a mistake? How costly/reversible is it?
 
-<!-- Example: "Transfers wrong amount — loss of funds, irreversible" or "Wrong size in cart — easy to change" -->
+Medium — configuration changes are reversible. Destructive actions (delete) require confirmation. <!-- Adjust for your domain -->
 
 ### 4. Trust Model
 > What does the user need to see to feel confident? (trust signals)
 
-<!-- Example: "SOC2 badge, audit trail, confirmation steps" or "Reviews, easy returns, payment logos" -->
+Clear status indicators (active/inactive/processing), confirmation dialogs on destructive actions, toast feedback on every mutation. <!-- Adjust for your domain -->
 
 ### 5. Information Density
 > Should everything be visible at once, or revealed progressively?
 
-<!-- Example: "Dense dashboard — power users want all data visible" or "Step-by-step wizard — guide the user" -->
+Medium — list views need scan-ability (table with sort/search), detail views use tabs for progressive disclosure. <!-- Adjust for your domain -->
 
 ### 6. Usage Context
 > Where and how is this used? (device, environment, session length, stress level)
 
-<!-- Example: "Desktop, office, long sessions, low stress" or "Mobile, on the go, 30-second sessions, hurried" -->
+Desktop primary (mobile supported), office environment, medium sessions (15-60min), low stress. <!-- Adjust for your context -->
 
 > **After filling Layer 1**, the `/start-new-project` skill will automatically generate a color palette based on your answers and apply it to `src/styles.css`. See the palette mapping table in the skill documentation.
 
