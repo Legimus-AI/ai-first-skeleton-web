@@ -56,3 +56,16 @@ export async function throwIfNotOk(res: Response): Promise<void> {
 		throw await parseApiError(res)
 	}
 }
+
+/** Wrap Zod .parse() calls in hooks — logs raw error, throws user-friendly message. */
+export function safeParseResponse<T>(schema: { parse: (data: unknown) => T }, json: unknown): T {
+	try {
+		return schema.parse(json)
+	} catch (err) {
+		console.error('[API] Response schema mismatch:', err)
+		throw new ApiError(
+			'Data format error — the server response has changed. Please refresh the page.',
+			'INTERNAL_ERROR',
+		)
+	}
+}

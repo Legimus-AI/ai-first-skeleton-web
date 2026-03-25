@@ -8,7 +8,7 @@ import {
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { api } from '@/lib/api-client'
-import { throwIfNotOk } from '@/lib/api-error'
+import { safeParseResponse, throwIfNotOk } from '@/lib/api-error'
 import { useBulkDelete } from '@/lib/use-bulk-delete'
 
 const TODOS_KEY = ['todos'] as const
@@ -20,7 +20,7 @@ export function useTodos(params?: Partial<ListQuery>) {
 			const res = await api.get('/api/v1/todos', params)
 			await throwIfNotOk(res)
 			const json = await res.json()
-			return todoListResponseSchema.parse(json)
+			return safeParseResponse(todoListResponseSchema, json)
 		},
 		placeholderData: keepPreviousData,
 	})
@@ -33,7 +33,7 @@ export function useCreateTodo() {
 			const res = await api.post('/api/v1/todos', input)
 			await throwIfNotOk(res)
 			const json = await res.json()
-			return todoResponseSchema.parse(json)
+			return safeParseResponse(todoResponseSchema, json)
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: TODOS_KEY })
@@ -52,7 +52,7 @@ export function useUpdateTodo() {
 			const res = await api.patch(`/api/v1/todos/${id}`, input)
 			await throwIfNotOk(res)
 			const json = await res.json()
-			return todoResponseSchema.parse(json)
+			return safeParseResponse(todoResponseSchema, json)
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: TODOS_KEY })
@@ -70,7 +70,7 @@ export function useDeleteTodo() {
 			const res = await api.delete(`/api/v1/todos/${id}`)
 			await throwIfNotOk(res)
 			const json = await res.json()
-			return todoResponseSchema.parse(json)
+			return safeParseResponse(todoResponseSchema, json)
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: TODOS_KEY })
