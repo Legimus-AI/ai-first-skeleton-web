@@ -199,7 +199,7 @@ Reusable components for building CRUD views. All list pages MUST use these — n
 | CrudPageHeader | `@/ui/crud-page-header` | Page title + search slot + action button + bulk actions bar |
 | SearchInput | `@/ui/search-input` | Debounced search input with icon and clear button |
 | Pagination | `@/ui/pagination` | Previous/Next buttons with page info |
-| FormDialog | `@/ui/form-dialog` | Dialog with React Hook Form + Zod validation (render prop for fields) |
+| FormDialog | `@/ui/form-dialog` | Dialog layout shell (title + form + Cancel/Submit buttons). Caller manages form with useForm() |
 | ConfirmDelete | `@/ui/confirm-delete` | Confirmation dialog for destructive actions |
 
 **Golden reference:** See `slices/todos/` for how to compose these into a complete CRUD view.
@@ -211,9 +211,10 @@ When backend is already complete, a frontend CRUD slice is done ONLY when ALL of
 ### Required files
 - `hooks/use-<name>.ts` — exports useXs, useCreateX, useUpdateX, useDeleteX
 - `components/<name>-list.tsx` — uses DataTable, CrudPageHeader, SearchInput, Pagination
-- Form component or FormDialog usage — create + edit with Zod validation
+- `components/<name>-form.tsx` — reusable form for create + edit (pre-populate via defaultValues)
 - ConfirmDelete usage — destructive actions require confirmation
-- Route registered under `src/routes/_authed/`
+- Route file in `src/routes/_authed/<name>.tsx` with `validateSearch: parseListParams`
+- Nav item added to `DefaultSidebarNav()` in `src/components/app-layout.tsx`
 
 ### Required behavior
 - Loading: DataTable shows skeleton rows
@@ -234,6 +235,38 @@ When backend is already complete, a frontend CRUD slice is done ONLY when ALL of
 - Inline tables (must use DataTable)
 - Custom pagination (must use Pagination)
 - Backend slices without frontend views
+
+## Slice Types
+
+Not all slices are CRUDs. Use the right pattern:
+
+| Type | Example | UI Pattern | Uses DataTable? | INV-092/093 apply? |
+|------|---------|------------|-----------------|-------------------|
+| **CRUD list** | Todos, Products, Tools | Table + Search + Pagination + Create/Edit/Delete | Yes | Yes |
+| **Auth** | Login, Register, API Keys | Forms + Cards | No | No |
+| **Detail/Config** | Assistant settings | Tabs + Forms + nested lists | Partial | No |
+| **Dashboard** | Metrics, Analytics | Charts + Stat cards | No | No |
+| **Settings** | Profile, Org config | Forms | No | No |
+
+**INV-092 and INV-093 only apply to slices with a `*-list.tsx` component.** Detection is automatic.
+
+## Create/Edit Patterns
+
+### Modal (default for CRUD tables — <6 fields)
+Use `FormDialog` as layout shell. Create a reusable `<EntityForm>` for both create and edit:
+
+```tsx
+// Create: empty defaultValues
+<EntityForm open={showCreate} defaultValues={{}} onSubmit={handleCreate} title="New Product" />
+
+// Edit: pre-populate from existing entity
+<EntityForm open={!!editTarget} defaultValues={editTarget} onSubmit={handleUpdate} title="Edit Product" />
+```
+
+The form component uses `useEffect` to reset when `defaultValues` change (on open). See `slices/todos/components/todo-form.tsx`.
+
+### Dedicated page (complex entities — >6 fields, tabs, nested data)
+Navigate to `/entities/:id/edit`. Use when the entity has tabs, rich editors, or nested relationships.
 
 ## Slice structure
 

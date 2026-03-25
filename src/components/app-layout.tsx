@@ -1,6 +1,7 @@
 import { Link, useRouterState } from '@tanstack/react-router'
 import { CheckCircle2, KeyRound, Menu } from 'lucide-react'
 import type { ReactNode } from 'react'
+import { DEFAULT_LIST_PARAMS } from '@/lib/use-query-params'
 import { useCurrentUser, useLogout } from '@/slices/auth/hooks/use-auth'
 import { Button } from '@/ui/button'
 import {
@@ -23,8 +24,8 @@ function DefaultSidebarNav() {
 	return (
 		<SidebarContent>
 			<SidebarGroup label="App">
-				<Link to="/">
-					<SidebarItem active={pathname === '/'}>
+				<Link to="/todos" search={DEFAULT_LIST_PARAMS}>
+					<SidebarItem active={pathname.startsWith('/todos')}>
 						<CheckCircle2 className="h-4 w-4" />
 						Todos
 					</SidebarItem>
@@ -101,7 +102,8 @@ export function AppLayout({ children }: { children: ReactNode }) {
 				<Sidebar>
 					<SidebarHeader>
 						<Link
-							to="/"
+							to="/todos"
+							search={DEFAULT_LIST_PARAMS}
 							className="text-base font-semibold tracking-tight text-foreground transition-colors duration-150 hover:text-primary"
 						>
 							App {/* ← Change to your project name */}
@@ -112,7 +114,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
 				</Sidebar>
 				<div className="flex min-w-0 flex-1 flex-col">
 					<MobileHeader />
-					<main className="flex-1 p-4 md:p-8">{children}</main>
+					<main className="mx-auto w-full max-w-7xl flex-1 p-4 md:p-8">{children}</main>
 				</div>
 			</div>
 		</SidebarProvider>

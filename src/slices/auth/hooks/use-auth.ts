@@ -10,6 +10,7 @@ import { useNavigate } from '@tanstack/react-router'
 import { toast } from 'sonner'
 import { api } from '@/lib/api-client'
 import { throwIfNotOk } from '@/lib/api-error'
+import { DEFAULT_LIST_PARAMS } from '@/lib/use-query-params'
 
 export const authQueryOptions = queryOptions({
 	queryKey: ['auth', 'me'],
@@ -41,7 +42,7 @@ export function useLogin() {
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ['auth', 'me'] })
-			navigate({ to: '/' })
+			navigate({ to: '/todos', search: DEFAULT_LIST_PARAMS })
 		},
 		onError: (error: Error) => {
 			toast.error(error.message || 'Login failed')
@@ -66,7 +67,7 @@ export function useRegister() {
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ['auth', 'me'] })
-			navigate({ to: '/' })
+			navigate({ to: '/todos', search: DEFAULT_LIST_PARAMS })
 		},
 		onError: (error: Error) => {
 			toast.error(error.message || 'Registration failed')

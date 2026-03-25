@@ -408,6 +408,44 @@ describe('Architecture rules (INVARIANTS.md)', () => {
 		}
 	})
 
+	// --- INV-094: CRUD slices must have a route file ---
+
+	it('CRUD slices have a route file in src/routes/_authed/ (INV-094)', () => {
+		const crudSlices = getSliceNames().filter((name) => {
+			const compsDir = join(SLICES_DIR, name, 'components')
+			try {
+				return readdirSync(compsDir).some((f) => f.endsWith('-list.tsx'))
+			} catch {
+				return false
+			}
+		})
+		const violations: string[] = []
+		const routesDir = join(SRC_DIR, 'routes', '_authed')
+
+		for (const name of crudSlices) {
+			// Check for route file: index.tsx (for todos at root) or <name>.tsx
+			let hasRoute = false
+			try {
+				const routeFiles = readdirSync(routesDir)
+				hasRoute = routeFiles.some(
+					(f) => f === `${name}.tsx` || (name === 'todos' && f === 'index.tsx'),
+				)
+			} catch {
+				// routes dir doesn't exist
+			}
+
+			if (!hasRoute) {
+				violations.push(`slices/${name}/ has -list.tsx but no route in routes/_authed/${name}.tsx`)
+			}
+		}
+
+		if (violations.length > 0) {
+			expect.fail(
+				`CRUD slices without route files (INV-094):\n${violations.map((v) => `  - ${v}`).join('\n')}\n\nFix: Create a route file in src/routes/_authed/<name>.tsx with validateSearch: parseListParams.`,
+			)
+		}
+	})
+
 	// --- INVARIANT #6: No local schema redefinitions ---
 
 	it('No z.object() definitions in slices/ (schemas belong in @repo/shared)', () => {

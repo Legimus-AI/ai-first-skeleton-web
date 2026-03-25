@@ -1,10 +1,8 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { TodoList } from '@/slices/todos/components/todo-list'
+import { createFileRoute, redirect } from '@tanstack/react-router'
+import { DEFAULT_LIST_PARAMS } from '@/lib/use-query-params'
 
 export const Route = createFileRoute('/_authed/')({
-	component: IndexPage,
+	beforeLoad: () => {
+		throw redirect({ to: '/todos', search: DEFAULT_LIST_PARAMS })
+	},
 })
-
-function IndexPage() {
-	return <TodoList />
-}

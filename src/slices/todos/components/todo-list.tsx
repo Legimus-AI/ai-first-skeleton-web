@@ -1,43 +1,53 @@
-import { zodResolver } from '@hookform/resolvers/zod'
-import { type CreateTodo, createTodoSchema } from '@repo/shared'
-import { CheckCircle2 } from 'lucide-react'
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import type { Todo } from '@repo/shared'
+import { useNavigate, useSearch } from '@tanstack/react-router'
+import { CheckCircle2, Trash2 } from 'lucide-react'
+import { useCallback, useState } from 'react'
 import { cn } from '@/lib/cn'
+import type { ListParams } from '@/lib/use-query-params'
 import { Button } from '@/ui/button'
 import { ConfirmDelete } from '@/ui/confirm-delete'
 import { CrudPageHeader } from '@/ui/crud-page-header'
 import { type Column, DataTable } from '@/ui/data-table'
-import { FormDialog } from '@/ui/form-dialog'
-import { Input } from '@/ui/input'
 import { Pagination } from '@/ui/pagination'
 import { SearchInput } from '@/ui/search-input'
 import { useCreateTodo, useDeleteTodo, useTodos, useUpdateTodo } from '../hooks/use-todos'
+import { TodoForm } from './todo-form'
 
 export function TodoList() {
-	const [search, setSearch] = useState('')
-	const [page, setPage] = useState(1)
-	const [sort, setSort] = useState('createdAt')
-	const [order, setOrder] = useState<'asc' | 'desc'>('desc')
+	const params = useSearch({ from: '/_authed/todos' })
+	const navigate = useNavigate()
+	const setParams = useCallback(
+		(updates: Partial<ListParams>) => {
+			void navigate({
+				to: '.',
+				search: (prev: Record<string, unknown>) => ({ ...prev, ...updates }),
+				replace: true,
+			})
+		},
+		[navigate],
+	)
 	const [showCreate, setShowCreate] = useState(false)
+	const [editTarget, setEditTarget] = useState<Todo | null>(null)
 	const [deleteId, setDeleteId] = useState<string | null>(null)
+	const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
 
-	const { data, isLoading } = useTodos({ search, page, sort, order })
+	const { data, isLoading, error } = useTodos(params)
 	const createTodo = useCreateTodo()
 	const updateTodo = useUpdateTodo()
 	const deleteTodo = useDeleteTodo()
 
-	const form = useForm<CreateTodo>({ resolver: zodResolver(createTodoSchema) })
-	const onCreateSubmit = form.handleSubmit((input) => {
-		createTodo.mutate(input, {
-			onSuccess: () => {
-				setShowCreate(false)
-				form.reset()
-			},
-		})
-	})
+	if (error) {
+		return <p className="py-8 text-center text-destructive">Error: {error.message}</p>
+	}
 
-	const columns: Column<{ id: string; title: string; completed: boolean }>[] = [
+	const handleBulkDelete = () => {
+		for (const id of selectedIds) {
+			deleteTodo.mutate(id)
+		}
+		setSelectedIds(new Set())
+	}
+
+	const columns: Column<Todo>[] = [
 		{
 			key: 'completed',
 			label: '',
@@ -65,38 +75,59 @@ export function TodoList() {
 		{
 			key: 'actions',
 			label: '',
-			className: 'w-20 text-right',
+			className: 'w-24 text-right',
 			render: (todo) => (
-				<Button
-					variant="destructive"
-					size="sm"
-					type="button"
-					onClick={(e) => {
-						e.stopPropagation()
-						setDeleteId(todo.id)
-					}}
-				>
-					Delete
-				</Button>
+				<div className="flex justify-end gap-1">
+					<Button
+						variant="ghost"
+						size="sm"
+						type="button"
+						onClick={(e) => {
+							e.stopPropagation()
+							setEditTarget(todo)
+						}}
+					>
+						Edit
+					</Button>
+					<Button
+						variant="ghost"
+						size="sm"
+						type="button"
+						onClick={(e) => {
+							e.stopPropagation()
+							setDeleteId(todo.id)
+						}}
+					>
+						<Trash2 className="h-4 w-4 text-destructive" />
+					</Button>
+				</div>
 			),
 		},
 	]
 
 	return (
-		<div className="mx-auto max-w-2xl space-y-2">
+		<div className="space-y-2">
 			<CrudPageHeader
 				title="Todos"
 				search={
 					<SearchInput
-						value={search}
-						onChange={(v) => {
-							setSearch(v)
-							setPage(1)
-						}}
+						value={params.search}
+						onChange={(v) => setParams({ search: v, page: 1 })}
 						placeholder="Search todos..."
 					/>
 				}
 				action={<Button onClick={() => setShowCreate(true)}>Add Todo</Button>}
+				bulkAction={
+					selectedIds.size > 0 ? (
+						<>
+							<span className="text-sm text-muted-foreground">{selectedIds.size} selected</span>
+							<Button variant="destructive" size="sm" onClick={handleBulkDelete}>
+								<Trash2 className="mr-1 h-3.5 w-3.5" />
+								Delete selected
+							</Button>
+						</>
+					) : undefined
+				}
 			/>
 
 			<DataTable
@@ -104,37 +135,45 @@ export function TodoList() {
 				columns={columns}
 				getId={(todo) => todo.id}
 				isLoading={isLoading}
-				sort={sort}
-				order={order}
-				onSortChange={(s, o) => {
-					setSort(s)
-					setOrder(o)
-				}}
+				selectedIds={selectedIds}
+				onSelectionChange={setSelectedIds}
+				sort={params.sort}
+				order={params.order}
+				onSortChange={(s, o) => setParams({ sort: s, order: o })}
 				emptyMessage="No todos yet. Create your first one!"
 				emptyIcon={<CheckCircle2 className="h-10 w-10 text-muted-foreground" />}
 				emptyAction={<Button onClick={() => setShowCreate(true)}>Add Todo</Button>}
 			/>
 
-			<Pagination meta={data?.meta} onPageChange={setPage} />
+			<Pagination meta={data?.meta} onPageChange={(p) => setParams({ page: p })} />
 
-			<FormDialog
+			<TodoForm
 				open={showCreate}
 				onOpenChange={setShowCreate}
 				title="New Todo"
-				onSubmit={onCreateSubmit}
-				isPending={createTodo.isPending}
 				submitLabel="Create"
-			>
-				<div>
-					<label htmlFor="todo-title" className="text-sm font-medium">
-						Title
-					</label>
-					<Input id="todo-title" {...form.register('title')} placeholder="What needs to be done?" />
-					{form.formState.errors.title && (
-						<p className="mt-1 text-sm text-destructive">{form.formState.errors.title.message}</p>
-					)}
-				</div>
-			</FormDialog>
+				defaultValues={undefined}
+				onSubmit={(input) => {
+					createTodo.mutate(input, { onSuccess: () => setShowCreate(false) })
+				}}
+				isPending={createTodo.isPending}
+			/>
+
+			<TodoForm
+				open={editTarget !== null}
+				onOpenChange={() => setEditTarget(null)}
+				title="Edit Todo"
+				submitLabel="Save"
+				defaultValues={editTarget ? { title: editTarget.title } : undefined}
+				onSubmit={(input) => {
+					if (!editTarget) return
+					updateTodo.mutate(
+						{ id: editTarget.id, ...input },
+						{ onSuccess: () => setEditTarget(null) },
+					)
+				}}
+				isPending={updateTodo.isPending}
+			/>
 
 			<ConfirmDelete
 				open={deleteId !== null}
@@ -146,7 +185,6 @@ export function TodoList() {
 					}
 				}}
 				title="Delete todo?"
-				description="This action cannot be undone. The todo will be permanently deleted."
 				isPending={deleteTodo.isPending}
 			/>
 		</div>
