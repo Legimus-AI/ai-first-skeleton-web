@@ -26,7 +26,7 @@ export function SearchInput({
 	const handleChange = (next: string) => {
 		setInternal(next)
 		if (timerRef.current) clearTimeout(timerRef.current)
-		timerRef.current = setTimeout(() => onChange(next), 300)
+		timerRef.current = setTimeout(() => onChange(next), 500)
 	}
 
 	useEffect(() => {
