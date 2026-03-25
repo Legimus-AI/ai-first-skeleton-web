@@ -28,7 +28,7 @@ export interface ListParams {
 export const DEFAULT_LIST_PARAMS: ListParams = {
 	search: '',
 	page: 1,
-	sort: 'createdAt',
+	sort: 'updatedAt',
 	order: 'desc',
 }
 
@@ -40,7 +40,7 @@ export function parseListParams(
 	return {
 		search: typeof raw.search === 'string' ? raw.search : (defaults?.search ?? ''),
 		page: typeof raw.page === 'number' ? raw.page : (defaults?.page ?? 1),
-		sort: typeof raw.sort === 'string' ? raw.sort : (defaults?.sort ?? 'createdAt'),
+		sort: typeof raw.sort === 'string' ? raw.sort : (defaults?.sort ?? 'updatedAt'),
 		order: raw.order === 'asc' || raw.order === 'desc' ? raw.order : (defaults?.order ?? 'desc'),
 	}
 }

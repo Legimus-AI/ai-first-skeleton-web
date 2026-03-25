@@ -189,6 +189,31 @@ fetch(`${env.apiUrl}/api/todos`)
 fetch(`${process.env.API_URL}/api/todos`)
 ```
 
+## CRUD Table Design Conventions
+
+### Column order (left to right)
+```
+[☐ Select] → Name → [Business fields: status, category...] → Updated → [⋯ Actions]
+```
+- **Name** always first data column (the user identifies WHAT before anything else)
+- **Status** with `StatusBadge` (active/inactive/error)
+- **Updated** as penultimate column using `formatRelative()` ("2 min ago", "Yesterday")
+- **Actions menu** (⋯) as last column
+- `created_at` goes in detail view, NEVER in the table
+
+### Default sort and pagination
+- Default sort: `updatedAt DESC` (most recently modified first)
+- Default page size: 25 items
+- All sortable columns: Name, Status, Updated, any numeric field
+- Never sortable: description, tags, content columns
+
+### Title with count
+Show total in the header: `"Assistants (142)"` not just `"Assistants"`.
+Use `data?.meta.total` from the paginated response.
+
+### Updated column format
+Use `formatRelative()` from `@/lib/format-date`: "just now", "5m ago", "2h ago", "3d ago", then falls back to formatted date.
+
 ## Generic CRUD Components
 
 Reusable components for building CRUD views. All list pages MUST use these — never build inline tables or custom pagination.
