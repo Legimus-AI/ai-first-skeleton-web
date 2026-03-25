@@ -479,6 +479,71 @@ describe('Architecture rules (INVARIANTS.md)', () => {
 		}
 	})
 
+	// --- INV-096: List hooks must use safeParseResponse ---
+
+	it('Hooks use safeParseResponse instead of raw .parse() (INV-096)', () => {
+		const hookFiles = collectFiles(SLICES_DIR, ['.ts']).filter(
+			(f) => f.match(/hooks\/use-[^/]+\.ts$/) && !f.includes('__tests__'),
+		)
+		const violations: string[] = []
+
+		for (const file of hookFiles) {
+			const content = readFileSync(file, 'utf-8')
+			const relPath = relative(SRC_DIR, file)
+			const lines = content.split('\n')
+
+			for (let i = 0; i < lines.length; i++) {
+				const line = lines[i] ?? ''
+				if (line.trimStart().startsWith('//')) continue
+				if (line.trimStart().startsWith('import ')) continue
+
+				if (/Schema\.parse\(/.test(line) && !line.includes('safeParseResponse')) {
+					violations.push(`${relPath}:${i + 1} — raw .parse() without safeParseResponse`)
+				}
+			}
+		}
+
+		if (violations.length > 0) {
+			expect.fail(
+				`Raw Zod .parse() in hooks (INV-096):\n${violations.map((v) => `  - ${v}`).join('\n')}\n\nFix: Use safeParseResponse(schema, json) from @/lib/api-error instead of schema.parse(json).`,
+			)
+		}
+	})
+
+	// --- INV-097: List hooks must use keepPreviousData ---
+
+	it('List hooks use keepPreviousData (INV-097)', () => {
+		const crudSlices = getSliceNames().filter((name) => {
+			const compsDir = join(SLICES_DIR, name, 'components')
+			try {
+				return readdirSync(compsDir).some((f) => f.endsWith('-list.tsx'))
+			} catch {
+				return false
+			}
+		})
+		const hookFiles = crudSlices.flatMap((name) =>
+			collectFiles(join(SLICES_DIR, name), ['.ts']).filter(
+				(f) => f.match(/hooks\/use-[^/]+\.ts$/) && !f.includes('__tests__'),
+			),
+		)
+		const violations: string[] = []
+
+		for (const file of hookFiles) {
+			const content = readFileSync(file, 'utf-8')
+			const relPath = relative(SRC_DIR, file)
+
+			if (content.includes('useQuery') && !content.includes('keepPreviousData')) {
+				violations.push(`${relPath} — has useQuery but missing keepPreviousData`)
+			}
+		}
+
+		if (violations.length > 0) {
+			expect.fail(
+				`Missing keepPreviousData in list hooks (INV-097):\n${violations.map((v) => `  - ${v}`).join('\n')}\n\nFix: Add placeholderData: keepPreviousData to all list useQuery hooks. Import from @tanstack/react-query.`,
+			)
+		}
+	})
+
 	// --- INV-021: No useEffect for data fetching ---
 
 	it('No useEffect used alongside API calls (INV-021)', () => {

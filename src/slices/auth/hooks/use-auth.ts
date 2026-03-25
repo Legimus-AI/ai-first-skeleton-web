@@ -9,7 +9,7 @@ import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/r
 import { useNavigate } from '@tanstack/react-router'
 import { toast } from 'sonner'
 import { api } from '@/lib/api-client'
-import { throwIfNotOk } from '@/lib/api-error'
+import { safeParseResponse, throwIfNotOk } from '@/lib/api-error'
 import { DEFAULT_LIST_PARAMS } from '@/lib/use-query-params'
 
 export const authQueryOptions = queryOptions({
@@ -19,7 +19,7 @@ export const authQueryOptions = queryOptions({
 		if (res.status === 401) return null
 		await throwIfNotOk(res)
 		const json: unknown = await res.json()
-		const parsed: AuthResponse = authResponseSchema.parse(json)
+		const parsed: AuthResponse = safeParseResponse(authResponseSchema, json)
 		return parsed.data
 	},
 	retry: false,
@@ -38,7 +38,7 @@ export function useLogin() {
 			const res = await api.post('/api/v1/auth/login', input)
 			await throwIfNotOk(res)
 			const json: unknown = await res.json()
-			return authResponseSchema.parse(json)
+			return safeParseResponse(authResponseSchema, json)
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ['auth', 'me'] })
@@ -63,7 +63,7 @@ export function useRegister() {
 			const res = await api.post('/api/v1/auth/register', input)
 			await throwIfNotOk(res)
 			const json: unknown = await res.json()
-			return authResponseSchema.parse(json)
+			return safeParseResponse(authResponseSchema, json)
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ['auth', 'me'] })

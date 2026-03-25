@@ -66,6 +66,8 @@ Non-negotiable rules enforced by `architecture.test` and CI. Violations block me
 - **INV-093:** Every hooks file in a CRUD slice MUST export list, create, update, and delete hooks (matching pattern `useXs`, `useCreateX`, `useUpdateX`, `useDeleteX`). Incomplete hook files indicate unfinished work.
 - **INV-094:** Every CRUD slice (has `*-list.tsx`) MUST have a corresponding route file in `src/routes/_authed/`. A slice without a route is invisible to users.
 - **INV-095:** No client-side data manipulation in list components. `.filter()`, `.sort()`, `.slice()` on server data is PROHIBITED in `*-list.tsx` files. All filtering, sorting, and pagination is server-side via query params.
+- **INV-096:** All Zod `.parse()` calls in hooks MUST use `safeParseResponse(schema, json)` from `@/lib/api-error`. Raw `.parse()` shows cryptic ZodError JSON to users on schema mismatch.
+- **INV-097:** All list hooks (CRUD slices) MUST use `placeholderData: keepPreviousData` from TanStack Query. Prevents table flash/skeleton on page/sort/search changes.
 
 ## Testing
 
