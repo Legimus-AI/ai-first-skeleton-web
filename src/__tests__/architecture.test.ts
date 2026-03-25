@@ -446,6 +446,39 @@ describe('Architecture rules (INVARIANTS.md)', () => {
 		}
 	})
 
+	// --- INV-095: No client-side data manipulation in list components ---
+
+	it('List components do not use client-side .filter()/.sort()/.slice() (INV-095)', () => {
+		const listFiles = collectFiles(SLICES_DIR, ['.tsx']).filter((f) => f.match(/-list\.tsx$/))
+		const violations: string[] = []
+		const forbidden = /\.(filter|sort|toSorted|slice)\s*\(/
+
+		for (const file of listFiles) {
+			const content = readFileSync(file, 'utf-8')
+			const relPath = relative(SRC_DIR, file)
+			const lines = content.split('\n')
+
+			for (let i = 0; i < lines.length; i++) {
+				const line = lines[i] ?? ''
+				if (line.trimStart().startsWith('//')) continue
+				if (line.trimStart().startsWith('import ')) continue
+				if (line.trimStart().startsWith('*')) continue
+
+				if (forbidden.test(line)) {
+					violations.push(
+						`${relPath}:${i + 1} — client-side data manipulation: ${line.trim().slice(0, 60)}`,
+					)
+				}
+			}
+		}
+
+		if (violations.length > 0) {
+			expect.fail(
+				`Client-side filtering/sorting in list components (INV-095):\n${violations.map((v) => `  - ${v}`).join('\n')}\n\nFix: All filtering, sorting, and pagination must be server-side. Pass params to the API hook, never .filter()/.sort() the response.`,
+			)
+		}
+	})
+
 	// --- INV-021: No useEffect for data fetching ---
 
 	it('No useEffect used alongside API calls (INV-021)', () => {

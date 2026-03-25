@@ -5,10 +5,11 @@ import {
 	todoResponseSchema,
 	type UpdateTodo,
 } from '@repo/shared'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { api } from '@/lib/api-client'
 import { throwIfNotOk } from '@/lib/api-error'
+import { useBulkDelete } from '@/lib/use-bulk-delete'
 
 const TODOS_KEY = ['todos'] as const
 
@@ -21,6 +22,7 @@ export function useTodos(params?: Partial<ListQuery>) {
 			const json = await res.json()
 			return todoListResponseSchema.parse(json)
 		},
+		placeholderData: keepPreviousData,
 	})
 }
 
@@ -79,3 +81,5 @@ export function useDeleteTodo() {
 		},
 	})
 }
+
+export const useBulkDeleteTodos = () => useBulkDelete('/api/v1/todos', [...TODOS_KEY])

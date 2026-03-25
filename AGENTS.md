@@ -327,6 +327,34 @@ Edit `DefaultSidebarNav()` in `src/components/app-layout.tsx` to add/remove side
 - `routeTree.gen.ts` is auto-generated — do NOT edit manually
 - Add to `.gitignore`: `routeTree.gen.ts`
 
+## Data Layer Rules
+
+### Server-side everything (INV-095)
+All filtering, sorting, and pagination is server-side. List components are THIN — they pass params to hooks, hooks pass params to API. NEVER use `.filter()`, `.sort()`, or `.slice()` on API response data in list components.
+
+### `keepPreviousData` on all list hooks
+Every list hook MUST use `placeholderData: keepPreviousData` from TanStack Query. This prevents the table from flashing empty skeleton on page/sort/search changes — previous data stays visible until new data arrives.
+
+```ts
+import { keepPreviousData } from '@tanstack/react-query'
+
+export function useProducts(params?: Partial<ListQuery>) {
+  return useQuery({
+    queryKey: ['products', params],
+    queryFn: async () => { ... },
+    placeholderData: keepPreviousData,  // ← MANDATORY for list hooks
+  })
+}
+```
+
+### Bulk operations
+Use the generic `useBulkDelete` hook from `@/lib/use-bulk-delete` for bulk deletes. NEVER loop individual delete calls.
+
+```ts
+import { useBulkDelete } from '@/lib/use-bulk-delete'
+export const useBulkDeleteProducts = () => useBulkDelete('/api/v1/products', ['products'])
+```
+
 ## API calls
 
 ```ts

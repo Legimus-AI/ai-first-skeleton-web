@@ -10,7 +10,13 @@ import { CrudPageHeader } from '@/ui/crud-page-header'
 import { type Column, DataTable } from '@/ui/data-table'
 import { Pagination } from '@/ui/pagination'
 import { SearchInput } from '@/ui/search-input'
-import { useCreateTodo, useDeleteTodo, useTodos, useUpdateTodo } from '../hooks/use-todos'
+import {
+	useBulkDeleteTodos,
+	useCreateTodo,
+	useDeleteTodo,
+	useTodos,
+	useUpdateTodo,
+} from '../hooks/use-todos'
 import { TodoForm } from './todo-form'
 
 export function TodoList() {
@@ -35,16 +41,14 @@ export function TodoList() {
 	const createTodo = useCreateTodo()
 	const updateTodo = useUpdateTodo()
 	const deleteTodo = useDeleteTodo()
+	const bulkDelete = useBulkDeleteTodos()
 
 	if (error) {
 		return <p className="py-8 text-center text-destructive">Error: {error.message}</p>
 	}
 
 	const handleBulkDelete = () => {
-		for (const id of selectedIds) {
-			deleteTodo.mutate(id)
-		}
-		setSelectedIds(new Set())
+		bulkDelete.mutate([...selectedIds], { onSuccess: () => setSelectedIds(new Set()) })
 	}
 
 	const columns: Column<Todo>[] = [
