@@ -1,5 +1,8 @@
 # Web Frontend — Agent Guidelines
 
+> **Architecture principles:** `Legimus-AI/ai-first-architecture/docs/frontend-principles.md`
+> **Backend skeletons:** `Legimus-AI/ai-first-skeleton-typescript` (Hono) | `Legimus-AI/ai-first-skeleton-fastapi` (FastAPI)
+
 React 19 SPA with Vite, TanStack Router, TanStack Query, and Tailwind CSS.
 
 ## Commands
