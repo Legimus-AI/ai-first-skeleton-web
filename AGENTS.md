@@ -542,3 +542,73 @@ The component receives props — never imports hooks from other slices.
 - Use spinning overlays or generic loaders — use `<Skeleton />` placeholders
 - Use relative paths (`../../`) for cross-directory imports — use `@/` alias instead
 - Store UI state (tabs, filters, sort) in `useState` alone — persist in URL query params so refresh restores the view
+- Use raw `useMutation` for toggles/inline edits — use `useOptimisticMutation` for instant feedback
+- Add animations without `motion-safe:` — always respect `prefers-reduced-motion`
+- Animate SVGs directly — wrap in `<span>` and animate the wrapper
+
+## Motion System
+
+Lightweight animation primitives for page transitions, list reveals, and component enter/exit.
+
+**Dependency:** `motion` (tree-shakeable framer-motion). Lazy-load heavy animations with `React.lazy`.
+
+### Available primitives
+
+| Component | File | Purpose |
+|-----------|------|---------|
+| FadeIn | `@/ui/fade-in` | Fade + slight upward shift on mount. Supports `delay` for staggering |
+| PageTransition | `@/ui/animate-presence-wrapper` | Animated page transitions (wrap route outlet) |
+| AnimatedListItem | `@/ui/animated-list` | Staggered entrance for list items |
+
+### Timing tokens (`@/lib/motion-config`)
+
+| Token | Duration | Use for |
+|-------|----------|---------|
+| `duration.fast` | 150ms | Micro-interactions (hover, toggle) |
+| `duration.normal` | 200ms | Component enter/exit (modals, dropdowns) |
+| `duration.slow` | 300ms | Page transitions |
+
+### Rules
+
+- **Max 200ms** for micro-interactions, **max 300ms** for page transitions
+- **`motion-safe:`** prefix for ALL Tailwind CSS animations
+- **Never animate SVGs** directly — wrap in `<span>`, animate the wrapper
+- **Lazy load** heavy motion components with `React.lazy` + `<Suspense>`
+- **Respects `prefers-reduced-motion`** automatically (Motion handles this)
+
+### Usage
+
+```tsx
+// Page transitions in _authed layout:
+<PageTransition pageKey={pathname}>
+  <Outlet />
+</PageTransition>
+
+// Fade-in content:
+<FadeIn><Card>Appears smoothly</Card></FadeIn>
+
+// Staggered list:
+{items.map((item, i) => (
+  <AnimatedListItem key={item.id} index={i}>
+    <TodoRow todo={item} />
+  </AnimatedListItem>
+))}
+```
+
+## Optimistic Mutations
+
+Use `useOptimisticMutation` from `@/lib/use-optimistic-mutation` for mutations that should feel instant (toggles, inline edits, status changes).
+
+```tsx
+const toggle = useOptimisticMutation({
+  queryKey: ['todos'],
+  mutationFn: (id: string) => api.patch(`/api/v1/todos/${id}`, { completed: true }),
+  optimisticUpdate: (old, id) => ({
+    ...old,
+    data: old.data.map(t => t.id === id ? { ...t, completed: true } : t),
+  }),
+})
+```
+
+**When to use:** Toggles, status changes, inline edits — anything where waiting 200ms for the server feels sluggish.
+**When NOT to use:** Creates, deletes, complex mutations with validation — use regular `useMutation` + toast.
