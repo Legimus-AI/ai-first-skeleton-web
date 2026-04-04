@@ -2,8 +2,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { type Register, registerSchema } from '@repo/shared'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useForm } from 'react-hook-form'
+import { PublicLayout } from '@/layouts/public-layout'
 import { AuthFormField } from '@/slices/auth/components/auth-form-field'
-import { AuthPageLayout } from '@/slices/auth/components/auth-page-layout'
 import { GoogleOAuthButton } from '@/slices/auth/components/google-oauth-button'
 import { useRegister } from '@/slices/auth/hooks/use-auth'
 import { Button } from '@/ui/button'
@@ -25,7 +25,7 @@ function RegisterPage() {
 	const onSubmit = (data: Register) => registerMutation.mutate(data)
 
 	return (
-		<AuthPageLayout
+		<PublicLayout
 			title="Register"
 			description="Create a new account"
 			onSubmit={handleSubmit(onSubmit)}
@@ -74,6 +74,6 @@ function RegisterPage() {
 				errorMessage={errors.password?.message}
 				autoComplete="new-password"
 			/>
-		</AuthPageLayout>
+		</PublicLayout>
 	)
 }

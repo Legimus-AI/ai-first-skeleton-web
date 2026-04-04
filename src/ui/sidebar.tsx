@@ -1,14 +1,28 @@
-import { createContext, type ReactNode, use, useState } from 'react'
+import { PanelLeftClose, PanelLeftOpen } from 'lucide-react'
+import { createContext, type ReactNode, use, useEffect, useState } from 'react'
 import { cn } from '@/lib/cn'
 
 // ─── Context ──────────────────────────────────────────────────────────────────
 
+type SidebarMode = 'expanded' | 'collapsed'
+
 interface SidebarContextValue {
+	/** Mobile overlay open state. */
 	open: boolean
 	setOpen: (open: boolean) => void
+	/** Desktop expand/collapse state. */
+	mode: SidebarMode
+	toggleMode: () => void
 }
 
-const SidebarContext = createContext<SidebarContextValue>({ open: false, setOpen: () => {} })
+const STORAGE_KEY = 'sidebar-mode'
+
+const SidebarContext = createContext<SidebarContextValue>({
+	open: false,
+	setOpen: () => {},
+	mode: 'expanded',
+	toggleMode: () => {},
+})
 
 export function useSidebar() {
 	return use(SidebarContext)
@@ -16,13 +30,26 @@ export function useSidebar() {
 
 export function SidebarProvider({ children }: { children: ReactNode }) {
 	const [open, setOpen] = useState(false)
-	return <SidebarContext value={{ open, setOpen }}>{children}</SidebarContext>
+	const [mode, setMode] = useState<SidebarMode>(() => {
+		if (typeof window === 'undefined') return 'expanded'
+		const stored = localStorage.getItem(STORAGE_KEY)
+		return stored === 'collapsed' ? 'collapsed' : 'expanded'
+	})
+
+	useEffect(() => {
+		localStorage.setItem(STORAGE_KEY, mode)
+	}, [mode])
+
+	const toggleMode = () => setMode((m) => (m === 'expanded' ? 'collapsed' : 'expanded'))
+
+	return <SidebarContext value={{ open, setOpen, mode, toggleMode }}>{children}</SidebarContext>
 }
 
 // ─── Shell ────────────────────────────────────────────────────────────────────
 
 export function Sidebar({ children, className }: { children: ReactNode; className?: string }) {
-	const { open, setOpen } = useSidebar()
+	const { open, setOpen, mode } = useSidebar()
+	const isCollapsed = mode === 'collapsed'
 	return (
 		<>
 			{open && (
@@ -35,7 +62,8 @@ export function Sidebar({ children, className }: { children: ReactNode; classNam
 			)}
 			<aside
 				className={cn(
-					'fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-border bg-card transition-transform duration-200 md:static md:translate-x-0',
+					'fixed inset-y-0 left-0 z-50 flex flex-col border-r border-border bg-card transition-all duration-200 md:static md:translate-x-0',
+					isCollapsed ? 'w-16' : 'w-64',
 					open ? 'translate-x-0' : '-translate-x-full',
 					className,
 				)}
@@ -43,6 +71,26 @@ export function Sidebar({ children, className }: { children: ReactNode; classNam
 				{children}
 			</aside>
 		</>
+	)
+}
+
+// ─── Collapse Toggle ─────────────────────────────────────────────────────────
+
+export function SidebarCollapseToggle() {
+	const { mode, toggleMode } = useSidebar()
+	return (
+		<button
+			type="button"
+			onClick={toggleMode}
+			className="hidden rounded-md p-1.5 text-muted-foreground transition-colors duration-150 hover:bg-accent hover:text-accent-foreground md:block"
+			aria-label={mode === 'expanded' ? 'Collapse sidebar' : 'Expand sidebar'}
+		>
+			{mode === 'expanded' ? (
+				<PanelLeftClose className="h-4 w-4" />
+			) : (
+				<PanelLeftOpen className="h-4 w-4" />
+			)}
+		</button>
 	)
 }
 
@@ -55,7 +103,19 @@ export function SidebarHeader({
 	children: ReactNode
 	className?: string
 }) {
-	return <div className={cn('shrink-0 px-4 py-4', className)}>{children}</div>
+	const { mode } = useSidebar()
+	return (
+		<div
+			className={cn(
+				'flex shrink-0 items-center justify-between px-4 py-4',
+				mode === 'collapsed' && 'justify-center px-2',
+				className,
+			)}
+		>
+			{mode === 'expanded' ? children : null}
+			<SidebarCollapseToggle />
+		</div>
+	)
 }
 
 export function SidebarContent({
@@ -77,9 +137,10 @@ export function SidebarGroup({
 	children: ReactNode
 	className?: string
 }) {
+	const { mode } = useSidebar()
 	return (
 		<div className={cn('mb-4', className)}>
-			{label && (
+			{label && mode === 'expanded' && (
 				<p className="mb-1 px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
 					{label}
 				</p>
@@ -100,10 +161,12 @@ export function SidebarItem({
 	disabled?: boolean
 	className?: string
 }) {
+	const { mode } = useSidebar()
 	return (
 		<div
 			className={cn(
 				'flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium transition-colors duration-150',
+				mode === 'collapsed' && 'justify-center px-0',
 				active
 					? 'bg-primary/10 text-primary'
 					: 'text-muted-foreground hover:bg-accent hover:text-accent-foreground',
@@ -111,7 +174,12 @@ export function SidebarItem({
 				className,
 			)}
 		>
-			{children}
+			{mode === 'collapsed'
+				? (() => {
+						const childArray = Array.isArray(children) ? children : [children]
+						return childArray[0]
+					})()
+				: children}
 		</div>
 	)
 }
@@ -123,6 +191,8 @@ export function SidebarFooter({
 	children: ReactNode
 	className?: string
 }) {
+	const { mode } = useSidebar()
+	if (mode === 'collapsed') return null
 	return (
 		<div className={cn('shrink-0 border-t border-border px-4 py-3', className)}>{children}</div>
 	)

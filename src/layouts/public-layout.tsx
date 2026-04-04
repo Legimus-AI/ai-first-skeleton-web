@@ -1,7 +1,12 @@
 import type { ReactNode } from 'react'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/ui/card'
 
-interface AuthPageLayoutProps {
+// ─── Public Layout ───────────────────────────────────────────────────────────
+// Centered card layout for unauthenticated pages (login, register, etc.).
+// Moved from slices/auth/components/auth-page-layout.tsx → layouts/public-layout.tsx
+// so all layout shells live in one canonical place.
+
+interface PublicLayoutProps {
 	/** Page title shown in the card header. */
 	title: string
 	/** Subtitle shown below the title. */
@@ -16,14 +21,14 @@ interface AuthPageLayoutProps {
 	socialLogin?: ReactNode
 }
 
-export function AuthPageLayout({
+export function PublicLayout({
 	title,
 	description,
 	children,
 	footer,
 	onSubmit,
 	socialLogin,
-}: AuthPageLayoutProps) {
+}: PublicLayoutProps) {
 	return (
 		<div className="flex min-h-screen items-center justify-center bg-background px-4">
 			<Card className="w-full max-w-sm">

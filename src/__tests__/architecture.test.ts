@@ -670,4 +670,238 @@ describe('Architecture rules (INVARIANTS.md)', () => {
 			)
 		}
 	})
+
+	// --- INV-100: Layouts ONLY in layouts/ ---
+
+	it('No layout shells in components/ (INV-100)', () => {
+		const compsDir = join(SRC_DIR, 'components')
+		const files = collectFiles(compsDir, ['.tsx'])
+		const violations: string[] = []
+		const layoutPatterns = [/SidebarProvider/, /min-h-screen.*items-center.*justify-center/]
+		const allowList = ['error-boundary.tsx'] // error fallback UI, not a layout shell
+
+		for (const file of files) {
+			if (allowList.some((f) => file.endsWith(f))) continue
+			const content = readFileSync(file, 'utf-8')
+			const relPath = relative(SRC_DIR, file)
+
+			for (const pattern of layoutPatterns) {
+				if (pattern.test(content)) {
+					violations.push(`${relPath} — contains layout pattern (${pattern.source})`)
+				}
+			}
+		}
+
+		if (violations.length > 0) {
+			expect.fail(
+				`Layout shells found outside layouts/ (INV-100):\n${violations.map((v) => `  - ${v}`).join('\n')}\n\nFix: Move layout shells to src/layouts/. Only error-boundary.tsx and non-layout components belong in components/.`,
+			)
+		}
+	})
+
+	// --- INV-101: Navigation must be data-driven ---
+
+	it('Authed layout uses nav-items (INV-101)', () => {
+		const layoutFile = join(SRC_DIR, 'layouts', 'authed-layout.tsx')
+		let content: string
+		try {
+			content = readFileSync(layoutFile, 'utf-8')
+		} catch {
+			expect.fail('INV-101: layouts/authed-layout.tsx not found')
+			return
+		}
+
+		if (!content.includes("from './nav-items'")) {
+			expect.fail(
+				'INV-101: authed-layout.tsx must import from ./nav-items. Navigation must be data-driven, not hardcoded JSX.',
+			)
+		}
+	})
+
+	// --- INV-102: No max-w-* in layout files (except content-area.tsx) ---
+
+	it('No hardcoded max-w-* in layout files except content-area (INV-102)', () => {
+		const layoutsDir = join(SRC_DIR, 'layouts')
+		const files = collectFiles(layoutsDir, ['.tsx'])
+		const violations: string[] = []
+
+		for (const file of files) {
+			if (file.endsWith('content-area.tsx')) continue // max-w variants live here
+			if (file.endsWith('public-layout.tsx')) continue // max-w-sm is card width, not page width
+			const content = readFileSync(file, 'utf-8')
+			const relPath = relative(SRC_DIR, file)
+			const lines = content.split('\n')
+
+			for (let i = 0; i < lines.length; i++) {
+				const line = lines[i] ?? ''
+				if (line.trimStart().startsWith('//')) continue
+				if (/max-w-/.test(line)) {
+					violations.push(`${relPath}:${i + 1} — hardcoded max-w-* (must be in content-area.tsx)`)
+				}
+			}
+		}
+
+		if (violations.length > 0) {
+			expect.fail(
+				`Hardcoded max-w-* in layout files (INV-102):\n${violations.map((v) => `  - ${v}`).join('\n')}\n\nFix: Width constraints belong in content-area.tsx variants only.`,
+			)
+		}
+	})
+
+	// --- INV-103: No deep relative imports ---
+
+	it('No relative imports deeper than 2 levels (INV-103)', () => {
+		const violations: string[] = []
+
+		for (const file of allTsFiles) {
+			if (file.includes('__tests__')) continue
+			const content = readFileSync(file, 'utf-8')
+			const relPath = relative(SRC_DIR, file)
+			const lines = content.split('\n')
+
+			for (let i = 0; i < lines.length; i++) {
+				const line = lines[i] ?? ''
+				if (!line.trimStart().startsWith('import ')) continue
+				if (/from\s+['"]\.\.\/\.\.\/\.\./.test(line)) {
+					violations.push(`${relPath}:${i + 1} — deep relative import (use @/ alias)`)
+				}
+			}
+		}
+
+		if (violations.length > 0) {
+			expect.fail(
+				`Deep relative imports found (INV-103):\n${violations.map((v) => `  - ${v}`).join('\n')}\n\nFix: Use @/ alias for cross-directory imports. Relative imports only for same-directory siblings.`,
+			)
+		}
+	})
+
+	// --- INV-104: CRUD slices must have a nav entry ---
+
+	it('CRUD slices have an entry in nav-items.ts (INV-104)', () => {
+		const crudSlices = getSliceNames().filter((name) => {
+			const compsDir = join(SLICES_DIR, name, 'components')
+			try {
+				return readdirSync(compsDir).some((f) => f.endsWith('-list.tsx'))
+			} catch {
+				return false
+			}
+		})
+
+		let navContent: string
+		try {
+			navContent = readFileSync(join(SRC_DIR, 'layouts', 'nav-items.ts'), 'utf-8')
+		} catch {
+			if (crudSlices.length > 0) {
+				expect.fail('INV-104: layouts/nav-items.ts not found but CRUD slices exist')
+			}
+			return
+		}
+
+		const violations: string[] = []
+		for (const name of crudSlices) {
+			if (!navContent.includes(`'/${name}'`)) {
+				violations.push(`slices/${name}/ has -list.tsx but no entry in nav-items.ts for /${name}`)
+			}
+		}
+
+		if (violations.length > 0) {
+			expect.fail(
+				`CRUD slices without nav entry (INV-104):\n${violations.map((v) => `  - ${v}`).join('\n')}\n\nFix: Add an entry to layouts/nav-items.ts for each CRUD slice.`,
+			)
+		}
+	})
+
+	// --- INV-105: Routes with beforeLoad must have pendingComponent ---
+
+	it('Authed routes with beforeLoad have pendingComponent (INV-105)', () => {
+		const authedRoute = join(SRC_DIR, 'routes', '_authed.tsx')
+		let content: string
+		try {
+			content = readFileSync(authedRoute, 'utf-8')
+		} catch {
+			return
+		}
+
+		if (content.includes('beforeLoad') && !content.includes('pendingComponent')) {
+			expect.fail(
+				'INV-105: routes/_authed.tsx has beforeLoad but no pendingComponent. Add a loading skeleton to prevent white flash during auth check.',
+			)
+		}
+	})
+
+	// --- INV-106: CRUD list components must use ConfirmDelete ---
+
+	it('CRUD list components use ConfirmDelete (INV-106)', () => {
+		const listFiles = collectFiles(SLICES_DIR, ['.tsx']).filter((f) => f.match(/-list\.tsx$/))
+		const violations: string[] = []
+
+		for (const file of listFiles) {
+			const content = readFileSync(file, 'utf-8')
+			const relPath = relative(SRC_DIR, file)
+
+			if (!content.includes('ConfirmDelete')) {
+				violations.push(
+					`${relPath} — missing ConfirmDelete (destructive actions need confirmation)`,
+				)
+			}
+		}
+
+		if (violations.length > 0) {
+			expect.fail(
+				`CRUD lists without ConfirmDelete (INV-106):\n${violations.map((v) => `  - ${v}`).join('\n')}\n\nFix: Import ConfirmDelete from @/ui/confirm-delete. All delete actions require confirmation dialog.`,
+			)
+		}
+	})
+
+	// --- INV-107: CRUD hooks must export useBulkDelete ---
+
+	it('CRUD hooks export bulk delete (INV-107)', () => {
+		const crudSlices = getSliceNames().filter((name) => {
+			const compsDir = join(SLICES_DIR, name, 'components')
+			try {
+				return readdirSync(compsDir).some((f) => f.endsWith('-list.tsx'))
+			} catch {
+				return false
+			}
+		})
+		const violations: string[] = []
+
+		for (const name of crudSlices) {
+			const hookFiles = collectFiles(join(SLICES_DIR, name, 'hooks'), ['.ts']).filter(
+				(f) => !f.includes('__tests__'),
+			)
+			const hasBulkDelete = hookFiles.some((f) => {
+				const content = readFileSync(f, 'utf-8')
+				return /useBulkDelete/.test(content)
+			})
+
+			if (!hasBulkDelete) {
+				violations.push(`slices/${name}/ — no useBulkDelete hook (bulk operations required)`)
+			}
+		}
+
+		if (violations.length > 0) {
+			expect.fail(
+				`CRUD slices without bulk delete (INV-107):\n${violations.map((v) => `  - ${v}`).join('\n')}\n\nFix: Add useBulkDelete hook using useBulkDelete() from @/lib/use-bulk-delete.`,
+			)
+		}
+	})
+
+	// --- INV-108: SearchInput debounce must be 600ms ---
+
+	it('SearchInput debounce is 600ms (INV-108)', () => {
+		const searchFile = join(SRC_DIR, 'ui', 'search-input.tsx')
+		let content: string
+		try {
+			content = readFileSync(searchFile, 'utf-8')
+		} catch {
+			return
+		}
+
+		if (!content.includes('600')) {
+			expect.fail(
+				'INV-108: SearchInput debounce must be 600ms. Found a different value in ui/search-input.tsx.',
+			)
+		}
+	})
 })

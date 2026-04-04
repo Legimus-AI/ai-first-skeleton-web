@@ -1,7 +1,6 @@
 import { Link, useRouterState } from '@tanstack/react-router'
-import { CheckCircle2, KeyRound, Menu } from 'lucide-react'
+import { Menu } from 'lucide-react'
 import type { ReactNode } from 'react'
-import { DEFAULT_LIST_PARAMS } from '@/lib/use-query-params'
 import { useCurrentUser, useLogout } from '@/slices/auth/hooks/use-auth'
 import { Button } from '@/ui/button'
 import {
@@ -15,35 +14,47 @@ import {
 	useSidebar,
 } from '@/ui/sidebar'
 import { ThemeToggle } from '@/ui/theme-toggle'
+import type { LayoutVariant } from './content-area'
+import { ContentArea } from './content-area'
+import { navItems } from './nav-items'
 
-// ─── Default Navigation ───────────────────────────────────────────────────────
-// Customize these items for your project. Each Link wraps a SidebarItem.
+// ─── Data-Driven Navigation ──────────────────────────────────────────────────
+// Items come from nav-items.ts. AI agents add entries there, not here.
+// Architecture test INV-101 enforces this.
 
-function DefaultSidebarNav() {
+function SidebarNav() {
 	const pathname = useRouterState({ select: (s) => s.location.pathname })
+
+	const groups = new Map<string, typeof navItems>()
+	for (const item of navItems) {
+		const group = groups.get(item.group) ?? []
+		group.push(item)
+		groups.set(item.group, group)
+	}
+
 	return (
 		<SidebarContent>
-			<SidebarGroup label="App">
-				<Link to="/todos" search={DEFAULT_LIST_PARAMS}>
-					<SidebarItem active={pathname.startsWith('/todos')}>
-						<CheckCircle2 className="h-4 w-4" />
-						Todos
-					</SidebarItem>
-				</Link>
-			</SidebarGroup>
-			<SidebarGroup label="System">
-				<Link to="/api-keys">
-					<SidebarItem active={pathname === '/api-keys'}>
-						<KeyRound className="h-4 w-4" />
-						API Keys
-					</SidebarItem>
-				</Link>
-			</SidebarGroup>
+			{[...groups.entries()].map(([group, items]) => (
+				<SidebarGroup key={group} label={group}>
+					{items.map((item) => {
+						const prefix = item.activePrefix ?? item.to
+						const isActive = pathname === prefix || pathname.startsWith(`${prefix}/`)
+						return (
+							<Link key={item.to} to={item.to} {...(item.search ? { search: item.search } : {})}>
+								<SidebarItem active={isActive}>
+									<item.icon className="h-4 w-4" />
+									{item.label}
+								</SidebarItem>
+							</Link>
+						)
+					})}
+				</SidebarGroup>
+			))}
 		</SidebarContent>
 	)
 }
 
-// ─── User Footer ──────────────────────────────────────────────────────────────
+// ─── User Footer ─────────────────────────────────────────────────────────────
 
 function SidebarUserFooter() {
 	const { data: user } = useCurrentUser()
@@ -75,7 +86,7 @@ function SidebarUserFooter() {
 	)
 }
 
-// ─── Mobile Header ────────────────────────────────────────────────────────────
+// ─── Mobile Header ───────────────────────────────────────────────────────────
 
 function MobileHeader() {
 	const { setOpen } = useSidebar()
@@ -94,9 +105,14 @@ function MobileHeader() {
 	)
 }
 
-// ─── Layout Shell ─────────────────────────────────────────────────────────────
+// ─── Layout Shell ────────────────────────────────────────────────────────────
 
-export function AppLayout({ children }: { children: ReactNode }) {
+interface AuthedLayoutProps {
+	children: ReactNode
+	variant?: LayoutVariant
+}
+
+export function AuthedLayout({ children, variant }: AuthedLayoutProps) {
 	return (
 		<SidebarProvider>
 			<div className="flex min-h-screen">
@@ -104,18 +120,18 @@ export function AppLayout({ children }: { children: ReactNode }) {
 					<SidebarHeader>
 						<Link
 							to="/todos"
-							search={DEFAULT_LIST_PARAMS}
+							search={{ search: '', page: 1, sort: 'updatedAt', order: 'desc' as const }}
 							className="text-base font-semibold tracking-tight text-foreground transition-colors duration-150 hover:text-primary"
 						>
 							App {/* ← Change to your project name */}
 						</Link>
 					</SidebarHeader>
-					<DefaultSidebarNav />
+					<SidebarNav />
 					<SidebarUserFooter />
 				</Sidebar>
 				<div className="flex min-w-0 flex-1 flex-col">
 					<MobileHeader />
-					<main className="mx-auto w-full max-w-7xl flex-1 p-4 md:p-8">{children}</main>
+					<ContentArea {...(variant ? { variant } : {})}>{children}</ContentArea>
 				</div>
 			</div>
 		</SidebarProvider>

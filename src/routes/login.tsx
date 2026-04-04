@@ -2,8 +2,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { type Login, loginSchema } from '@repo/shared'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useForm } from 'react-hook-form'
+import { PublicLayout } from '@/layouts/public-layout'
 import { AuthFormField } from '@/slices/auth/components/auth-form-field'
-import { AuthPageLayout } from '@/slices/auth/components/auth-page-layout'
 import { GoogleOAuthButton } from '@/slices/auth/components/google-oauth-button'
 import { useLogin } from '@/slices/auth/hooks/use-auth'
 import { Button } from '@/ui/button'
@@ -25,7 +25,7 @@ function LoginPage() {
 	const onSubmit = (data: Login) => login.mutate(data)
 
 	return (
-		<AuthPageLayout
+		<PublicLayout
 			title="Login"
 			description="Sign in to your account"
 			onSubmit={handleSubmit(onSubmit)}
@@ -64,6 +64,6 @@ function LoginPage() {
 				errorMessage={errors.password?.message}
 				autoComplete="current-password"
 			/>
-		</AuthPageLayout>
+		</PublicLayout>
 	)
 }

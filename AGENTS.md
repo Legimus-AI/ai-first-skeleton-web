@@ -1,8 +1,5 @@
 # Web Frontend — Agent Guidelines
 
-> **Architecture principles:** `Legimus-AI/ai-first-architecture/docs/frontend-principles.md`
-> **Backend skeletons:** `Legimus-AI/ai-first-skeleton-typescript` (Hono) | `Legimus-AI/ai-first-skeleton-fastapi` (FastAPI)
-
 React 19 SPA with Vite, TanStack Router, TanStack Query, and Tailwind CSS.
 
 ## Commands
@@ -192,161 +189,53 @@ fetch(`${env.apiUrl}/api/todos`)
 fetch(`${process.env.API_URL}/api/todos`)
 ```
 
-## CRUD Table Design Conventions
+## Layout Architecture
 
-### Column order (left to right)
+All layout shells live in `src/layouts/` — the ONE canonical place for page structure:
+
 ```
-[☐ Select] → Name → [Business fields: status, category...] → Updated → [⋯ Actions]
-```
-- **Name** always first data column (the user identifies WHAT before anything else)
-- **Status** with `StatusBadge` (active/inactive/error)
-- **Updated** as penultimate column using `formatRelative()` ("2 min ago", "Yesterday")
-- **Actions menu** (⋯) as last column
-- `created_at` goes in detail view, NEVER in the table
-
-### Default sort and pagination
-- Default sort: `updatedAt DESC` (most recently modified first)
-- Default page size: 25 items
-- All sortable columns: Name, Status, Updated, any numeric field
-- Never sortable: description, tags, content columns
-
-### Title with count
-Show total in the header: `"Assistants (142)"` not just `"Assistants"`.
-Use `data?.meta.total` from the paginated response.
-
-### Updated column format
-Use `formatRelative()` from `@/lib/format-date`: "just now", "5m ago", "2h ago", "3d ago", then falls back to formatted date.
-
-## Generic CRUD Components
-
-Reusable components for building CRUD views. All list pages MUST use these — never build inline tables or custom pagination.
-
-| Component | File | Purpose |
-|-----------|------|---------|
-| DataTable | `@/ui/data-table` | Generic table with columns, sorting, selection, loading skeleton, empty state |
-| CrudPageHeader | `@/ui/crud-page-header` | Page title + search slot + action button + bulk actions bar |
-| SearchInput | `@/ui/search-input` | Debounced search input with icon and clear button |
-| Pagination | `@/ui/pagination` | Previous/Next buttons with page info |
-| FormDialog | `@/ui/form-dialog` | Dialog layout shell (title + form + Cancel/Submit buttons). Caller manages form with useForm() |
-| ConfirmDelete | `@/ui/confirm-delete` | Confirmation dialog for destructive actions |
-
-**Golden reference:** See `slices/todos/` for how to compose these into a complete CRUD view.
-
-## Definition of Done: CRUD Slice (frontend)
-
-When backend is already complete, a frontend CRUD slice is done ONLY when ALL of:
-
-### Required files
-- `hooks/use-<name>.ts` — exports useXs, useCreateX, useUpdateX, useDeleteX
-- `components/<name>-list.tsx` — uses DataTable, CrudPageHeader, SearchInput, Pagination
-- `components/<name>-form.tsx` — reusable form for create + edit (pre-populate via defaultValues)
-- ConfirmDelete usage — destructive actions require confirmation
-- Route file in `src/routes/_authed/<name>.tsx` with `validateSearch: parseListParams`
-- Nav item added to `DefaultSidebarNav()` in `src/components/app-layout.tsx`
-
-### Required behavior
-- Loading: DataTable shows skeleton rows
-- Empty: descriptive message + CTA (icon + text + button)
-- Error: toast on mutation failure
-- Search: debounced search input filtering results
-- Pagination: prev/next buttons with page info
-- Sort: at least 1 sortable column
-
-### Gate (mandatory — cannot skip)
-- `pnpm lint` passes
-- `pnpm typecheck` passes
-- `pnpm build` passes
-- `pnpm test` passes (includes INV-091, INV-092, INV-093 architecture tests)
-
-### Prohibited
-- "coming soon", "placeholder", "TODO", empty components
-- Inline tables (must use DataTable)
-- Custom pagination (must use Pagination)
-- Backend slices without frontend views
-
-## Slice Types
-
-Not all slices are CRUDs. Use the right pattern:
-
-| Type | Example | UI Pattern | Uses DataTable? | INV-092/093 apply? |
-|------|---------|------------|-----------------|-------------------|
-| **CRUD list** | Todos, Products, Tools | Table + Search + Pagination + Create/Edit/Delete | Yes | Yes |
-| **Auth** | Login, Register, API Keys | Forms + Cards | No | No |
-| **Detail/Config** | Assistant settings | Tabs + Forms + nested lists | Partial | No |
-| **Dashboard** | Metrics, Analytics | Charts + Stat cards | No | No |
-| **Settings** | Profile, Org config | Forms | No | No |
-
-**INV-092 and INV-093 only apply to slices with a `*-list.tsx` component.** Detection is automatic.
-
-## Create/Edit Patterns
-
-### Modal (default for CRUD tables — <6 fields)
-Use `FormDialog` as layout shell. Create a reusable `<EntityForm>` for both create and edit:
-
-```tsx
-// Create: empty defaultValues
-<EntityForm open={showCreate} defaultValues={{}} onSubmit={handleCreate} title="New Product" />
-
-// Edit: pre-populate from existing entity
-<EntityForm open={!!editTarget} defaultValues={editTarget} onSubmit={handleUpdate} title="Edit Product" />
+src/layouts/
+├── authed-layout.tsx    ← Sidebar + ContentArea (authenticated routes)
+├── public-layout.tsx    ← Centered card (login, register)
+├── content-area.tsx     ← Layout variants: default | full | narrow | wide
+└── nav-items.ts         ← Typed NavItem[] — add entries here for new slices
 ```
 
-The form component uses `useEffect` to reset when `defaultValues` change (on open). See `slices/todos/components/todo-form.tsx`.
+**Layout variants** — routes declare their variant via the `variant` prop on `AuthedLayout`:
+- `default` — `max-w-7xl` (CRUD tables, standard pages)
+- `full` — no max-width (dashboards, analytics)
+- `narrow` — `max-w-2xl` (settings, simple forms)
+- `wide` — `max-w-[1400px]` (wide content)
 
-### Dedicated page (complex entities — >6 fields, tabs, nested data)
-Navigate to `/entities/:id/edit`. Use when the entity has tabs, rich editors, or nested relationships.
+**Sidebar** — supports expanded/collapsed modes. State persisted in localStorage. Toggle via `SidebarCollapseToggle` in the header.
+
+## Adding a New CRUD Slice
+
+**ALWAYS use the generator. NEVER create slice files manually:**
+
+```bash
+bun scripts/generate-slice.ts <name>
+```
+
+The generator creates ALL required files:
+- `packages/shared/src/slices/<name>/schemas.ts` — Zod schemas (SoT)
+- `apps/api/src/slices/<name>/` — routes, service, schema, tests
+- `apps/web/src/slices/<name>/hooks/use-<name>.ts` — 5 hooks (list, create, update, delete, bulkDelete)
+- `apps/web/src/slices/<name>/components/<singular>-list.tsx` — DataTable + CrudPageHeader + Pagination
+- `apps/web/src/slices/<name>/components/<singular>-form.tsx` — FormDialog for create/edit
+- `apps/web/src/routes/_authed/<name>.tsx` — route file with parseListParams
+- Entry in `layouts/nav-items.ts`
+
+Architecture tests verify completeness. If you skip the generator, the tests will catch it.
 
 ## Slice structure
 
 ```
 src/slices/<name>/
-├── components/    ← React components (PascalCase files)
+├── components/    ← React components (kebab-case files)
 ├── hooks/         ← TanStack Query hooks (use-*.ts)
-└── routes.ts      ← TanStack Router route (if slice has its own page)
+└── (no routes.ts — route files live in src/routes/_authed/)
 ```
-
-## Layout Architecture
-
-The app uses a **sidebar layout shell** for all authenticated views:
-
-```
-__root.tsx          → ErrorBoundary + Toaster (minimal — no navigation)
-  ├── login.tsx     → public (no layout shell)
-  ├── register.tsx  → public (no layout shell)
-  └── _authed.tsx   → AppLayout wraps all authenticated routes
-       ├── index.tsx     → Home (inside sidebar layout)
-       ├── api-keys.tsx  → API Keys (inside sidebar layout)
-       └── <new-pages>   → Add new views here
-```
-
-### Key components
-
-| Component | File | Purpose |
-|-----------|------|---------|
-| AppLayout | `@/components/app-layout` | Shell: Sidebar + MobileHeader + content area |
-| Sidebar primitives | `@/ui/sidebar` | SidebarProvider, Sidebar, SidebarHeader, SidebarContent, SidebarGroup, SidebarItem, SidebarFooter |
-
-### Customizing navigation
-
-Edit `DefaultSidebarNav()` in `src/components/app-layout.tsx` to add/remove sidebar items:
-
-```tsx
-<SidebarGroup label="Your Domain">
-  <Link to="/products">
-    <SidebarItem active={pathname.startsWith('/products')}>
-      <Package className="h-4 w-4" />
-      Products
-    </SidebarItem>
-  </Link>
-</SidebarGroup>
-```
-
-### Layout rules
-
-- **Public routes** (login, register) render WITHOUT the sidebar layout
-- **Authenticated routes** render INSIDE `<AppLayout>` via `_authed.tsx`
-- **Views only own content** — never include sidebar/header logic in views
-- **Responsive:** Mobile gets hamburger menu + overlay sidebar. Desktop gets fixed sidebar.
 
 ## Routing
 
@@ -354,34 +243,6 @@ Edit `DefaultSidebarNav()` in `src/components/app-layout.tsx` to add/remove side
 - Route files in `src/routes/`
 - `routeTree.gen.ts` is auto-generated — do NOT edit manually
 - Add to `.gitignore`: `routeTree.gen.ts`
-
-## Data Layer Rules
-
-### Server-side everything (INV-095)
-All filtering, sorting, and pagination is server-side. List components are THIN — they pass params to hooks, hooks pass params to API. NEVER use `.filter()`, `.sort()`, or `.slice()` on API response data in list components.
-
-### `keepPreviousData` on all list hooks
-Every list hook MUST use `placeholderData: keepPreviousData` from TanStack Query. This prevents the table from flashing empty skeleton on page/sort/search changes — previous data stays visible until new data arrives.
-
-```ts
-import { keepPreviousData } from '@tanstack/react-query'
-
-export function useProducts(params?: Partial<ListQuery>) {
-  return useQuery({
-    queryKey: ['products', params],
-    queryFn: async () => { ... },
-    placeholderData: keepPreviousData,  // ← MANDATORY for list hooks
-  })
-}
-```
-
-### Bulk operations
-Use the generic `useBulkDelete` hook from `@/lib/use-bulk-delete` for bulk deletes. NEVER loop individual delete calls.
-
-```ts
-import { useBulkDelete } from '@/lib/use-bulk-delete'
-export const useBulkDeleteProducts = () => useBulkDelete('/api/v1/products', ['products'])
-```
 
 ## API calls
 
@@ -441,14 +302,6 @@ Reusable components in `src/ui/` (shadcn/ui copy-paste pattern — we OWN these)
 | AlertDialog | `alert-dialog.tsx` | Confirmation for destructive actions |
 | Dialog | `dialog.tsx` | Modal forms and detail views |
 | DropdownMenu | `dropdown-menu.tsx` | Row actions in tables/lists |
-| Sidebar | `sidebar.tsx` | SidebarProvider, Sidebar, SidebarHeader, SidebarContent, SidebarGroup, SidebarItem, SidebarFooter |
-| Tabs | `tabs.tsx` | Tabs, TabsList, TabsTrigger, TabsContent (Radix) — for detail pages |
-| Tooltip | `tooltip.tsx` | Tooltip shorthand + TooltipProvider/Root/Trigger/Content — for icon buttons |
-| StatusBadge | `status-badge.tsx` | CVA variants: active, inactive, warning, error, processing — with dot indicator |
-| Breadcrumb | `breadcrumb.tsx` | Navigation trail for detail pages (Assistants > PetBot > Config) |
-| Avatar | `avatar.tsx` | User initials circle or image — sizes: sm, md, lg |
-| Textarea | `textarea.tsx` | Multi-line input styled with theme tokens |
-| Select | `select.tsx` | Native select styled with theme tokens |
 
 Use `cn()` from `src/lib/cn.ts` to merge classes: `cn('base-class', conditional && 'active-class')`.
 
@@ -550,11 +403,20 @@ After ANY of these changes, update `README.md` in the same commit/PR:
 
 **Rule:** A developer reading ONLY the README should understand what the project does, how to run it, and what commands are available. If they can't, the README is incomplete.
 
-## Workflow
+## When Stuck (Anti-Thrashing Protocol)
 
-- **Plan-first:** Every feature starts with a plan — create `docs/plans/<feature>.md` from template before coding. Confidence < 5 = plan only, no implementation.
-- **Anti-thrashing gate:** 4 consecutive failures on same task = mandatory human escalation. Never brute-force past repeated failures. Full protocol: [`docs/protocols/anti-thrashing.md`](docs/protocols/anti-thrashing.md)
-- **Decisions are logged:** Append to `docs/DECISIONS.ndjson` when choosing between alternatives. Never modify or delete existing entries.
+If you hit repeated failures on the same task:
+
+| Failures | Action |
+|----------|--------|
+| 1 | Retry with different approach |
+| 2 | Isolate: write minimal reproducible case |
+| 3 | Freeze scope + write failing test |
+| 4 | Escalate to human with 3 hypotheses |
+
+Full protocol: [`docs/protocols/anti-thrashing.md`](docs/protocols/anti-thrashing.md)
+
+Before implementing, declare confidence (1-10). If < 5, write plan only — do not code.
 
 ## Observability
 
@@ -591,6 +453,75 @@ These are patterns an AI agent won't follow by default — enforce them:
 - **`content-visibility: auto`** on long lists/grids with many items. Skips rendering off-screen items. Add to the list container: `className="[content-visibility:auto] [contain-intrinsic-size:auto_500px]"`.
 - **Animate wrappers, not SVGs.** Never put `transition-*` or `animate-*` directly on `<svg>`. Wrap in a `<span>` or `<div>` and animate that — SVG animation triggers expensive repaints.
 - **Minimize RSC serialization.** When passing data across server/client boundaries, send only the fields the client needs — not full database objects.
+
+## CRUD View Contract (enforced by tests + generator)
+
+Every CRUD list view MUST include ALL of these. The generator creates them. Tests verify them.
+
+| Feature | Component | Rule |
+|---------|-----------|------|
+| **Bulk delete** | Checkbox column + `useBulkDelete` + bulk action bar | INV-107 |
+| **Server pagination** | `Pagination` component + `page` URL param | INV-092, INV-095 |
+| **Server search** | `SearchInput` (600ms debounce) + `search` URL param | INV-092, INV-095, INV-108 |
+| **Server sort** | `DataTable` sort headers + `sort`/`order` URL params | INV-095 |
+| **Create modal** | `FormDialog` + reusable form component | INV-092 |
+| **Edit modal** | Same `FormDialog` + pre-populated `defaultValues` | INV-092 |
+| **Inline actions** | Edit icon + Delete icon per row (NO dropdown menu) | Convention |
+| **Confirm delete** | `ConfirmDelete` dialog on every delete action | INV-106 |
+| **Loading skeleton** | `DataTable isLoading` prop | INV-060 |
+| **Empty state** | `DataTable emptyMessage` + `emptyAction` (icon + text + CTA) | INV-060 |
+| **`keepPreviousData`** | `placeholderData: keepPreviousData` in list hook | INV-097 |
+| **Schema validation** | `safeParseResponse()` on all API responses | INV-096 |
+
+### Inline Actions (NOT dropdown menu)
+
+Table rows use direct icon buttons, NOT a three-dot `⋯` dropdown:
+
+```tsx
+// ✅ CORRECT — inline icons, immediately visible
+render: (item) => (
+  <div className="flex justify-end gap-1">
+    <Button variant="ghost" size="sm" onClick={() => setEditTarget(item)}>
+      <Pencil className="h-4 w-4" />
+    </Button>
+    <Button variant="ghost" size="sm" onClick={() => setDeleteId(item.id)}>
+      <Trash2 className="h-4 w-4 text-destructive" />
+    </Button>
+  </div>
+)
+
+// ❌ WRONG — hidden behind dropdown, extra click
+render: (item) => (
+  <DropdownMenu>
+    <DropdownMenuTrigger><MoreHorizontal /></DropdownMenuTrigger>
+    <DropdownMenuContent>
+      <DropdownMenuItem>Edit</DropdownMenuItem>
+      <DropdownMenuItem>Delete</DropdownMenuItem>
+    </DropdownMenuContent>
+  </DropdownMenu>
+)
+```
+
+**Why:** Inline icons = fewer clicks, immediately scannable. Dropdown = hidden actions, extra interaction.
+
+### Cross-Slice Data (F7: Route-Level Composition)
+
+Slices NEVER import from other slices. If a view needs data from another slice, compose at the route level:
+
+```tsx
+// routes/_authed/dashboard.tsx — route composes from multiple slices
+import { useTodos } from '@/slices/todos/hooks/use-todos'
+import { useProducts } from '@/slices/products/hooks/use-products'
+import { DashboardView } from '@/slices/dashboard/components/dashboard-view'
+
+function DashboardPage() {
+  const { data: todos } = useTodos({ page: 1 })
+  const { data: products } = useProducts({ page: 1 })
+  return <DashboardView recentTodos={todos?.data ?? []} recentProducts={products?.data ?? []} />
+}
+```
+
+The component receives props — never imports hooks from other slices.
 
 ## Do NOT
 
