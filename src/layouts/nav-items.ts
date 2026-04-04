@@ -1,5 +1,5 @@
 import type { LucideIcon } from 'lucide-react'
-import { CheckCircle2, KeyRound } from 'lucide-react'
+import { CheckCircle2, KeyRound, UserCircle } from 'lucide-react'
 import type { ListParams } from '@/lib/use-query-params'
 import { DEFAULT_LIST_PARAMS } from '@/lib/use-query-params'
 
@@ -32,6 +32,12 @@ export const navItems: NavItem[] = [
 		label: 'API Keys',
 		to: '/api-keys',
 		icon: KeyRound,
+		group: 'System',
+	},
+	{
+		label: 'Profile',
+		to: '/profile',
+		icon: UserCircle,
 		group: 'System',
 	},
 ]

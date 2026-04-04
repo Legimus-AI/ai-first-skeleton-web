@@ -1,7 +1,6 @@
 import { Link, useRouterState } from '@tanstack/react-router'
 import { Menu } from 'lucide-react'
 import type { ReactNode } from 'react'
-import { useCurrentUser, useLogout } from '@/slices/auth/hooks/use-auth'
 import { Button } from '@/ui/button'
 import {
 	Sidebar,
@@ -14,6 +13,7 @@ import {
 	useSidebar,
 } from '@/ui/sidebar'
 import { ThemeToggle } from '@/ui/theme-toggle'
+import { UserDropdown } from '@/ui/user-dropdown'
 import type { LayoutVariant } from './content-area'
 import { ContentArea } from './content-area'
 import { navItems } from './nav-items'
@@ -55,33 +55,12 @@ function SidebarNav() {
 }
 
 // ─── User Footer ─────────────────────────────────────────────────────────────
+// Uses shared UserDropdown component (same as navbar layout).
 
 function SidebarUserFooter() {
-	const { data: user } = useCurrentUser()
-	const logout = useLogout()
-
-	if (!user) return null
-
 	return (
 		<SidebarFooter>
-			<div className="flex items-center gap-2">
-				<div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
-					{user.email.charAt(0).toUpperCase()}
-				</div>
-				<div className="min-w-0 flex-1">
-					<p className="truncate text-sm font-medium text-foreground">{user.email}</p>
-				</div>
-				<ThemeToggle />
-				<Button
-					variant="ghost"
-					size="sm"
-					onClick={() => logout.mutate()}
-					disabled={logout.isPending}
-					className="text-xs text-muted-foreground"
-				>
-					Logout
-				</Button>
-			</div>
+			<UserDropdown />
 		</SidebarFooter>
 	)
 }
