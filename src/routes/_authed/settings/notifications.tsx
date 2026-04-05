@@ -52,7 +52,8 @@ function SettingsNotificationsPage() {
 	const sendTestPush = useCallback(async () => {
 		try {
 			// Ensure permission is granted
-			if (Notification.permission !== 'granted') {
+			const perm = Notification.permission
+			if (perm !== 'granted') {
 				const result = await Notification.requestPermission()
 				if (result !== 'granted') {
 					toast.error('Notification permission denied')
@@ -64,9 +65,13 @@ function SettingsNotificationsPage() {
 			await reg.showNotification('Test Notification', {
 				body: 'Push notifications are working correctly!',
 				icon: '/favicon.ico',
+				tag: 'test-notification',
 			})
 			setPushTestSent(true)
-			toast.success('Check your notification area!')
+			toast.success('Notification sent!', {
+				description:
+					'Check your OS notification center. If nothing appears, ensure Chrome has notification access in System Settings → Notifications → Google Chrome.',
+			})
 		} catch (err) {
 			toast.error('Could not send test notification', {
 				description: err instanceof Error ? err.message : 'Unknown error',
