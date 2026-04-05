@@ -49,13 +49,18 @@ function SettingsNotificationsPage() {
 		setTestPlayed(true)
 	}, [])
 
-	const sendTestPush = useCallback(() => {
-		if (!('Notification' in window) || Notification.permission !== 'granted') return
-		new Notification('Test Notification', {
-			body: 'Push notifications are working correctly!',
-			icon: '/favicon.ico',
-		})
-		setPushTestSent(true)
+	const sendTestPush = useCallback(async () => {
+		try {
+			const reg = await navigator.serviceWorker.ready
+			await reg.showNotification('Test Notification', {
+				body: 'Push notifications are working correctly!',
+				icon: '/favicon.ico',
+			})
+			setPushTestSent(true)
+			toast.success('Test notification sent!')
+		} catch {
+			toast.error('Could not send test notification')
+		}
 	}, [])
 
 	useEffect(() => {
