@@ -63,7 +63,7 @@ export function Sidebar({ children, className }: { children: ReactNode; classNam
 			)}
 			<aside
 				className={cn(
-					'group relative fixed inset-y-0 left-0 z-50 flex flex-col border-r border-border transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] md:static md:translate-x-0',
+					'group relative fixed inset-y-0 left-0 z-50 flex flex-col overflow-visible border-r border-border transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] md:static md:translate-x-0',
 					'aether-glass hover:w-[240px]',
 					isCollapsed ? 'w-[64px]' : 'w-[240px]',
 					open ? 'translate-x-0' : '-translate-x-full',
@@ -72,8 +72,8 @@ export function Sidebar({ children, className }: { children: ReactNode; classNam
 			>
 				<div className="flex h-full w-[240px] flex-col overflow-hidden">{children}</div>
 
-				{/* Floating Toggle Button (Desktop only) */}
-				<div className="absolute -right-3 top-5 hidden md:block z-50">
+				{/* Floating Toggle Button (Desktop only) — pointer-events-auto ensures clickability over main content */}
+				<div className="absolute -right-3 top-5 z-[60] hidden md:block">
 					<SidebarCollapseToggle />
 				</div>
 			</aside>

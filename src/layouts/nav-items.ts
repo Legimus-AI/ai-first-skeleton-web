@@ -1,5 +1,5 @@
 import type { LucideIcon } from 'lucide-react'
-import { CheckCircle2, KeyRound, LayoutDashboard, Settings, Users } from 'lucide-react'
+import { CheckCircle2, LayoutDashboard, Settings } from 'lucide-react'
 import type { ListParams } from '@/lib/use-query-params'
 import { DEFAULT_LIST_PARAMS } from '@/lib/use-query-params'
 
@@ -37,30 +37,18 @@ export const navItems: NavItem[] = [
 		group: 'Menu',
 		search: DEFAULT_LIST_PARAMS,
 	},
-	// ─── Administracion ───────────────────────────────────────────────────────
-	{
-		label: 'Usuarios',
-		to: '/users',
-		icon: Users,
-		group: 'Administracion',
-		search: DEFAULT_LIST_PARAMS,
-	},
 	// ─── Sistema ──────────────────────────────────────────────────────────────
 	{
-		label: 'Configuracion',
+		label: 'Configuración',
 		to: '/settings',
 		icon: Settings,
 		group: 'Sistema',
 		children: [
 			{ label: 'General', to: '/settings/general' },
+			{ label: 'Equipo', to: '/settings/team', search: DEFAULT_LIST_PARAMS },
 			{ label: 'Seguridad', to: '/settings/security' },
 			{ label: 'Notificaciones', to: '/settings/notifications' },
+			{ label: 'Claves API', to: '/settings/api-keys' },
 		],
-	},
-	{
-		label: 'Claves API',
-		to: '/api-keys',
-		icon: KeyRound,
-		group: 'Sistema',
 	},
 ]
