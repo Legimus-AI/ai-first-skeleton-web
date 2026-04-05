@@ -7,6 +7,7 @@ import { usePushNotifications } from '@/lib/use-push-notifications'
 import { Badge } from '@/ui/badge'
 import { Button } from '@/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/ui/card'
+import { Hint } from '@/ui/hint'
 
 export const Route = createFileRoute('/_authed/settings/notifications')({
 	component: SettingsNotificationsPage,
@@ -181,14 +182,14 @@ function SettingsNotificationsPage() {
 								</span>
 							</div>
 							{isMac() && (
-								<p className="text-xs text-muted-foreground">
+								<Hint variant="tip">
 									<strong>macOS:</strong> If no notification appears, go to{' '}
 									<span className="font-medium text-foreground">
 										System Settings → Notifications → Google Chrome
 									</span>{' '}
 									and ensure &quot;Allow Notifications&quot; is enabled with Banners or Alerts
 									style.
-								</p>
+								</Hint>
 							)}
 						</div>
 					)}
