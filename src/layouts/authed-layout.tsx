@@ -99,6 +99,8 @@ interface AuthedLayoutProps {
 }
 
 export function AuthedLayout({ children, variant }: AuthedLayoutProps) {
+	const pathname = useRouterState({ select: (s) => s.location.pathname })
+
 	return (
 		<SidebarProvider>
 			<div className="flex min-h-screen">
@@ -119,7 +121,9 @@ export function AuthedLayout({ children, variant }: AuthedLayoutProps) {
 				</Sidebar>
 				<div className="flex min-w-0 flex-1 flex-col">
 					<TopHeader />
-					<ContentArea {...(variant ? { variant } : {})}>{children}</ContentArea>
+					<ContentArea {...(variant ? { variant } : {})} pageKey={pathname}>
+						{children}
+					</ContentArea>
 				</div>
 			</div>
 		</SidebarProvider>

@@ -29,11 +29,12 @@ export function TodoForm({
 		defaultValues: { title: '', ...defaultValues },
 	})
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: intentionally reset only on open — defaultValues changes during close animation cause flash
 	useEffect(() => {
 		if (open) {
 			form.reset({ title: '', ...defaultValues })
 		}
-	}, [open, defaultValues, form])
+	}, [open])
 
 	return (
 		<FormDialog

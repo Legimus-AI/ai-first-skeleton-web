@@ -94,6 +94,7 @@ interface NavbarLayoutProps {
 }
 
 export function AuthedLayout({ children, variant }: NavbarLayoutProps) {
+	const pathname = useRouterState({ select: (s) => s.location.pathname })
 	const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
 	return (
@@ -138,7 +139,9 @@ export function AuthedLayout({ children, variant }: NavbarLayoutProps) {
 			<MobileMenu open={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
 
 			{/* Content */}
-			<ContentArea {...(variant ? { variant } : {})}>{children}</ContentArea>
+			<ContentArea {...(variant ? { variant } : {})} pageKey={pathname}>
+				{children}
+			</ContentArea>
 		</div>
 	)
 }

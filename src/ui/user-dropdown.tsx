@@ -1,6 +1,5 @@
 import { useNavigate } from '@tanstack/react-router'
 import { ChevronDown, LogOut, Settings, UserCog } from 'lucide-react'
-import { type Theme, useTheme } from '@/lib/theme-provider'
 import { useCurrentUser, useLogout } from '@/slices/auth/hooks/use-auth'
 import { Avatar } from '@/ui/avatar'
 import {
@@ -11,13 +10,11 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '@/ui/dropdown-menu'
-import { ThemeSegmented } from '@/ui/theme-segmented'
 
 export function UserDropdown() {
 	const { data: user } = useCurrentUser()
 	const logout = useLogout()
 	const navigate = useNavigate()
-	const { theme, setTheme } = useTheme()
 
 	if (!user) return null
 
@@ -76,12 +73,6 @@ export function UserDropdown() {
 					<LogOut className="h-4 w-4" />
 					Cerrar sesion
 				</DropdownMenuItem>
-				<DropdownMenuSeparator />
-
-				{/* Theme toggle segmented control */}
-				<div className="px-3 py-2.5">
-					<ThemeSegmented value={theme} onChange={(v) => setTheme(v as Theme)} />
-				</div>
 			</DropdownMenuContent>
 		</DropdownMenu>
 	)

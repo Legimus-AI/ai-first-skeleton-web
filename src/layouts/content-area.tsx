@@ -24,18 +24,21 @@ interface ContentAreaProps {
 	variant?: LayoutVariant
 	children: ReactNode
 	className?: string
+	/** Key to force re-mount on navigation (triggers fade-in animation). */
+	pageKey?: string
 }
 
-export function ContentArea({ variant = 'default', children, className }: ContentAreaProps) {
+export function ContentArea({
+	variant = 'default',
+	children,
+	className,
+	pageKey,
+}: ContentAreaProps) {
 	return (
-		<main
-			className={cn(
-				'flex-1 p-4 md:p-8 motion-safe:animate-fade-in',
-				variantStyles[variant],
-				className,
-			)}
-		>
-			{children}
+		<main className={cn('flex-1 p-4 md:p-8', variantStyles[variant], className)}>
+			<div key={pageKey} className="motion-safe:animate-fade-in">
+				{children}
+			</div>
 		</main>
 	)
 }
