@@ -1,3 +1,4 @@
+import { Loader2 } from 'lucide-react'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -40,7 +41,8 @@ export function ConfirmDelete({
 						disabled={isPending}
 						className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
 					>
-						{isPending ? 'Deleting...' : 'Delete'}
+						{isPending && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />}
+						Delete
 					</AlertDialogAction>
 				</AlertDialogFooter>
 			</AlertDialogContent>

@@ -646,3 +646,71 @@ const toggle = useOptimisticMutation({
 
 **When to use:** Toggles, status changes, inline edits — anything where waiting 200ms for the server feels sluggish.
 **When NOT to use:** Creates, deletes, complex mutations with validation — use regular `useMutation` + toast.
+
+---
+
+## Design System (MANDATORY — read `DESIGN_SYSTEM.md` for full spec)
+
+The skeleton follows a **world-class minimalist** design inspired by Linear, Vercel Dashboard, and Supabase.
+
+### Core Principles
+1. Single accent color (blue) — everything else is grayscale
+2. Layered surfaces: background → card → popover (each visibly distinct)
+3. Spacing creates hierarchy — prefer whitespace over borders
+4. 150ms transitions on all interactive elements
+
+### Typography (use exactly these)
+| Use | Classes |
+|-----|---------|
+| Page title | `text-2xl font-semibold tracking-tight` |
+| Section heading | `text-lg font-semibold` |
+| Body text | `text-sm` |
+| Secondary text | `text-sm text-muted-foreground` |
+| Caption | `text-xs text-muted-foreground` |
+
+### Page Layout
+```tsx
+<div className="space-y-6">
+  <CrudPageHeader title="..." description="..." search={...} action={...} />
+  <DataTable ... />
+  <Pagination ... />
+</div>
+```
+Always `space-y-6` between page sections. Never `space-y-2`.
+
+### Tables
+- Headers: `uppercase tracking-wider text-xs` (auto from TableHead)
+- Row hover: `hover:bg-muted/50` (auto from TableRow)
+- Row borders: `border-border/50` — subtle, not heavy
+- Actions: icon-only ghost buttons (`size="icon" className="h-8 w-8"`)
+
+### Empty States
+- Icon inside `h-12 w-12 rounded-full bg-muted` container
+- Title: `text-sm font-medium`
+- CTA: `Button size="sm"` with icon + label
+- Vertical padding: `py-16`
+
+### Badges (semantic)
+| Variant | Use for |
+|---------|---------|
+| `default` | Neutral/primary status |
+| `success` | Completed, active |
+| `warning` | Pending, caution |
+| `destructive` | Error, failed |
+| `info` | Informational |
+
+### Cards
+- Default: `border-border/50 shadow-sm` (light shadow + subtle border)
+- Card titles: `text-lg font-semibold` (not text-2xl)
+
+### Buttons in context
+- Primary CTA: `<Button><Plus className="mr-1.5 h-4 w-4" /> Add Item</Button>`
+- Table actions: `<Button variant="ghost" size="icon" className="h-8 w-8">`
+- Bulk actions: `<Button variant="destructive" size="sm">`
+
+### Do NOT
+- Use `space-y-2` for page layout (use `space-y-6`)
+- Use text buttons ("Edit") in table action columns (use icon-only buttons)
+- Skip the page description in CrudPageHeader
+- Use `text-2xl` for card titles (use `text-lg`)
+- Add borders where spacing suffices

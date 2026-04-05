@@ -40,12 +40,14 @@ export function useLogin() {
 			const json: unknown = await res.json()
 			return safeParseResponse(authResponseSchema, json)
 		},
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['auth', 'me'] })
+		onSuccess: (data) => {
+			queryClient.setQueryData(['auth', 'me'], data.data)
 			navigate({ to: '/todos', search: DEFAULT_LIST_PARAMS })
 		},
 		onError: (error: Error) => {
-			toast.error(error.message || 'Login failed')
+			toast.error('Login failed', {
+				description: error.message || 'Please check your credentials and try again.',
+			})
 		},
 	})
 }
@@ -65,12 +67,14 @@ export function useRegister() {
 			const json: unknown = await res.json()
 			return safeParseResponse(authResponseSchema, json)
 		},
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['auth', 'me'] })
+		onSuccess: (data) => {
+			queryClient.setQueryData(['auth', 'me'], data.data)
 			navigate({ to: '/todos', search: DEFAULT_LIST_PARAMS })
 		},
 		onError: (error: Error) => {
-			toast.error(error.message || 'Registration failed')
+			toast.error('Registration failed', {
+				description: error.message || 'Please try again.',
+			})
 		},
 	})
 }

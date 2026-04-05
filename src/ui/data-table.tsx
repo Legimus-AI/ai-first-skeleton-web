@@ -170,7 +170,7 @@ export function DataTable<T>({
 
 	if (isLoading) {
 		return (
-			<div className="mt-6">
+			<div>
 				<Table>
 					<TableHeader>
 						<TableRow className="hover:bg-transparent">
@@ -207,9 +207,13 @@ export function DataTable<T>({
 
 	if (data.length === 0) {
 		return (
-			<div className="mt-16 flex flex-col items-center text-center">
-				{emptyIcon && <div className="mb-4">{emptyIcon}</div>}
-				<p className="text-sm text-muted-foreground">{emptyMessage}</p>
+			<div className="flex flex-col items-center justify-center py-16 text-center">
+				{emptyIcon && (
+					<div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+						{emptyIcon}
+					</div>
+				)}
+				<p className="mt-4 text-sm font-medium">{emptyMessage}</p>
 				{emptyAction && <div className="mt-4">{emptyAction}</div>}
 			</div>
 		)
@@ -218,7 +222,7 @@ export function DataTable<T>({
 	// ── Data table ────────────────────────────────────────────────────────────
 
 	return (
-		<div className="mt-6">
+		<div>
 			<Table>
 				<TableHeader>
 					{table.getHeaderGroups().map((headerGroup) => (

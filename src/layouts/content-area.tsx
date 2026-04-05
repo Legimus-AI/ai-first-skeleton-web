@@ -28,6 +28,14 @@ interface ContentAreaProps {
 
 export function ContentArea({ variant = 'default', children, className }: ContentAreaProps) {
 	return (
-		<main className={cn('flex-1 p-4 md:p-8', variantStyles[variant], className)}>{children}</main>
+		<main
+			className={cn(
+				'flex-1 p-4 md:p-8 motion-safe:animate-fade-in',
+				variantStyles[variant],
+				className,
+			)}
+		>
+			{children}
+		</main>
 	)
 }

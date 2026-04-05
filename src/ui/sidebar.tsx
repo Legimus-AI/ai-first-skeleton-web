@@ -1,6 +1,7 @@
 import { PanelLeftClose, PanelLeftOpen } from 'lucide-react'
 import { createContext, type ReactNode, use, useEffect, useState } from 'react'
 import { cn } from '@/lib/cn'
+import { Tooltip } from '@/ui/tooltip'
 
 // ─── Context ──────────────────────────────────────────────────────────────────
 
@@ -139,13 +140,13 @@ export function SidebarGroup({
 }) {
 	const { mode } = useSidebar()
 	return (
-		<div className={cn('mb-4', className)}>
+		<div className={cn('mb-6', className)}>
 			{label && mode === 'expanded' && (
-				<p className="mb-1 px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+				<p className="mb-2 px-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
 					{label}
 				</p>
 			)}
-			<div className="space-y-0.5">{children}</div>
+			<div className="space-y-1">{children}</div>
 		</div>
 	)
 }
@@ -154,27 +155,31 @@ export function SidebarItem({
 	children,
 	active,
 	disabled,
+	label,
 	className,
 }: {
 	children: ReactNode
 	active?: boolean
 	disabled?: boolean
+	label?: string
 	className?: string
 }) {
 	const { mode } = useSidebar()
-	return (
+	const isCollapsed = mode === 'collapsed'
+
+	const content = (
 		<div
 			className={cn(
-				'flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium transition-colors duration-150',
-				mode === 'collapsed' && 'justify-center px-0',
+				'flex w-full items-center gap-2 rounded-md px-2 py-2 text-sm font-medium transition-colors duration-150',
+				isCollapsed && 'justify-center px-0',
 				active
 					? 'bg-primary/10 text-primary'
-					: 'text-muted-foreground hover:bg-accent hover:text-accent-foreground',
+					: 'text-muted-foreground hover:bg-muted/50 hover:text-foreground',
 				disabled && 'pointer-events-none opacity-50',
 				className,
 			)}
 		>
-			{mode === 'collapsed'
+			{isCollapsed
 				? (() => {
 						const childArray = Array.isArray(children) ? children : [children]
 						return childArray[0]
@@ -182,6 +187,16 @@ export function SidebarItem({
 				: children}
 		</div>
 	)
+
+	if (isCollapsed && label) {
+		return (
+			<Tooltip content={label} side="right">
+				{content}
+			</Tooltip>
+		)
+	}
+
+	return content
 }
 
 export function SidebarFooter({

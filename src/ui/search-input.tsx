@@ -1,4 +1,4 @@
-import { Search, X } from 'lucide-react'
+import { Loader2, Search, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { cn } from '@/lib/cn'
 import { Input } from '@/ui/input'
@@ -8,6 +8,7 @@ interface SearchInputProps {
 	onChange: (value: string) => void
 	placeholder?: string
 	className?: string
+	isLoading?: boolean
 }
 
 export function SearchInput({
@@ -15,6 +16,7 @@ export function SearchInput({
 	onChange,
 	placeholder = 'Search...',
 	className,
+	isLoading,
 }: SearchInputProps) {
 	const [internal, setInternal] = useState(value)
 	const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined)
@@ -37,12 +39,17 @@ export function SearchInput({
 
 	return (
 		<div className={cn('relative', className)}>
-			<Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+			{isLoading ? (
+				<Loader2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground" />
+			) : (
+				<Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+			)}
 			<Input
 				value={internal}
 				onChange={(e) => handleChange(e.target.value)}
 				placeholder={placeholder}
 				className="pl-9 pr-8"
+				aria-label={placeholder}
 			/>
 			{internal.length > 0 && (
 				<button

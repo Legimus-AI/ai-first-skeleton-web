@@ -6,57 +6,87 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Design tokens — shadcn/ui pattern with OKLCH colors (Tailwind v4 native).
- * These CSS variables power all UI components via Tailwind classes:
- *   bg-primary, text-foreground, border-border, rounded-lg, etc.
+ * Design tokens — OKLCH colors (Tailwind v4 native).
+ * See DESIGN_SYSTEM.md for full guidelines.
  *
- * To switch theme: change the color values here.
- * All components automatically update — zero code changes needed.
+ * Palette: monochrome + single accent (blue) + semantic colors.
+ * Surface layers: background → card → popover (each progressively lighter/darker).
  */
 
 :root {
 	--radius: 0.625rem;
-	--background: oklch(1 0 0);
+
+	/* ── Surfaces ─────────────────────────────────────────────── */
+	--background: oklch(0.985 0 0);
 	--foreground: oklch(0.145 0 0);
 	--card: oklch(1 0 0);
 	--card-foreground: oklch(0.145 0 0);
 	--popover: oklch(1 0 0);
 	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
+
+	/* ── Primary (accent — blue) ─────────────────────────────── */
+	--primary: oklch(0.55 0.2 260);
 	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
+
+	/* ── Neutral fills ───────────────────────────────────────── */
+	--secondary: oklch(0.965 0 0);
 	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
+	--muted: oklch(0.965 0 0);
 	--muted-foreground: oklch(0.556 0 0);
-	--accent: oklch(0.97 0 0);
+	--accent: oklch(0.965 0.005 260);
 	--accent-foreground: oklch(0.205 0 0);
+
+	/* ── Semantic colors ─────────────────────────────────────── */
 	--destructive: oklch(0.577 0.245 27.325);
 	--destructive-foreground: oklch(0.985 0 0);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
+	--success: oklch(0.62 0.17 145);
+	--success-foreground: oklch(0.985 0 0);
+	--warning: oklch(0.75 0.15 75);
+	--warning-foreground: oklch(0.25 0 0);
+	--info: oklch(0.7 0.12 230);
+	--info-foreground: oklch(0.985 0 0);
+
+	/* ── Borders & rings ─────────────────────────────────────── */
+	--border: oklch(0.915 0 0);
+	--input: oklch(0.885 0 0);
+	--ring: oklch(0.55 0.2 260);
 }
 
 .dark {
-	--background: oklch(0.145 0 0);
+	/* ── Surfaces ─────────────────────────────────────────────── */
+	--background: oklch(0.13 0 0);
 	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
+	--card: oklch(0.17 0 0);
 	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.269 0 0);
+	--popover: oklch(0.21 0 0);
 	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
+
+	/* ── Primary (accent — blue) ─────────────────────────────── */
+	--primary: oklch(0.65 0.2 260);
+	--primary-foreground: oklch(0.13 0 0);
+
+	/* ── Neutral fills ───────────────────────────────────────── */
+	--secondary: oklch(0.22 0 0);
 	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
+	--muted: oklch(0.22 0 0);
 	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.371 0 0);
+	--accent: oklch(0.25 0.01 260);
 	--accent-foreground: oklch(0.985 0 0);
+
+	/* ── Semantic colors ─────────────────────────────────────── */
 	--destructive: oklch(0.704 0.191 22.216);
 	--destructive-foreground: oklch(0.985 0 0);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
+	--success: oklch(0.72 0.17 145);
+	--success-foreground: oklch(0.13 0 0);
+	--warning: oklch(0.8 0.15 75);
+	--warning-foreground: oklch(0.13 0 0);
+	--info: oklch(0.75 0.12 230);
+	--info-foreground: oklch(0.13 0 0);
+
+	/* ── Borders & rings ─────────────────────────────────────── */
+	--border: oklch(1 0 0 / 8%);
+	--input: oklch(1 0 0 / 12%);
+	--ring: oklch(0.65 0.2 260);
 }
 
 @theme inline {
@@ -76,6 +106,12 @@
 	--color-accent-foreground: var(--accent-foreground);
 	--color-destructive: var(--destructive);
 	--color-destructive-foreground: var(--destructive-foreground);
+	--color-success: var(--success);
+	--color-success-foreground: var(--success-foreground);
+	--color-warning: var(--warning);
+	--color-warning-foreground: var(--warning-foreground);
+	--color-info: var(--info);
+	--color-info-foreground: var(--info-foreground);
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
@@ -90,6 +126,31 @@
 		@apply border-border;
 	}
 	body {
-		@apply bg-background text-foreground;
+		@apply bg-background text-foreground antialiased;
 	}
+}
+
+@keyframes shimmer {
+	0% {
+		background-position: 200% 0;
+	}
+	100% {
+		background-position: -200% 0;
+	}
+}
+
+@keyframes fade-in {
+	from {
+		opacity: 0;
+		translate: 0 4px;
+	}
+	to {
+		opacity: 1;
+		translate: 0 0;
+	}
+}
+
+@theme inline {
+	--animate-shimmer: shimmer 2s ease-in-out infinite;
+	--animate-fade-in: fade-in 150ms ease-out;
 }

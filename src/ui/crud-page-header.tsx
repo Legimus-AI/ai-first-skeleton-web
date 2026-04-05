@@ -19,9 +19,7 @@ export function CrudPageHeader({
 		<div className="space-y-4">
 			<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 				<div className="min-w-0">
-					<h1 className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
-						{title}
-					</h1>
+					<h1 className="text-2xl font-semibold tracking-tight text-foreground">{title}</h1>
 					{description && <p className="mt-1 text-sm text-muted-foreground">{description}</p>}
 				</div>
 				<div className="flex items-center gap-3">
@@ -34,6 +32,7 @@ export function CrudPageHeader({
 					{bulkAction}
 				</div>
 			)}
+			<div className="border-b border-border/50" />
 		</div>
 	)
 }

@@ -1,4 +1,7 @@
+import { Eye, EyeOff } from 'lucide-react'
+import { useState } from 'react'
 import type { UseFormRegisterReturn } from 'react-hook-form'
+import { Button } from '@/ui/button'
 import { Input } from '@/ui/input'
 
 interface AuthFormFieldProps {
@@ -30,20 +33,47 @@ export function AuthFormField({
 	errorMessage,
 	autoComplete,
 }: AuthFormFieldProps) {
+	const [showPassword, setShowPassword] = useState(false)
+	const isPassword = type === 'password'
+	const inputType = isPassword && showPassword ? 'text' : type
+
+	const errorId = `${id}-error`
+
 	return (
 		<div className="space-y-1">
 			<label htmlFor={id} className="text-sm font-medium">
 				{label}
 			</label>
-			<Input
-				{...registration}
-				id={id}
-				type={type}
-				placeholder={placeholder}
-				error={hasError}
-				autoComplete={autoComplete}
-			/>
-			{hasError && errorMessage && <p className="text-xs text-destructive">{errorMessage}</p>}
+			<div className="relative">
+				<Input
+					{...registration}
+					id={id}
+					type={inputType}
+					placeholder={placeholder}
+					error={hasError}
+					autoComplete={autoComplete}
+					aria-describedby={hasError && errorMessage ? errorId : undefined}
+					className={isPassword ? 'pr-10' : undefined}
+				/>
+				{isPassword && (
+					<Button
+						type="button"
+						variant="ghost"
+						size="icon"
+						className="absolute right-0 top-0 h-10 w-10 text-muted-foreground hover:text-foreground"
+						onClick={() => setShowPassword((v) => !v)}
+						aria-label={showPassword ? 'Hide password' : 'Show password'}
+						tabIndex={-1}
+					>
+						{showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+					</Button>
+				)}
+			</div>
+			{hasError && errorMessage && (
+				<p id={errorId} className="text-xs text-destructive" role="alert">
+					{errorMessage}
+				</p>
+			)}
 		</div>
 	)
 }

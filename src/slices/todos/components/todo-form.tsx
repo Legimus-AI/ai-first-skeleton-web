@@ -44,13 +44,13 @@ export function TodoForm({
 			isPending={isPending}
 			submitLabel={submitLabel}
 		>
-			<div>
+			<div className="space-y-2">
 				<label htmlFor="todo-title" className="text-sm font-medium">
 					Title
 				</label>
 				<Input id="todo-title" {...form.register('title')} placeholder="What needs to be done?" />
 				{form.formState.errors.title && (
-					<p className="mt-1 text-sm text-destructive">{form.formState.errors.title.message}</p>
+					<p className="mt-1 text-xs text-destructive">{form.formState.errors.title.message}</p>
 				)}
 			</div>
 		</FormDialog>

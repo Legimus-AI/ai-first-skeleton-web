@@ -1,3 +1,4 @@
+import { AlertCircle, Copy, RefreshCw } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { ErrorBoundary as ReactErrorBoundary } from 'react-error-boundary'
 import { ApiError } from '@/lib/api-error'
@@ -24,27 +25,28 @@ function ErrorFallback({ error }: { error: unknown }) {
 	}
 
 	return (
-		<div className="flex min-h-screen items-center justify-center bg-destructive/10 p-4">
-			<div className="text-center">
-				<h1 className="mb-2 text-2xl font-bold text-destructive">Something went wrong</h1>
-				<p className="mb-4 text-muted-foreground">{message}</p>
+		<div className="flex min-h-screen items-center justify-center bg-background p-4">
+			<div className="flex max-w-md flex-col items-center text-center">
+				<div className="flex h-14 w-14 items-center justify-center rounded-full bg-destructive/10">
+					<AlertCircle className="h-7 w-7 text-destructive" />
+				</div>
+				<h1 className="mt-5 text-xl font-semibold text-foreground">Something went wrong</h1>
+				<p className="mt-2 text-sm text-muted-foreground">{message}</p>
 				{requestId && (
-					<code className="mb-4 block rounded bg-muted px-2 py-1 font-mono text-xs text-muted-foreground">
+					<code className="mt-3 rounded-md bg-muted px-3 py-1.5 font-mono text-xs text-muted-foreground">
 						{requestId}
 					</code>
 				)}
-				<div className="mb-4 flex items-center justify-center gap-2">
+				<div className="mt-6 flex items-center gap-3">
 					<Button variant="outline" size="sm" onClick={copyDebugInfo}>
+						<Copy className="mr-1.5 h-3.5 w-3.5" />
 						Copy debug info
 					</Button>
+					<Button size="sm" onClick={() => globalThis.location.reload()}>
+						<RefreshCw className="mr-1.5 h-3.5 w-3.5" />
+						Reload page
+					</Button>
 				</div>
-				<button
-					type="button"
-					onClick={() => globalThis.location.reload()}
-					className="underline transition-colors duration-150"
-				>
-					Reload page
-				</button>
 			</div>
 		</div>
 	)

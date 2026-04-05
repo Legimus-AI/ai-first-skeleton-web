@@ -35,12 +35,16 @@ export function useCreateTodo() {
 			const json = await res.json()
 			return safeParseResponse(todoResponseSchema, json)
 		},
-		onSuccess: () => {
+		onSuccess: (_data, variables) => {
 			queryClient.invalidateQueries({ queryKey: TODOS_KEY })
-			toast.success('Todo created')
+			toast.success('Todo created', {
+				description: `"${variables.title}" has been added.`,
+			})
 		},
 		onError: (error: Error) => {
-			toast.error(error.message || 'Failed to create todo')
+			toast.error('Failed to create todo', {
+				description: error.message,
+			})
 		},
 	})
 }
@@ -56,9 +60,12 @@ export function useUpdateTodo() {
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: TODOS_KEY })
+			toast.success('Todo updated')
 		},
 		onError: (error: Error) => {
-			toast.error(error.message || 'Failed to update todo')
+			toast.error('Failed to update todo', {
+				description: error.message,
+			})
 		},
 	})
 }
@@ -74,10 +81,14 @@ export function useDeleteTodo() {
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: TODOS_KEY })
-			toast.success('Todo deleted')
+			toast.success('Todo deleted', {
+				description: 'The item has been permanently removed.',
+			})
 		},
 		onError: (error: Error) => {
-			toast.error(error.message || 'Failed to delete todo')
+			toast.error('Failed to delete todo', {
+				description: error.message,
+			})
 		},
 	})
 }

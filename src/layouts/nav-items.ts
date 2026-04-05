@@ -1,10 +1,11 @@
 import type { LucideIcon } from 'lucide-react'
-import { CheckCircle2, KeyRound, UserCircle } from 'lucide-react'
+import { CheckCircle2, KeyRound } from 'lucide-react'
 import type { ListParams } from '@/lib/use-query-params'
 import { DEFAULT_LIST_PARAMS } from '@/lib/use-query-params'
 
 // ─── Navigation Config ───────────────────────────────────────────────────────
-// Add new entries here when creating a new slice.
+// Main app navigation shown in the sidebar / navbar.
+// Account items (Profile, Sign out) live in the UserDropdown.
 // Architecture tests (INV-104) verify every CRUD slice has a nav entry.
 
 export interface NavItem {
@@ -19,25 +20,19 @@ export interface NavItem {
 }
 
 export const navItems: NavItem[] = [
-	// ─── App ──────────────────────────────────────────────────────────────────
+	// ─── Menu ─────────────────────────────────────────────────────────────────
 	{
-		label: 'Todos',
+		label: 'Tareas',
 		to: '/todos',
 		icon: CheckCircle2,
-		group: 'App',
+		group: 'Menu',
 		search: DEFAULT_LIST_PARAMS,
 	},
-	// ─── System ───────────────────────────────────────────────────────────────
+	// ─── Sistema ──────────────────────────────────────────────────────────────
 	{
-		label: 'API Keys',
+		label: 'Claves API',
 		to: '/api-keys',
 		icon: KeyRound,
-		group: 'System',
-	},
-	{
-		label: 'Profile',
-		to: '/profile',
-		icon: UserCircle,
-		group: 'System',
+		group: 'Sistema',
 	},
 ]

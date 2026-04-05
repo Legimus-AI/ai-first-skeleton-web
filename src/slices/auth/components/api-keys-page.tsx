@@ -1,36 +1,59 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { type CreateApiKey, createApiKeySchema } from '@repo/shared'
+import { type ApiKey, type CreateApiKey, createApiKeySchema } from '@repo/shared'
+import { KeyRound, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { locale } from '@/env'
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-} from '@/ui/alert-dialog'
 import { Button } from '@/ui/button'
+import { ConfirmDelete } from '@/ui/confirm-delete'
+import { CrudPageHeader } from '@/ui/crud-page-header'
+import { type Column, DataTable } from '@/ui/data-table'
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from '@/ui/dialog'
+import { InlineError } from '@/ui/inline-error'
 import { Input } from '@/ui/input'
-import { Skeleton } from '@/ui/skeleton'
 import { useApiKeys, useCreateApiKey, useDeleteApiKey } from '../hooks/use-api-keys'
+
+function formatDate(date: string) {
+	return new Date(date).toLocaleDateString(locale, {
+		year: 'numeric',
+		month: 'short',
+		day: 'numeric',
+	})
+}
+
+function formatRelative(date: string) {
+	const diff = Date.now() - new Date(date).getTime()
+	const minutes = Math.floor(diff / 60_000)
+	if (minutes < 1) return 'Hace instantes'
+	if (minutes < 60) return `Hace ${minutes}m`
+	const hours = Math.floor(minutes / 60)
+	if (hours < 24) return `Hace ${hours}h`
+	const days = Math.floor(hours / 24)
+	if (days < 30) return `Hace ${days}d`
+	return formatDate(date)
+}
 
 export function ApiKeysPage() {
 	const { data: keys, isLoading, error } = useApiKeys()
 	const createApiKey = useCreateApiKey()
 	const deleteApiKey = useDeleteApiKey()
 	const [deleteId, setDeleteId] = useState<string | null>(null)
+	const [showCreate, setShowCreate] = useState(false)
 	const [newRawKey, setNewRawKey] = useState<string | null>(null)
 
 	const {
 		register,
 		handleSubmit,
 		reset,
-		formState: { errors },
+		formState: { errors: formErrors },
 	} = useForm<CreateApiKey>({
 		resolver: zodResolver(createApiKeySchema),
 	})
@@ -39,85 +62,103 @@ export function ApiKeysPage() {
 		createApiKey.mutate(input, {
 			onSuccess: (data) => {
 				setNewRawKey(data.rawKey)
+				setShowCreate(false)
 				reset()
 			},
 		})
 	}
 
-	const confirmDelete = () => {
-		if (deleteId) {
-			deleteApiKey.mutate(deleteId)
-			setDeleteId(null)
-		}
-	}
-
-	const formatDate = (date: string) => new Date(date).toLocaleDateString(locale)
-
 	const copyToClipboard = async (text: string) => {
 		await navigator.clipboard.writeText(text)
-		toast.success('Copied to clipboard')
+		toast.success('Copiado al portapapeles')
 	}
 
-	if (isLoading)
-		return (
-			<div className="space-y-6">
-				{/* Heading + description */}
-				<Skeleton className="h-7 w-32" />
-				<Skeleton className="h-4 w-full" />
+	if (error) {
+		return <InlineError message={error.message} onRetry={() => globalThis.location.reload()} />
+	}
 
-				{/* Create form */}
-				<div className="flex gap-2">
-					<Skeleton className="h-10 flex-1" />
-					<Skeleton className="h-10 w-20" />
+	const columns: Column<ApiKey>[] = [
+		{
+			key: 'name',
+			label: 'Clave',
+			render: (key) => (
+				<div className="min-w-0">
+					<p className="text-sm font-medium text-foreground">{key.name}</p>
+					<p className="font-mono text-xs text-muted-foreground">{key.keyPrefix}...</p>
 				</div>
-
-				{/* Key list */}
-				<div className="divide-y divide-border rounded-md border border-border">
-					{Array.from({ length: 3 }).map((_, i) => (
-						<div key={`skeleton-${i.toString()}`} className="flex items-center gap-3 px-4 py-3">
-							<div className="flex-1 space-y-2">
-								<Skeleton className="h-4 w-28" />
-								<Skeleton className="h-3 w-20" />
-								<Skeleton className="h-3 w-40" />
-							</div>
-							<Skeleton className="h-8 w-16" />
-						</div>
-					))}
-				</div>
-			</div>
-		)
-	if (error) return <p className="text-destructive">Error: {error.message}</p>
+			),
+		},
+		{
+			key: 'createdAt',
+			label: 'Creada',
+			className: 'hidden md:table-cell',
+			render: (key) => (
+				<span className="text-sm text-muted-foreground">{formatDate(key.createdAt)}</span>
+			),
+		},
+		{
+			key: 'lastUsedAt',
+			label: 'Ultimo uso',
+			className: 'hidden md:table-cell',
+			render: (key) => (
+				<span className="text-sm text-muted-foreground">
+					{key.lastUsedAt ? formatRelative(key.lastUsedAt) : 'Nunca'}
+				</span>
+			),
+		},
+		{
+			key: 'expiresAt',
+			label: 'Expira',
+			className: 'hidden lg:table-cell',
+			render: (key) => (
+				<span className="text-sm text-muted-foreground">
+					{key.expiresAt ? formatDate(key.expiresAt) : 'Nunca'}
+				</span>
+			),
+		},
+		{
+			key: 'actions',
+			label: '',
+			className: 'w-12 text-right',
+			render: (key) => (
+				<Button
+					variant="ghost"
+					size="icon"
+					className="h-8 w-8"
+					type="button"
+					onClick={(e) => {
+						e.stopPropagation()
+						setDeleteId(key.id)
+					}}
+					aria-label={`Revocar "${key.name}"`}
+				>
+					<Trash2 className="h-4 w-4 text-destructive" />
+				</Button>
+			),
+		},
+	]
 
 	return (
 		<div className="space-y-6">
-			<h2 className="text-xl font-semibold text-foreground">API Keys</h2>
-			<p className="text-sm text-muted-foreground">
-				Create API keys to authenticate programmatic access. Keys use the same permissions as your
-				account.
-			</p>
+			<CrudPageHeader
+				title="Claves API"
+				description="Crea y gestiona claves para acceso programatico."
+				action={
+					<Button onClick={() => setShowCreate(true)}>
+						<Plus className="mr-1.5 h-4 w-4" />
+						Crear clave
+					</Button>
+				}
+			/>
 
-			{/* Create form */}
-			<form onSubmit={handleSubmit(onSubmit)} className="flex gap-2">
-				<Input
-					{...register('name')}
-					placeholder="Key name (e.g. Production)"
-					aria-label="API key name"
-					error={!!errors.name}
-				/>
-				<Button type="submit" disabled={createApiKey.isPending}>
-					{createApiKey.isPending ? 'Creating...' : 'Create'}
-				</Button>
-			</form>
-			{errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
-
-			{/* Newly created key (shown once) */}
+			{/* Newly created key banner */}
 			{newRawKey && (
-				<div className="rounded-md border border-border bg-accent/50 p-4 space-y-2">
+				<div className="space-y-2 rounded-md border border-border bg-accent/50 p-4">
 					<p className="text-sm font-medium text-foreground">
-						Your new API key (copy it now — it won't be shown again):
+						Tu nueva clave API (copiala ahora — no se mostrara de nuevo):
 					</p>
 					<div className="flex items-center gap-2">
-						<code className="flex-1 break-all rounded bg-background p-2 text-xs font-mono text-foreground border border-border">
+						<code className="flex-1 break-all rounded border border-border bg-background p-2 font-mono text-xs text-foreground">
 							{newRawKey}
 						</code>
 						<Button
@@ -126,7 +167,7 @@ export function ApiKeysPage() {
 							size="sm"
 							onClick={() => void copyToClipboard(newRawKey)}
 						>
-							Copy
+							Copiar
 						</Button>
 					</div>
 					<Button
@@ -136,70 +177,68 @@ export function ApiKeysPage() {
 						onClick={() => setNewRawKey(null)}
 						className="text-muted-foreground"
 					>
-						Dismiss
+						Cerrar
 					</Button>
 				</div>
 			)}
 
-			{/* Key list */}
-			<ul className="divide-y divide-border rounded-md border border-border">
-				{keys?.map((key) => (
-					<li key={key.id} className="flex items-center gap-3 px-4 py-3">
-						<div className="flex-1 min-w-0">
-							<p className="text-sm font-medium text-foreground">{key.name}</p>
-							<p className="text-xs text-muted-foreground font-mono">{key.keyPrefix}...</p>
-							<p className="text-xs text-muted-foreground">
-								Created {formatDate(key.createdAt)}
-								{key.lastUsedAt && ` · Last used ${formatDate(key.lastUsedAt)}`}
-								{key.expiresAt && ` · Expires ${formatDate(key.expiresAt)}`}
-							</p>
-						</div>
-						<Button
-							variant="destructive"
-							size="sm"
-							type="button"
-							onClick={() => setDeleteId(key.id)}
-						>
-							Revoke
-						</Button>
-					</li>
-				))}
-				{keys?.length === 0 && (
-					<li className="px-4 py-8 text-center text-sm text-muted-foreground">
-						No API keys yet. Create one above.
-					</li>
-				)}
-			</ul>
+			<DataTable
+				data={keys ?? []}
+				columns={columns}
+				getId={(key) => key.id}
+				isLoading={isLoading}
+				emptyMessage="Sin claves API. Crea una para comenzar."
+				emptyIcon={<KeyRound className="h-6 w-6 text-muted-foreground" />}
+				emptyAction={
+					<Button size="sm" onClick={() => setShowCreate(true)}>
+						<Plus className="mr-1.5 h-4 w-4" />
+						Crear clave
+					</Button>
+				}
+			/>
 
-			{/* Usage hint */}
-			<div className="rounded-md border border-border bg-accent/30 p-4 space-y-2">
-				<p className="text-sm font-medium text-foreground">Usage</p>
-				<code className="block rounded bg-background p-2 text-xs font-mono text-muted-foreground border border-border">
-					curl -H "Authorization: Bearer ak_live_..." {window.location.origin}/api/todos
-				</code>
-			</div>
+			{/* Create dialog */}
+			<Dialog open={showCreate} onOpenChange={setShowCreate}>
+				<DialogContent>
+					<form onSubmit={handleSubmit(onSubmit)}>
+						<DialogHeader>
+							<DialogTitle>Nueva clave API</DialogTitle>
+							<DialogDescription>La clave usa los mismos permisos que tu cuenta.</DialogDescription>
+						</DialogHeader>
+						<div className="py-4">
+							<Input
+								{...register('name')}
+								placeholder="Nombre (ej. Produccion)"
+								aria-label="Nombre de la clave API"
+								aria-invalid={!!formErrors.name}
+							/>
+							{formErrors.name && (
+								<p className="mt-1 text-sm text-destructive">{formErrors.name.message}</p>
+							)}
+						</div>
+						<DialogFooter>
+							<Button type="submit" loading={createApiKey.isPending}>
+								Crear
+							</Button>
+						</DialogFooter>
+					</form>
+				</DialogContent>
+			</Dialog>
 
 			{/* Delete confirmation */}
-			<AlertDialog open={deleteId !== null} onOpenChange={() => setDeleteId(null)}>
-				<AlertDialogContent>
-					<AlertDialogHeader>
-						<AlertDialogTitle>Revoke API key?</AlertDialogTitle>
-						<AlertDialogDescription>
-							This action cannot be undone. Any applications using this key will lose access
-							immediately.
-						</AlertDialogDescription>
-					</AlertDialogHeader>
-					<AlertDialogFooter>
-						<AlertDialogCancel>Cancel</AlertDialogCancel>
-						<AlertDialogAction
-							onClick={confirmDelete}
-							className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-						>
-							Revoke
-						</AlertDialogAction>
-					</AlertDialogFooter>
-				</AlertDialogContent>
-			</AlertDialog>
+			<ConfirmDelete
+				open={deleteId !== null}
+				onOpenChange={() => setDeleteId(null)}
+				onConfirm={() => {
+					if (deleteId) {
+						deleteApiKey.mutate(deleteId)
+						setDeleteId(null)
+					}
+				}}
+				title="Revocar clave API?"
+				description="Esta accion no se puede deshacer. Las aplicaciones que usen esta clave perderan acceso inmediatamente."
+				isPending={deleteApiKey.isPending}
+			/>
 		</div>
 	)
 }

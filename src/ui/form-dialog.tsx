@@ -43,8 +43,8 @@ export function FormDialog({
 						<Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
 							Cancel
 						</Button>
-						<Button type="submit" disabled={isPending}>
-							{isPending ? 'Saving...' : submitLabel}
+						<Button type="submit" loading={isPending}>
+							{submitLabel}
 						</Button>
 					</DialogFooter>
 				</form>

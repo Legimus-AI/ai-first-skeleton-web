@@ -32,8 +32,8 @@ function RegisterPage() {
 			socialLogin={<GoogleOAuthButton />}
 			footer={
 				<>
-					<Button type="submit" className="w-full" disabled={registerMutation.isPending}>
-						{registerMutation.isPending ? 'Creating account...' : 'Create account'}
+					<Button type="submit" className="w-full" loading={registerMutation.isPending}>
+						Create account
 					</Button>
 					<p className="text-center text-sm text-muted-foreground">
 						Already have an account?{' '}

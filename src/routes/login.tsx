@@ -32,8 +32,8 @@ function LoginPage() {
 			socialLogin={<GoogleOAuthButton />}
 			footer={
 				<>
-					<Button type="submit" className="w-full" disabled={login.isPending}>
-						{login.isPending ? 'Signing in...' : 'Sign in'}
+					<Button type="submit" className="w-full" loading={login.isPending}>
+						Sign in
 					</Button>
 					<p className="text-center text-sm text-muted-foreground">
 						Don&apos;t have an account?{' '}

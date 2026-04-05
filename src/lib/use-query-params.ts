@@ -20,6 +20,7 @@
 export interface ListParams {
 	search: string
 	page: number
+	limit: number
 	sort: string
 	order: 'asc' | 'desc'
 }
@@ -28,6 +29,7 @@ export interface ListParams {
 export const DEFAULT_LIST_PARAMS: ListParams = {
 	search: '',
 	page: 1,
+	limit: 15,
 	sort: 'updatedAt',
 	order: 'desc',
 }
@@ -40,6 +42,7 @@ export function parseListParams(
 	return {
 		search: typeof raw.search === 'string' ? raw.search : (defaults?.search ?? ''),
 		page: typeof raw.page === 'number' ? raw.page : (defaults?.page ?? 1),
+		limit: typeof raw.limit === 'number' ? raw.limit : (defaults?.limit ?? 15),
 		sort: typeof raw.sort === 'string' ? raw.sort : (defaults?.sort ?? 'updatedAt'),
 		order: raw.order === 'asc' || raw.order === 'desc' ? raw.order : (defaults?.order ?? 'desc'),
 	}

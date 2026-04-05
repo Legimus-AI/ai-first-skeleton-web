@@ -18,12 +18,16 @@ export function useBulkDelete(endpoint: string, queryKey: readonly string[]) {
 			await throwIfNotOk(res)
 			return res.json()
 		},
-		onSuccess: () => {
+		onSuccess: (_data, ids) => {
 			queryClient.invalidateQueries({ queryKey: [...queryKey] })
-			toast.success('Items deleted')
+			toast.success(`${ids.length} item${ids.length === 1 ? '' : 's'} deleted`, {
+				description: 'The selected items have been permanently removed.',
+			})
 		},
 		onError: (error: Error) => {
-			toast.error(error.message || 'Failed to delete items')
+			toast.error('Failed to delete items', {
+				description: error.message,
+			})
 		},
 	})
 }

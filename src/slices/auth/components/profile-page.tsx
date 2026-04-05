@@ -22,7 +22,7 @@ export function ProfilePage() {
 	return (
 		<div className="space-y-6">
 			<div className="flex items-center gap-3">
-				<Avatar size="lg" fallback={user.email.charAt(0).toUpperCase()} />
+				<Avatar size="lg" name={user.name ?? user.email} />
 				<div>
 					<h1 className="text-2xl font-semibold tracking-tight text-foreground">Profile</h1>
 					<p className="text-sm text-muted-foreground">{user.email}</p>

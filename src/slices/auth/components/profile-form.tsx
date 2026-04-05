@@ -38,9 +38,13 @@ export function ProfileForm({ user }: ProfileFormProps) {
 			const res = await api.patch('/api/v1/auth/me', data)
 			await throwIfNotOk(res)
 			await refetch()
-			toast.success('Profile updated')
+			toast.success('Profile updated', {
+				description: 'Your changes have been saved.',
+			})
 		} catch (error) {
-			toast.error(error instanceof Error ? error.message : 'Failed to update profile')
+			toast.error('Failed to update profile', {
+				description: error instanceof Error ? error.message : 'Please try again.',
+			})
 		}
 	}
 
