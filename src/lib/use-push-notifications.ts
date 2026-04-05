@@ -51,11 +51,12 @@ export function usePushNotifications(): UsePushNotifications {
 	const [isSubscribed, setIsSubscribed] = useState(false)
 	const [isPending, setIsPending] = useState(false)
 
-	// Check existing subscription on mount
+	// Register SW and check existing subscription on mount
 	useEffect(() => {
 		if (!supported) return
 
-		navigator.serviceWorker.ready
+		navigator.serviceWorker
+			.register('/sw.js')
 			.then((reg) => reg.pushManager.getSubscription())
 			.then((sub) => setIsSubscribed(sub !== null))
 			.catch(() => setIsSubscribed(false))
