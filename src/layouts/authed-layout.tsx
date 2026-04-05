@@ -81,36 +81,47 @@ function SidebarNavItem({
 						{content}
 					</button>
 					{isOpen && (
-						<div
-							className="fixed z-[999] min-w-[180px] rounded-lg border border-border bg-popover p-2 shadow-lg"
-							style={{ top: popoverPos.top, left: popoverPos.left }}
-						>
-							<p className="mb-1.5 px-2 text-xs font-medium text-muted-foreground">{item.label}</p>
-							{item.children?.map((child) => {
-								const childPrefix = child.activePrefix ?? child.to
-								const isChildActive =
-									pathname === childPrefix || pathname.startsWith(`${childPrefix}/`)
-								return (
-									<Link
-										key={child.to}
-										to={child.to}
-										{...(child.search ? { search: child.search } : {})}
-										onClick={() => setIsOpen(false)}
-									>
-										<div
-											className={cn(
-												'flex items-center rounded-md px-2 py-1.5 text-sm transition-colors',
-												isChildActive
-													? 'bg-accent text-foreground font-medium'
-													: 'text-muted-foreground hover:bg-muted/50 hover:text-foreground',
-											)}
+						<>
+							{/* biome-ignore lint/a11y/useSemanticElements: backdrop overlay for dismiss */}
+							<div
+								className="fixed inset-0 z-[998]"
+								onClick={() => setIsOpen(false)}
+								onKeyDown={() => {}}
+								role="presentation"
+							/>
+							<div
+								className="fixed z-[999] min-w-[180px] animate-in fade-in slide-in-from-left-2 duration-150 rounded-xl border border-border/50 bg-popover/95 p-1.5 shadow-xl backdrop-blur-sm"
+								style={{ top: popoverPos.top, left: popoverPos.left }}
+							>
+								<p className="mb-1 px-2.5 pt-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+									{item.label}
+								</p>
+								{item.children?.map((child) => {
+									const childPrefix = child.activePrefix ?? child.to
+									const isChildActive =
+										pathname === childPrefix || pathname.startsWith(`${childPrefix}/`)
+									return (
+										<Link
+											key={child.to}
+											to={child.to}
+											{...(child.search ? { search: child.search } : {})}
+											onClick={() => setIsOpen(false)}
 										>
-											{child.label}
-										</div>
-									</Link>
-								)
-							})}
-						</div>
+											<div
+												className={cn(
+													'flex items-center rounded-md px-2.5 py-1.5 text-[13px] transition-colors duration-150',
+													isChildActive
+														? 'bg-accent text-foreground font-medium'
+														: 'text-muted-foreground hover:bg-muted/50 hover:text-foreground',
+												)}
+											>
+												{child.label}
+											</div>
+										</Link>
+									)
+								})}
+							</div>
+						</>
 					)}
 				</>
 			)
