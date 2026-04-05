@@ -3,6 +3,7 @@ import {
 	authResponseSchema,
 	type Login,
 	type Register,
+	type UpdateProfile,
 	type User,
 } from '@repo/shared'
 import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -10,7 +11,6 @@ import { useNavigate } from '@tanstack/react-router'
 import { toast } from 'sonner'
 import { api } from '@/lib/api-client'
 import { safeParseResponse, throwIfNotOk } from '@/lib/api-error'
-import { DEFAULT_LIST_PARAMS } from '@/lib/use-query-params'
 
 export const authQueryOptions = queryOptions({
 	queryKey: ['auth', 'me'],
@@ -42,7 +42,7 @@ export function useLogin() {
 		},
 		onSuccess: (data) => {
 			queryClient.setQueryData(['auth', 'me'], data.data)
-			navigate({ to: '/todos', search: DEFAULT_LIST_PARAMS })
+			navigate({ to: '/dashboard' })
 		},
 		onError: (error: Error) => {
 			toast.error('Login failed', {
@@ -69,10 +69,33 @@ export function useRegister() {
 		},
 		onSuccess: (data) => {
 			queryClient.setQueryData(['auth', 'me'], data.data)
-			navigate({ to: '/todos', search: DEFAULT_LIST_PARAMS })
+			navigate({ to: '/dashboard' })
 		},
 		onError: (error: Error) => {
 			toast.error('Registration failed', {
+				description: error.message || 'Please try again.',
+			})
+		},
+	})
+}
+
+export function useUpdateProfile() {
+	const queryClient = useQueryClient()
+	return useMutation({
+		mutationFn: async (input: UpdateProfile) => {
+			const res = await api.patch('/api/v1/auth/me', input)
+			await throwIfNotOk(res)
+			const json: unknown = await res.json()
+			return safeParseResponse(authResponseSchema, json)
+		},
+		onSuccess: (data) => {
+			queryClient.setQueryData(['auth', 'me'], data.data)
+			toast.success('Profile updated', {
+				description: 'Your changes have been saved.',
+			})
+		},
+		onError: (error: Error) => {
+			toast.error('Failed to update profile', {
 				description: error.message || 'Please try again.',
 			})
 		},
