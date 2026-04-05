@@ -1,23 +1,16 @@
 import type { ReactNode } from 'react'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/ui/card'
 
 // ─── Public Layout ───────────────────────────────────────────────────────────
-// Centered card layout for unauthenticated pages (login, register, etc.).
-// Moved from slices/auth/components/auth-page-layout.tsx → layouts/public-layout.tsx
-// so all layout shells live in one canonical place.
+// Split-screen gradient layout for unauthenticated pages (login, register).
+// Left: brand gradient with tagline. Right: centered form.
+// Mobile: stacks vertically (gradient on top, form below).
 
 interface PublicLayoutProps {
-	/** Page title shown in the card header. */
 	title: string
-	/** Subtitle shown below the title. */
 	description: string
-	/** Form fields rendered inside CardContent. */
 	children: ReactNode
-	/** Footer content (submit button + navigation link). */
 	footer: ReactNode
-	/** Form submit handler. */
 	onSubmit: () => void
-	/** Optional social login buttons rendered above the form fields. */
 	socialLogin?: ReactNode
 }
 
@@ -30,20 +23,58 @@ export function PublicLayout({
 	socialLogin,
 }: PublicLayoutProps) {
 	return (
-		<div className="flex min-h-screen items-center justify-center bg-background px-4">
-			<Card className="w-full max-w-sm">
-				<CardHeader>
-					<CardTitle>{title}</CardTitle>
-					<CardDescription>{description}</CardDescription>
-				</CardHeader>
-				<form onSubmit={onSubmit}>
-					<CardContent className="space-y-4">
-						{socialLogin}
-						{children}
-					</CardContent>
-					<CardFooter className="flex flex-col gap-3">{footer}</CardFooter>
-				</form>
-			</Card>
+		<div className="flex min-h-screen flex-col lg:flex-row">
+			{/* Brand panel — gradient */}
+			<div className="relative flex flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-primary via-primary/80 to-background px-8 py-16 lg:w-1/2 lg:py-0">
+				{/* Decorative blurred circles */}
+				<div className="absolute -left-20 -top-20 h-72 w-72 rounded-full bg-primary/30 blur-3xl" />
+				<div className="absolute -bottom-32 -right-16 h-96 w-96 rounded-full bg-primary/20 blur-3xl" />
+
+				<div className="relative z-10 max-w-md text-center">
+					<div className="mb-6 flex items-center justify-center gap-2.5">
+						<div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-foreground text-sm font-bold text-primary">
+							A
+						</div>
+						<span className="text-2xl font-semibold tracking-tight text-primary-foreground">
+							App
+						</span>
+					</div>
+					<h2 className="text-2xl font-bold tracking-tight text-primary-foreground lg:text-3xl">
+						Tu plataforma inteligente
+					</h2>
+					<p className="mt-3 text-sm text-primary-foreground/70 lg:text-base">
+						Automatiza, gestiona y escala tu negocio con inteligencia artificial.
+					</p>
+				</div>
+			</div>
+
+			{/* Form panel */}
+			<div className="flex flex-1 items-center justify-center bg-background px-4 py-12 lg:px-8">
+				<div className="w-full max-w-sm space-y-6">
+					<div className="space-y-1.5">
+						<h1 className="text-2xl font-semibold tracking-tight text-foreground">{title}</h1>
+						<p className="text-sm text-muted-foreground">{description}</p>
+					</div>
+
+					<form onSubmit={onSubmit} className="space-y-4">
+						{socialLogin && (
+							<>
+								{socialLogin}
+								<div className="relative">
+									<div className="absolute inset-0 flex items-center">
+										<span className="w-full border-t border-border" />
+									</div>
+									<div className="relative flex justify-center text-xs uppercase">
+										<span className="bg-background px-2 text-muted-foreground">o</span>
+									</div>
+								</div>
+							</>
+						)}
+						<div className="space-y-4">{children}</div>
+						<div className="space-y-3 pt-2">{footer}</div>
+					</form>
+				</div>
+			</div>
 		</div>
 	)
 }
