@@ -65,7 +65,7 @@ export function Sidebar({ children, className }: { children: ReactNode; classNam
 				className={cn(
 					'group relative fixed inset-y-0 left-0 z-50 flex flex-col overflow-visible border-r border-border transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] md:static md:translate-x-0',
 					'aether-glass',
-					isCollapsed ? 'w-[64px] hover:w-[240px]' : 'w-[240px]',
+					isCollapsed ? 'w-[64px]' : 'w-[240px]',
 					open ? 'translate-x-0' : '-translate-x-full',
 					className,
 				)}
