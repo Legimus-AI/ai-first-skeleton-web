@@ -728,6 +728,7 @@ describe('Architecture rules (INVARIANTS.md)', () => {
 		for (const file of files) {
 			if (file.endsWith('content-area.tsx')) continue // max-w variants live here
 			if (file.endsWith('public-layout.tsx')) continue // max-w-sm is card width, not page width
+			if (file.endsWith('not-found.tsx')) continue // full-page 404 with inline text width constraint
 			const content = readFileSync(file, 'utf-8')
 			const relPath = relative(SRC_DIR, file)
 			const lines = content.split('\n')
