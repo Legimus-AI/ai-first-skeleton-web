@@ -22,14 +22,6 @@ function formatRelative(date: string): string {
 	})
 }
 
-function formatDate(date: string): string {
-	return new Date(date).toLocaleDateString(locale, {
-		day: 'numeric',
-		month: 'short',
-		year: 'numeric',
-	})
-}
-
 interface TodoColumnsOptions {
 	onToggle: (item: Todo) => void
 	onEdit: (item: Todo) => void
@@ -82,19 +74,10 @@ export function buildTodoColumns({
 			),
 		},
 		{
-			key: 'createdAt',
-			label: 'Creada',
-			sortable: true,
-			className: 'hidden lg:table-cell w-28',
-			render: (item) => (
-				<span className="text-xs text-muted-foreground">{formatDate(item.createdAt)}</span>
-			),
-		},
-		{
 			key: 'updatedAt',
 			label: 'Modificada',
 			sortable: true,
-			className: 'hidden xl:table-cell w-36',
+			className: 'hidden lg:table-cell w-36',
 			render: (item) => (
 				<span className="text-xs text-muted-foreground">{formatRelative(item.updatedAt)}</span>
 			),
