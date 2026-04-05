@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Bell, BellOff, Send, Volume2, VolumeX } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
+import { isMac } from '@/lib/platform'
 import { usePushNotifications } from '@/lib/use-push-notifications'
 import { Badge } from '@/ui/badge'
 import { Button } from '@/ui/button'
@@ -169,14 +170,26 @@ function SettingsNotificationsPage() {
 					)}
 
 					{push.isSubscribed && (
-						<div className="flex items-center gap-3 rounded-lg border border-border/50 bg-muted/30 px-4 py-3">
-							<Button variant="ghost" size="sm" onClick={sendTestPush} disabled={pushTestSent}>
-								<Send className="mr-1.5 h-3.5 w-3.5" />
-								{pushTestSent ? 'Sent!' : 'Send test notification'}
-							</Button>
-							<span className="text-xs text-muted-foreground">
-								Verify notifications work on this device.
-							</span>
+						<div className="space-y-3">
+							<div className="flex items-center gap-3 rounded-lg border border-border/50 bg-muted/30 px-4 py-3">
+								<Button variant="ghost" size="sm" onClick={sendTestPush} disabled={pushTestSent}>
+									<Send className="mr-1.5 h-3.5 w-3.5" />
+									{pushTestSent ? 'Sent!' : 'Send test notification'}
+								</Button>
+								<span className="text-xs text-muted-foreground">
+									Verify notifications work on this device.
+								</span>
+							</div>
+							{isMac() && (
+								<p className="text-xs text-muted-foreground">
+									<strong>macOS:</strong> If no notification appears, go to{' '}
+									<span className="font-medium text-foreground">
+										System Settings → Notifications → Google Chrome
+									</span>{' '}
+									and ensure &quot;Allow Notifications&quot; is enabled with Banners or Alerts
+									style.
+								</p>
+							)}
 						</div>
 					)}
 				</CardContent>
