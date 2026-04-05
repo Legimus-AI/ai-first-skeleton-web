@@ -1,16 +1,8 @@
 import type { ApiKey } from '@repo/shared'
 import { Trash2 } from 'lucide-react'
-import { locale } from '@/env'
+import { formatDate } from '@/lib/format-date'
 import { Button } from '@/ui/button'
 import type { Column } from '@/ui/data-table'
-
-function formatDate(date: string) {
-	return new Date(date).toLocaleDateString(locale, {
-		year: 'numeric',
-		month: 'short',
-		day: 'numeric',
-	})
-}
 
 function formatRelative(date: string) {
 	const diff = Date.now() - new Date(date).getTime()
