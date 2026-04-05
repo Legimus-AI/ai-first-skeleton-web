@@ -41,7 +41,7 @@ export function TodoList() {
 
 	const { data, isLoading, isFetching, error } = useTodos(params)
 	const createTodo = useCreateTodo()
-	const updateTodo = useUpdateTodo()
+	const updateTodo = useUpdateTodo(params)
 	const deleteTodo = useDeleteTodo()
 	const bulkDelete = useBulkDeleteTodos()
 
@@ -79,6 +79,7 @@ export function TodoList() {
 						onChange={(v) => setParams({ search: v, page: 1 })}
 						placeholder="Buscar tareas..."
 						isLoading={isFetching && !isLoading}
+						className="w-full sm:w-64"
 					/>
 				}
 				action={
@@ -87,57 +88,61 @@ export function TodoList() {
 						Nueva tarea
 					</Button>
 				}
-				bulkAction={
-					selectedIds.size > 0 ? (
-						<>
-							<span className="text-sm text-muted-foreground">
-								{selectedIds.size} seleccionada{selectedIds.size > 1 ? 's' : ''}
-							</span>
-							<Button variant="destructive" size="sm" onClick={() => setShowBulkDelete(true)}>
-								<Trash2 className="mr-1 h-3.5 w-3.5" />
-								Eliminar
+			/>
+
+			{data?.meta && data.meta.total > 0 && (
+				<Pagination
+					meta={data.meta}
+					onPageChange={(p) => setParams({ page: p })}
+					onPerPageChange={(l) => setParams({ limit: l, page: 1 })}
+					perPageOptions={[10, 15, 25, 50]}
+				/>
+			)}
+
+			<div className="rounded-md border bg-card">
+				<DataTable
+					data={data?.data ?? []}
+					columns={columns}
+					getId={(todo) => todo.id}
+					isLoading={isLoading}
+					selectedIds={selectedIds}
+					onSelectionChange={setSelectedIds}
+					sort={params.sort}
+					order={params.order}
+					onSortChange={(s, o) => setParams({ sort: s, order: o })}
+					emptyMessage={
+						params.search
+							? `Sin resultados para "${params.search}"`
+							: 'Sin tareas aun. Crea la primera!'
+					}
+					emptyIcon={<CheckCircle2 className="h-6 w-6 text-muted-foreground" />}
+					emptyAction={
+						params.search ? (
+							<Button
+								size="sm"
+								variant="outline"
+								onClick={() => setParams({ search: '', page: 1 })}
+							>
+								Limpiar busqueda
 							</Button>
-						</>
-					) : undefined
-				}
-			/>
+						) : (
+							<Button size="sm" onClick={() => setShowCreate(true)}>
+								<Plus className="mr-1.5 h-4 w-4" />
+								Nueva tarea
+							</Button>
+						)
+					}
+				/>
+			</div>
 
-			<DataTable
-				data={data?.data ?? []}
-				columns={columns}
-				getId={(todo) => todo.id}
-				isLoading={isLoading}
-				selectedIds={selectedIds}
-				onSelectionChange={setSelectedIds}
-				sort={params.sort}
-				order={params.order}
-				onSortChange={(s, o) => setParams({ sort: s, order: o })}
-				emptyMessage={
-					params.search
-						? `Sin resultados para "${params.search}"`
-						: 'Sin tareas aun. Crea la primera!'
-				}
-				emptyIcon={<CheckCircle2 className="h-6 w-6 text-muted-foreground" />}
-				emptyAction={
-					params.search ? (
-						<Button size="sm" variant="outline" onClick={() => setParams({ search: '', page: 1 })}>
-							Limpiar busqueda
-						</Button>
-					) : (
-						<Button size="sm" onClick={() => setShowCreate(true)}>
-							<Plus className="mr-1.5 h-4 w-4" />
-							Nueva tarea
-						</Button>
-					)
-				}
-			/>
-
-			<Pagination
-				meta={data?.meta}
-				onPageChange={(p) => setParams({ page: p })}
-				onPerPageChange={(l) => setParams({ limit: l, page: 1 })}
-				perPageOptions={[10, 15, 25, 50]}
-			/>
+			{data?.meta && data.meta.total > 0 && (
+				<Pagination
+					meta={data.meta}
+					onPageChange={(p) => setParams({ page: p })}
+					onPerPageChange={(l) => setParams({ limit: l, page: 1 })}
+					perPageOptions={[10, 15, 25, 50]}
+				/>
+			)}
 
 			<TodoForm
 				open={showCreate}
@@ -146,7 +151,10 @@ export function TodoList() {
 				submitLabel="Crear"
 				defaultValues={undefined}
 				onSubmit={(input) => {
-					createTodo.mutate(input, { onSuccess: () => setShowCreate(false) })
+					createTodo.mutate(
+						{ ...input, priority: input.priority ?? 'medium' },
+						{ onSuccess: () => setShowCreate(false) },
+					)
 				}}
 				isPending={createTodo.isPending}
 			/>
@@ -156,11 +164,19 @@ export function TodoList() {
 				onOpenChange={() => setEditTarget(null)}
 				title="Editar tarea"
 				submitLabel="Guardar"
-				defaultValues={editTarget ? { title: editTarget.title } : undefined}
+				defaultValues={
+					editTarget
+						? {
+								title: editTarget.title,
+								description: editTarget.description,
+								priority: editTarget.priority,
+							}
+						: undefined
+				}
 				onSubmit={(input) => {
 					if (!editTarget) return
 					updateTodo.mutate(
-						{ id: editTarget.id, ...input },
+						{ id: editTarget.id, ...input, priority: input.priority ?? 'medium' },
 						{ onSuccess: () => setEditTarget(null) },
 					)
 				}}
@@ -188,6 +204,37 @@ export function TodoList() {
 				description={`Se eliminaran permanentemente ${selectedIds.size} elemento${selectedIds.size === 1 ? '' : 's'}. Esta accion no se puede deshacer.`}
 				isPending={bulkDelete.isPending}
 			/>
+
+			{/* Floating Bulk Actions Bar */}
+			{selectedIds.size > 0 && (
+				<div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-8 fade-in duration-300">
+					<div className="flex items-center gap-3 rounded-full border border-border/50 bg-background/80 backdrop-blur-xl px-4 py-2.5 shadow-2xl ring-1 ring-black/5 dark:ring-white/10">
+						<span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground">
+							{selectedIds.size}
+						</span>
+						<span className="text-sm font-medium text-foreground pr-2 border-r border-border/50">
+							Seleccionadas
+						</span>
+						<Button
+							variant="ghost"
+							size="sm"
+							onClick={() => setSelectedIds(new Set())}
+							className="h-8 rounded-full px-3 text-muted-foreground hover:text-foreground hover:bg-muted/50"
+						>
+							Cancelar
+						</Button>
+						<Button
+							variant="destructive"
+							size="sm"
+							onClick={() => setShowBulkDelete(true)}
+							className="h-8 rounded-full px-3"
+						>
+							<Trash2 className="mr-1.5 h-3.5 w-3.5" />
+							Eliminar
+						</Button>
+					</div>
+				</div>
+			)}
 		</div>
 	)
 }

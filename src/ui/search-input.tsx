@@ -38,7 +38,7 @@ export function SearchInput({
 	}, [])
 
 	return (
-		<div className={cn('relative', className)}>
+		<div className={cn('relative w-full sm:w-auto', className)}>
 			{isLoading ? (
 				<Loader2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground" />
 			) : (
@@ -48,7 +48,7 @@ export function SearchInput({
 				value={internal}
 				onChange={(e) => handleChange(e.target.value)}
 				placeholder={placeholder}
-				className="pl-9 pr-8"
+				className="w-full pl-9 pr-8 sm:w-64"
 				aria-label={placeholder}
 			/>
 			{internal.length > 0 && (

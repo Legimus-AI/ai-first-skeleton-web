@@ -1,6 +1,8 @@
 import { Link, useRouterState } from '@tanstack/react-router'
-import { Menu, Moon, Sun } from 'lucide-react'
+import { ChevronRight, Menu, Moon, Sun } from 'lucide-react'
 import type { ReactNode } from 'react'
+import { useState } from 'react'
+import { cn } from '@/lib/cn'
 import { useTheme } from '@/lib/theme-provider'
 import { Button } from '@/ui/button'
 import {
@@ -15,13 +17,115 @@ import {
 import { UserDropdown } from '@/ui/user-dropdown'
 import type { LayoutVariant } from './content-area'
 import { ContentArea } from './content-area'
+import type { NavItem } from './nav-items'
 import { navItems } from './nav-items'
 
 // ─── Sidebar Navigation ────────────────────────────────────────────────────
 // Items come from nav-items.ts. AI agents add entries there, not here.
 
+function SidebarNavItem({
+	item,
+	pathname,
+	isCollapsed,
+}: {
+	item: NavItem
+	pathname: string
+	isCollapsed: boolean
+}) {
+	const prefix = item.activePrefix ?? item.to
+	const isActive = pathname === prefix || pathname.startsWith(`${prefix}/`)
+	const hasChildren = item.children && item.children.length > 0
+	const [isOpen, setIsOpen] = useState(isActive)
+
+	const content = (
+		<SidebarItem active={isActive && !hasChildren} label={item.label}>
+			<item.icon
+				className={cn(
+					'h-4 w-4 shrink-0 transition-colors duration-200',
+					isActive ? 'text-foreground' : 'text-muted-foreground',
+				)}
+			/>
+			<div
+				className={cn(
+					'flex flex-1 items-center justify-between overflow-hidden whitespace-nowrap transition-opacity duration-300',
+					isCollapsed ? 'opacity-0 group-hover:opacity-100' : 'opacity-100',
+				)}
+			>
+				<span className="truncate">{item.label}</span>
+				{hasChildren && (
+					<div className="ml-auto shrink-0 transition-transform duration-200">
+						<ChevronRight
+							className={cn(
+								'h-3.5 w-3.5 opacity-50 transition-transform duration-200',
+								isOpen && 'rotate-90',
+							)}
+						/>
+					</div>
+				)}
+			</div>
+		</SidebarItem>
+	)
+
+	if (hasChildren) {
+		return (
+			<div className="flex flex-col space-y-1">
+				<button type="button" onClick={() => setIsOpen(!isOpen)} className="w-full text-left">
+					{content}
+				</button>
+				<div
+					className={cn(
+						'grid transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]',
+						isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0',
+					)}
+				>
+					<div className="overflow-hidden">
+						<div
+							className={cn(
+								'ml-9 mt-1 flex flex-col space-y-1 border-l border-border/50 pl-2 transition-opacity duration-300',
+								isCollapsed ? 'opacity-0 group-hover:opacity-100' : 'opacity-100',
+							)}
+						>
+							{item.children?.map((child) => {
+								const childPrefix = child.activePrefix ?? child.to
+								const isChildActive =
+									pathname === childPrefix || pathname.startsWith(`${childPrefix}/`)
+								return (
+									<Link
+										key={child.to}
+										to={child.to}
+										{...(child.search ? { search: child.search } : {})}
+									>
+										<div
+											className={cn(
+												'flex w-full items-center gap-3 rounded-md px-3 py-1.5 text-sm transition-colors duration-200',
+												isChildActive
+													? 'text-foreground font-medium'
+													: 'text-muted-foreground hover:text-foreground hover:bg-muted/50',
+											)}
+										>
+											<span className="truncate">{child.label}</span>
+										</div>
+									</Link>
+								)
+							})}
+						</div>
+					</div>
+				</div>
+			</div>
+		)
+	}
+
+	return (
+		<Link to={item.to} {...(item.search ? { search: item.search } : {})}>
+			{content}
+		</Link>
+	)
+}
+
 function SidebarNav() {
 	const pathname = useRouterState({ select: (s) => s.location.pathname })
+	const { mode } = useSidebar()
+	const isCollapsed = mode === 'collapsed'
 
 	const groups = new Map<string, typeof navItems>()
 	for (const item of navItems) {
@@ -34,21 +138,43 @@ function SidebarNav() {
 		<SidebarContent>
 			{[...groups.entries()].map(([group, items]) => (
 				<SidebarGroup key={group} label={group}>
-					{items.map((item) => {
-						const prefix = item.activePrefix ?? item.to
-						const isActive = pathname === prefix || pathname.startsWith(`${prefix}/`)
-						return (
-							<Link key={item.to} to={item.to} {...(item.search ? { search: item.search } : {})}>
-								<SidebarItem active={isActive} label={item.label}>
-									<item.icon className="h-4 w-4" />
-									{item.label}
-								</SidebarItem>
-							</Link>
-						)
-					})}
+					{items.map((item) => (
+						<SidebarNavItem
+							key={item.to}
+							item={item}
+							pathname={pathname}
+							isCollapsed={isCollapsed}
+						/>
+					))}
 				</SidebarGroup>
 			))}
 		</SidebarContent>
+	)
+}
+
+function SidebarLogo() {
+	const { mode } = useSidebar()
+	const isCollapsed = mode === 'collapsed'
+	return (
+		<SidebarHeader>
+			<Link
+				to="/todos"
+				search={{ search: '', page: 1, limit: 20, sort: 'updatedAt', order: 'desc' as const }}
+				className="flex items-center gap-2.5 text-base font-semibold tracking-tight text-foreground transition-colors duration-150 hover:text-primary"
+			>
+				<div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary text-xs font-bold text-primary-foreground">
+					A
+				</div>
+				<span
+					className={cn(
+						'transition-opacity duration-300 whitespace-nowrap',
+						isCollapsed ? 'opacity-0 group-hover:opacity-100' : 'opacity-100',
+					)}
+				>
+					App
+				</span>
+			</Link>
+		</SidebarHeader>
 	)
 }
 
@@ -105,18 +231,7 @@ export function AuthedLayout({ children, variant }: AuthedLayoutProps) {
 		<SidebarProvider>
 			<div className="flex min-h-screen">
 				<Sidebar>
-					<SidebarHeader>
-						<Link
-							to="/todos"
-							search={{ search: '', page: 1, sort: 'updatedAt', order: 'desc' as const }}
-							className="flex items-center gap-2.5 text-base font-semibold tracking-tight text-foreground transition-colors duration-150 hover:text-primary"
-						>
-							<div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-xs font-bold text-primary-foreground">
-								A
-							</div>
-							App
-						</Link>
-					</SidebarHeader>
+					<SidebarLogo />
 					<SidebarNav />
 				</Sidebar>
 				<div className="flex min-w-0 flex-1 flex-col">

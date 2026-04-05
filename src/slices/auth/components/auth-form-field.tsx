@@ -1,6 +1,7 @@
 import { Eye, EyeOff } from 'lucide-react'
 import { useState } from 'react'
 import type { UseFormRegisterReturn } from 'react-hook-form'
+import { cn } from '@/lib/cn'
 import { Button } from '@/ui/button'
 import { Input } from '@/ui/input'
 
@@ -40,8 +41,8 @@ export function AuthFormField({
 	const errorId = `${id}-error`
 
 	return (
-		<div className="space-y-1">
-			<label htmlFor={id} className="text-sm font-medium">
+		<div className="space-y-1.5">
+			<label htmlFor={id} className="text-sm font-medium text-foreground">
 				{label}
 			</label>
 			<div className="relative">
@@ -53,7 +54,7 @@ export function AuthFormField({
 					error={hasError}
 					autoComplete={autoComplete}
 					aria-describedby={hasError && errorMessage ? errorId : undefined}
-					className={isPassword ? 'pr-10' : undefined}
+					className={cn('aether-input-inset', isPassword && 'pr-10')}
 				/>
 				{isPassword && (
 					<Button

@@ -28,8 +28,8 @@
 	--popover: oklch(1 0 0);
 	--popover-foreground: oklch(0.145 0 0);
 
-	/* ── Primary (accent — blue) ─────────────────────────────── */
-	--primary: oklch(0.55 0.2 260);
+	/* ── Primary (neutral black/white) ───────────────────────── */
+	--primary: oklch(0.145 0 0);
 	--primary-foreground: oklch(0.985 0 0);
 
 	/* ── Neutral fills ───────────────────────────────────────── */
@@ -53,12 +53,12 @@
 	/* ── Borders & rings ─────────────────────────────────────── */
 	--border: oklch(0.915 0 0);
 	--input: oklch(0.885 0 0);
-	--ring: oklch(0.55 0.2 260);
+	--ring: oklch(0.145 0 0);
 
 	/* ── Aether-specific tokens ──────────────────────────────── */
 	--sidebar-glass-bg: oklch(1 0 0 / 80%);
 	--sidebar-glass-blur: 10px;
-	--glow-color: oklch(0.65 0.2 260 / 40%);
+	--glow-color: oklch(0.145 0 0 / 20%);
 	--input-inset-bg: oklch(0.96 0 0);
 }
 
@@ -66,21 +66,21 @@
 	/* ── Surfaces (Aether deep dark) ─────────────────────────── */
 	--background: oklch(0 0 0);
 	--foreground: oklch(0.93 0 0);
-	--card: oklch(0.07 0 0);
+	--card: oklch(0.04 0 0);
 	--card-foreground: oklch(0.93 0 0);
-	--popover: oklch(0.1 0 0);
+	--popover: oklch(0.04 0 0);
 	--popover-foreground: oklch(0.93 0 0);
 
-	/* ── Primary (accent — cyan/blue glow) ───────────────────── */
-	--primary: oklch(0.65 0.2 260);
+	/* ── Primary (flexible neutral/accent) ───────────────────── */
+	--primary: oklch(0.98 0 0);
 	--primary-foreground: oklch(0 0 0);
 
 	/* ── Neutral fills ───────────────────────────────────────── */
-	--secondary: oklch(0.14 0 0);
-	--secondary-foreground: oklch(0.93 0 0);
-	--muted: oklch(0.14 0 0);
-	--muted-foreground: oklch(0.556 0 0);
-	--accent: oklch(0.16 0.008 260);
+	--secondary: oklch(0.1 0 0);
+	--secondary-foreground: oklch(0.53 0 0);
+	--muted: oklch(0.1 0 0);
+	--muted-foreground: oklch(0.53 0 0);
+	--accent: oklch(0.15 0 0);
 	--accent-foreground: oklch(0.93 0 0);
 
 	/* ── Semantic colors ─────────────────────────────────────── */
@@ -94,15 +94,15 @@
 	--info-foreground: oklch(0 0 0);
 
 	/* ── Borders & rings (hairline white at 8%) ──────────────── */
-	--border: oklch(1 0 0 / 8%);
-	--input: oklch(1 0 0 / 10%);
-	--ring: oklch(0.65 0.2 260);
+	--border: rgba(255, 255, 255, 0.08);
+	--input: rgba(255, 255, 255, 0.08);
+	--ring: oklch(0.98 0 0);
 
 	/* ── Aether-specific tokens ──────────────────────────────── */
-	--sidebar-glass-bg: oklch(0.05 0 0 / 70%);
+	--sidebar-glass-bg: rgba(0, 0, 0, 0.7);
 	--sidebar-glass-blur: 10px;
-	--glow-color: oklch(0.65 0.2 260 / 30%);
-	--input-inset-bg: oklch(0.05 0 0);
+	--glow-color: oklch(0.98 0 0 / 20%);
+	--input-inset-bg: #0d0d0d;
 }
 
 @theme inline {

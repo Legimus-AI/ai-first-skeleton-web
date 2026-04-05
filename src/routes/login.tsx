@@ -32,12 +32,15 @@ function LoginPage() {
 			socialLogin={<GoogleOAuthButton />}
 			footer={
 				<>
-					<Button type="submit" className="w-full" loading={login.isPending}>
+					<Button type="submit" className="w-full aether-squish" loading={login.isPending}>
 						Sign in
 					</Button>
 					<p className="text-center text-sm text-muted-foreground">
 						Don&apos;t have an account?{' '}
-						<Link to="/register" className="text-primary underline-offset-4 hover:underline">
+						<Link
+							to="/register"
+							className="text-primary font-medium underline-offset-4 hover:underline"
+						>
 							Register
 						</Link>
 					</p>

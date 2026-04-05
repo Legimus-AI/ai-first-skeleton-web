@@ -1,4 +1,4 @@
-import { PanelLeftClose, PanelLeftOpen } from 'lucide-react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { createContext, type ReactNode, use, useEffect, useState } from 'react'
 import { cn } from '@/lib/cn'
 import { Tooltip } from '@/ui/tooltip'
@@ -63,14 +63,19 @@ export function Sidebar({ children, className }: { children: ReactNode; classNam
 			)}
 			<aside
 				className={cn(
-					'fixed inset-y-0 left-0 z-50 flex flex-col border-r border-border transition-all duration-200 md:static md:translate-x-0',
-					'aether-glass',
-					isCollapsed ? 'w-16' : 'w-60',
+					'group relative fixed inset-y-0 left-0 z-50 flex flex-col border-r border-border transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] md:static md:translate-x-0',
+					'aether-glass hover:w-[240px]',
+					isCollapsed ? 'w-[64px]' : 'w-[240px]',
 					open ? 'translate-x-0' : '-translate-x-full',
 					className,
 				)}
 			>
-				{children}
+				<div className="flex h-full w-[240px] flex-col overflow-hidden">{children}</div>
+
+				{/* Floating Toggle Button (Desktop only) */}
+				<div className="absolute -right-3 top-5 hidden md:block z-50">
+					<SidebarCollapseToggle />
+				</div>
 			</aside>
 		</>
 	)
@@ -84,13 +89,13 @@ export function SidebarCollapseToggle() {
 		<button
 			type="button"
 			onClick={toggleMode}
-			className="hidden rounded-md p-1.5 text-muted-foreground transition-colors duration-150 hover:bg-accent hover:text-accent-foreground md:block"
+			className="flex h-6 w-6 items-center justify-center rounded-full border border-border bg-background text-muted-foreground shadow-sm transition-all hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring opacity-0 group-hover:opacity-100"
 			aria-label={mode === 'expanded' ? 'Colapsar barra lateral' : 'Expandir barra lateral'}
 		>
 			{mode === 'expanded' ? (
-				<PanelLeftClose className="h-4 w-4" />
+				<ChevronLeft className="h-3.5 w-3.5" />
 			) : (
-				<PanelLeftOpen className="h-4 w-4" />
+				<ChevronRight className="h-3.5 w-3.5" />
 			)}
 		</button>
 	)
@@ -105,19 +110,7 @@ export function SidebarHeader({
 	children: ReactNode
 	className?: string
 }) {
-	const { mode } = useSidebar()
-	return (
-		<div
-			className={cn(
-				'flex shrink-0 items-center justify-between px-4 py-4',
-				mode === 'collapsed' && 'justify-center px-2',
-				className,
-			)}
-		>
-			{mode === 'expanded' ? children : null}
-			<SidebarCollapseToggle />
-		</div>
-	)
+	return <div className={cn('flex h-14 shrink-0 items-center px-4', className)}>{children}</div>
 }
 
 export function SidebarContent({
@@ -127,7 +120,11 @@ export function SidebarContent({
 	children: ReactNode
 	className?: string
 }) {
-	return <nav className={cn('flex-1 overflow-y-auto px-3 py-2', className)}>{children}</nav>
+	return (
+		<nav className={cn('flex-1 overflow-y-auto overflow-x-hidden px-3 py-2', className)}>
+			{children}
+		</nav>
+	)
 }
 
 export function SidebarGroup({
@@ -142,8 +139,13 @@ export function SidebarGroup({
 	const { mode } = useSidebar()
 	return (
 		<div className={cn('mb-6', className)}>
-			{label && mode === 'expanded' && (
-				<p className="mb-2 px-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+			{label && (
+				<p
+					className={cn(
+						'mb-2 px-2 text-xs font-medium uppercase tracking-wider text-muted-foreground transition-opacity duration-300',
+						mode === 'collapsed' ? 'opacity-0 group-hover:opacity-100' : 'opacity-100',
+					)}
+				>
 					{label}
 				</p>
 			)}
@@ -171,21 +173,15 @@ export function SidebarItem({
 	const content = (
 		<div
 			className={cn(
-				'flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors duration-150',
-				isCollapsed && 'justify-center px-0',
+				'flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors duration-200',
 				active
-					? 'bg-primary/10 text-primary'
-					: 'text-muted-foreground hover:bg-muted/50 hover:text-foreground',
+					? 'bg-accent text-accent-foreground font-medium'
+					: 'text-muted-foreground hover:bg-muted/50 hover:text-foreground font-medium',
 				disabled && 'pointer-events-none opacity-50',
 				className,
 			)}
 		>
-			{isCollapsed
-				? (() => {
-						const childArray = Array.isArray(children) ? children : [children]
-						return childArray[0]
-					})()
-				: children}
+			{children}
 		</div>
 	)
 
@@ -207,8 +203,6 @@ export function SidebarFooter({
 	children: ReactNode
 	className?: string
 }) {
-	const { mode } = useSidebar()
-	if (mode === 'collapsed') return null
 	return (
 		<div className={cn('shrink-0 border-t border-border px-4 py-3', className)}>{children}</div>
 	)

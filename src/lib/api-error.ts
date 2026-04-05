@@ -62,7 +62,9 @@ export function safeParseResponse<T>(schema: { parse: (data: unknown) => T }, js
 	try {
 		return schema.parse(json)
 	} catch (err) {
-		console.error('[API] Response schema mismatch:', err)
+		if (import.meta.env.DEV) {
+			console.error('[API] Response schema mismatch:', err)
+		}
 		throw new ApiError(
 			'Data format error — the server response has changed. Please refresh the page.',
 			'INTERNAL_ERROR',

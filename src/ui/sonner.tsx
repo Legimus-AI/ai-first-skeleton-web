@@ -10,28 +10,28 @@ const icons = {
 	loading: <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />,
 }
 
-const toastStyle = {
-	'--normal-bg': 'var(--popover)',
-	'--normal-text': 'var(--popover-foreground)',
-	'--normal-border': 'var(--border)',
-	'--border-radius': 'var(--radius)',
-	'--success-bg': 'var(--popover)',
-	'--success-text': 'var(--popover-foreground)',
-	'--success-border': 'var(--border)',
-	'--error-bg': 'var(--popover)',
-	'--error-text': 'var(--popover-foreground)',
-	'--error-border': 'var(--border)',
-} as React.CSSProperties
-
 export function Toaster(props: ToasterProps) {
 	const { resolvedTheme } = useTheme()
 	return (
 		<SonnerToaster
 			position="bottom-right"
 			theme={resolvedTheme}
-			style={toastStyle}
+			toastOptions={{
+				duration: 4000,
+				classNames: {
+					toast:
+						'group flex w-full items-start gap-3 rounded-lg border border-border bg-popover p-4 text-popover-foreground shadow-lg',
+					title: 'text-sm font-semibold',
+					description: 'text-sm text-muted-foreground',
+					actionButton: 'bg-primary text-primary-foreground',
+					cancelButton: 'bg-muted text-muted-foreground',
+					success: 'border-l-2 border-l-success',
+					error: 'border-l-2 border-l-destructive',
+					warning: 'border-l-2 border-l-warning',
+					info: 'border-l-2 border-l-info',
+				},
+			}}
 			icons={icons}
-			toastOptions={{ duration: 4000 }}
 			{...props}
 		/>
 	)

@@ -1,38 +1,26 @@
-import { type HTMLMotionProps, m } from 'motion/react'
-import { transition } from '@/lib/motion-config'
+import type { HTMLAttributes, ReactNode } from 'react'
+import { cn } from '@/lib/cn'
 
-interface FadeInProps extends HTMLMotionProps<'div'> {
-	/** Delay before animation starts (seconds). Default: 0. */
+interface FadeInProps extends HTMLAttributes<HTMLDivElement> {
+	children: ReactNode
 	delay?: number
 }
 
-/** Fade-in wrapper — animates children on mount with opacity + slight upward shift.
+/** CSS-only fade-in wrapper — animates children on mount with opacity + slight upward shift.
  *
- * Respects `prefers-reduced-motion` automatically (Motion handles this).
- *
- * Usage:
- * ```tsx
- * <FadeIn>
- *   <Card>Content appears with a smooth fade</Card>
- * </FadeIn>
- *
- * // With staggered children:
- * {items.map((item, i) => (
- *   <FadeIn key={item.id} delay={i * 0.05}>
- *     <Card>{item.name}</Card>
- *   </FadeIn>
- * ))}
- * ```
+ * Respects `prefers-reduced-motion` via `motion-safe:` prefix.
  */
-export function FadeIn({ delay = 0, children, ...props }: FadeInProps) {
+export function FadeIn({ delay = 0, children, className, style, ...props }: FadeInProps) {
 	return (
-		<m.div
-			initial={{ opacity: 0, y: 8 }}
-			animate={{ opacity: 1, y: 0 }}
-			transition={{ ...transition.default, delay }}
+		<div
+			className={cn(
+				'motion-safe:animate-in motion-safe:fade-in-0 motion-safe:slide-in-from-bottom-1 motion-safe:duration-200',
+				className,
+			)}
+			style={{ ...style, animationDelay: delay ? `${delay}s` : undefined }}
 			{...props}
 		>
 			{children}
-		</m.div>
+		</div>
 	)
 }

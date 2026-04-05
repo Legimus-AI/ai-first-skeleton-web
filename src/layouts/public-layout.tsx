@@ -23,55 +23,46 @@ export function PublicLayout({
 	socialLogin,
 }: PublicLayoutProps) {
 	return (
-		<div className="flex min-h-screen flex-col lg:flex-row">
-			{/* Brand panel — gradient */}
-			<div className="relative flex flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-primary via-primary/80 to-background px-8 py-16 lg:w-1/2 lg:py-0">
-				{/* Decorative blurred circles */}
-				<div className="absolute -left-20 -top-20 h-72 w-72 rounded-full bg-primary/30 blur-3xl" />
-				<div className="absolute -bottom-32 -right-16 h-96 w-96 rounded-full bg-primary/20 blur-3xl" />
+		<div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-background px-4 py-12 sm:px-6 lg:px-8">
+			{/* Subtle background effects (Aether style) */}
+			<div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
+			<div className="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-primary/20 blur-[120px] rounded-full pointer-events-none" />
 
-				<div className="relative z-10 max-w-md text-center">
-					<div className="mb-6 flex items-center justify-center gap-2.5">
-						<div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-foreground text-sm font-bold text-primary">
-							A
-						</div>
-						<span className="text-2xl font-semibold tracking-tight text-primary-foreground">
-							App
-						</span>
+			{/* Centered Card */}
+			<div className="relative z-10 w-full max-w-[380px] animate-in fade-in zoom-in-95 duration-500">
+				{/* Logo */}
+				<div className="mb-8 flex flex-col items-center justify-center gap-3">
+					<div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-sm font-bold text-primary-foreground shadow-[0_0_24px_rgba(var(--primary),0.4)]">
+						A
 					</div>
-					<h2 className="text-2xl font-bold tracking-tight text-primary-foreground lg:text-3xl">
-						Tu plataforma inteligente
-					</h2>
-					<p className="mt-3 text-sm text-primary-foreground/70 lg:text-base">
-						Automatiza, gestiona y escala tu negocio con inteligencia artificial.
-					</p>
+					<span className="text-xl font-semibold tracking-tight text-foreground">App</span>
 				</div>
-			</div>
 
-			{/* Form panel */}
-			<div className="flex flex-1 items-center justify-center bg-background px-4 py-12 lg:px-8">
-				<div className="w-full max-w-sm space-y-6">
-					<div className="space-y-1.5">
+				{/* Form Container */}
+				<div className="rounded-2xl border border-border/50 bg-card/50 p-8 shadow-2xl backdrop-blur-xl ring-1 ring-black/5 dark:ring-white/5">
+					<div className="mb-6 space-y-1.5 text-center">
 						<h1 className="text-2xl font-semibold tracking-tight text-foreground">{title}</h1>
 						<p className="text-sm text-muted-foreground">{description}</p>
 					</div>
 
-					<form onSubmit={onSubmit} className="space-y-4">
+					<form onSubmit={onSubmit} className="space-y-5">
 						{socialLogin && (
 							<>
 								{socialLogin}
-								<div className="relative">
+								<div className="relative my-6">
 									<div className="absolute inset-0 flex items-center">
-										<span className="w-full border-t border-border" />
+										<span className="w-full border-t border-border/50" />
 									</div>
 									<div className="relative flex justify-center text-xs uppercase">
-										<span className="bg-background px-2 text-muted-foreground">o</span>
+										<span className="bg-card px-2 text-muted-foreground">
+											o continuar con email
+										</span>
 									</div>
 								</div>
 							</>
 						)}
 						<div className="space-y-4">{children}</div>
-						<div className="space-y-3 pt-2">{footer}</div>
+						<div className="space-y-4 pt-2">{footer}</div>
 					</form>
 				</div>
 			</div>

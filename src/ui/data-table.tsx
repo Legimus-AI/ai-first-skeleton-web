@@ -171,7 +171,7 @@ export function DataTable<T>({
 
 	if (isLoading) {
 		return (
-			<div>
+			<div className="overflow-x-auto">
 				<Table>
 					<TableHeader>
 						<TableRow className="hover:bg-transparent">
@@ -208,7 +208,7 @@ export function DataTable<T>({
 
 	if (data.length === 0) {
 		return (
-			<div className="flex flex-col items-center justify-center py-16 text-center">
+			<div className="flex flex-col items-center justify-center py-12 md:py-16 text-center">
 				{emptyIcon && (
 					<div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
 						{emptyIcon}
@@ -223,7 +223,7 @@ export function DataTable<T>({
 	// ── Data table ────────────────────────────────────────────────────────────
 
 	return (
-		<div>
+		<div className="overflow-x-auto">
 			<Table>
 				<TableHeader>
 					{table.getHeaderGroups().map((headerGroup) => (

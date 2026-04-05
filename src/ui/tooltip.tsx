@@ -36,7 +36,7 @@ export function Tooltip({
 	return (
 		<TooltipRoot>
 			<TooltipTrigger asChild>{children}</TooltipTrigger>
-			<TooltipContent side={side}>{content}</TooltipContent>
+			<TooltipContent {...(side ? { side } : {})}>{content}</TooltipContent>
 		</TooltipRoot>
 	)
 }

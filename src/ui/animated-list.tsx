@@ -1,35 +1,38 @@
-import { m } from 'motion/react'
-import { transition } from '@/lib/motion-config'
+import type { HTMLAttributes, ReactNode } from 'react'
+import { cn } from '@/lib/cn'
 
-interface AnimatedListItemProps {
-	/** Index for stagger delay calculation. */
-	index: number
-	/** Max stagger delay in seconds. Items beyond this get no additional delay. Default: 0.3. */
-	maxDelay?: number
-	children: React.ReactNode
+interface AnimatedListItemProps extends HTMLAttributes<HTMLDivElement> {
+	children: ReactNode
+	index?: number
+	staggerDelay?: number
 }
 
-/** Animated list item — staggers children entrance for a polished list reveal.
+/** CSS-only staggered list item animation.
  *
- * Usage:
- * ```tsx
- * {items.map((item, i) => (
- *   <AnimatedListItem key={item.id} index={i}>
- *     <TodoRow todo={item} />
- *   </AnimatedListItem>
- * ))}
- * ```
+ * Each item fades in with a slight delay based on its index.
+ * Respects `prefers-reduced-motion` via `motion-safe:` prefix.
  */
-export function AnimatedListItem({ index, maxDelay = 0.3, children }: AnimatedListItemProps) {
-	const delay = Math.min(index * 0.03, maxDelay)
-
+export function AnimatedListItem({
+	children,
+	index = 0,
+	staggerDelay = 0.03,
+	className,
+	style,
+	...props
+}: AnimatedListItemProps) {
 	return (
-		<m.div
-			initial={{ opacity: 0, x: -8 }}
-			animate={{ opacity: 1, x: 0 }}
-			transition={{ ...transition.default, delay }}
+		<div
+			className={cn(
+				'motion-safe:animate-in motion-safe:fade-in-0 motion-safe:slide-in-from-bottom-1 motion-safe:duration-200',
+				className,
+			)}
+			style={{
+				...style,
+				animationDelay: `${Math.min(index * staggerDelay, 0.3)}s`,
+			}}
+			{...props}
 		>
 			{children}
-		</m.div>
+		</div>
 	)
 }

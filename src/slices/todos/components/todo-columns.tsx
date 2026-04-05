@@ -1,25 +1,17 @@
 import type { Todo } from '@repo/shared'
-import { CheckCircle2, Circle, Pencil, Trash2 } from 'lucide-react'
-import { locale } from '@/env'
+import { ArrowDown, ArrowRight, ArrowUp, CheckCircle2, Circle, Pencil, Trash2 } from 'lucide-react'
 import { cn } from '@/lib/cn'
-import { Badge } from '@/ui/badge'
 import { Button } from '@/ui/button'
 import type { Column } from '@/ui/data-table'
 
-function formatRelative(date: string): string {
-	const diff = Date.now() - new Date(date).getTime()
-	const minutes = Math.floor(diff / 60_000)
-	if (minutes < 1) return 'Ahora'
-	if (minutes < 60) return `Hace ${minutes}m`
-	const hours = Math.floor(minutes / 60)
-	if (hours < 24) return `Hace ${hours}h`
-	return new Date(date).toLocaleDateString(locale, {
-		day: 'numeric',
-		month: 'short',
-		year: 'numeric',
-		hour: '2-digit',
-		minute: '2-digit',
-	})
+function formatDate(date: string): string {
+	const d = new Date(date)
+	const day = d.getDate().toString().padStart(2, '0')
+	const month = (d.getMonth() + 1).toString().padStart(2, '0')
+	const year = d.getFullYear()
+	const hours = d.getHours().toString().padStart(2, '0')
+	const minutes = d.getMinutes().toString().padStart(2, '0')
+	return `${day}/${month}/${year} ${hours}:${minutes}`
 }
 
 interface TodoColumnsOptions {
@@ -41,12 +33,15 @@ export function buildTodoColumns({
 			render: (item) => (
 				<button
 					type="button"
-					onClick={() => onToggle(item)}
+					onClick={(e) => {
+						e.stopPropagation()
+						onToggle(item)
+					}}
 					className="transition-colors duration-150"
 					aria-label={`Marcar "${item.title}" como ${item.completed ? 'pendiente' : 'completada'}`}
 				>
 					{item.completed ? (
-						<CheckCircle2 className="h-4.5 w-4.5 text-success" />
+						<CheckCircle2 className="h-4.5 w-4.5 text-primary" />
 					) : (
 						<Circle className="h-4.5 w-4.5 text-muted-foreground/40 hover:text-muted-foreground" />
 					)}
@@ -58,20 +53,47 @@ export function buildTodoColumns({
 			label: 'Titulo',
 			sortable: true,
 			render: (item) => (
-				<span className={cn('text-sm', item.completed && 'text-muted-foreground line-through')}>
-					{item.title}
-				</span>
+				<div className="flex flex-col gap-0.5 py-1">
+					<span
+						className={cn(
+							'text-sm font-medium',
+							item.completed && 'text-muted-foreground line-through',
+						)}
+					>
+						{item.title}
+					</span>
+					{item.description && (
+						<span className="text-xs text-muted-foreground line-clamp-1">{item.description}</span>
+					)}
+				</div>
 			),
 		},
 		{
-			key: 'status',
-			label: 'Estado',
-			className: 'hidden md:table-cell w-24',
-			render: (item) => (
-				<Badge variant={item.completed ? 'success' : 'secondary'}>
-					{item.completed ? 'Completada' : 'Pendiente'}
-				</Badge>
-			),
+			key: 'priority',
+			label: 'Prioridad',
+			sortable: true,
+			className: 'hidden sm:table-cell w-24',
+			render: (item) => {
+				if (item.priority === 'high') {
+					return (
+						<div className="flex items-center text-xs text-destructive font-medium">
+							<ArrowUp className="mr-1 h-3.5 w-3.5" /> Alta
+						</div>
+					)
+				}
+				if (item.priority === 'medium') {
+					return (
+						<div className="flex items-center text-xs text-warning-foreground font-medium">
+							<ArrowRight className="mr-1 h-3.5 w-3.5" /> Media
+						</div>
+					)
+				}
+				return (
+					<div className="flex items-center text-xs text-muted-foreground font-medium">
+						<ArrowDown className="mr-1 h-3.5 w-3.5" /> Baja
+					</div>
+				)
+			},
 		},
 		{
 			key: 'updatedAt',
@@ -79,19 +101,19 @@ export function buildTodoColumns({
 			sortable: true,
 			className: 'hidden lg:table-cell w-36',
 			render: (item) => (
-				<span className="text-xs text-muted-foreground">{formatRelative(item.updatedAt)}</span>
+				<span className="text-xs text-muted-foreground">{formatDate(item.updatedAt)}</span>
 			),
 		},
 		{
 			key: 'actions',
 			label: '',
-			className: 'w-16 text-right',
+			className: 'w-20 text-right',
 			render: (item) => (
-				<div className="flex justify-end gap-0.5">
+				<div className="flex justify-end gap-1">
 					<Button
 						variant="ghost"
 						size="icon"
-						className="h-7 w-7"
+						className="h-8 w-8 text-foreground/60 hover:text-primary hover:bg-primary/10 transition-colors"
 						type="button"
 						onClick={(e) => {
 							e.stopPropagation()
@@ -99,12 +121,12 @@ export function buildTodoColumns({
 						}}
 						aria-label={`Editar "${item.title}"`}
 					>
-						<Pencil className="h-3.5 w-3.5" />
+						<Pencil className="h-4 w-4" />
 					</Button>
 					<Button
 						variant="ghost"
 						size="icon"
-						className="h-7 w-7"
+						className="h-8 w-8 text-destructive/70 hover:text-destructive hover:bg-destructive/10 transition-colors"
 						type="button"
 						onClick={(e) => {
 							e.stopPropagation()
@@ -112,7 +134,7 @@ export function buildTodoColumns({
 						}}
 						aria-label={`Eliminar "${item.title}"`}
 					>
-						<Trash2 className="h-3.5 w-3.5 text-destructive" />
+						<Trash2 className="h-4 w-4" />
 					</Button>
 				</div>
 			),
