@@ -51,15 +51,26 @@ function SettingsNotificationsPage() {
 
 	const sendTestPush = useCallback(async () => {
 		try {
+			// Ensure permission is granted
+			if (Notification.permission !== 'granted') {
+				const result = await Notification.requestPermission()
+				if (result !== 'granted') {
+					toast.error('Notification permission denied')
+					return
+				}
+			}
+
 			const reg = await navigator.serviceWorker.ready
 			await reg.showNotification('Test Notification', {
 				body: 'Push notifications are working correctly!',
 				icon: '/favicon.ico',
 			})
 			setPushTestSent(true)
-			toast.success('Test notification sent!')
-		} catch {
-			toast.error('Could not send test notification')
+			toast.success('Check your notification area!')
+		} catch (err) {
+			toast.error('Could not send test notification', {
+				description: err instanceof Error ? err.message : 'Unknown error',
+			})
 		}
 	}, [])
 
