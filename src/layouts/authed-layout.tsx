@@ -1,4 +1,4 @@
-import { Link, useRouterState } from '@tanstack/react-router'
+import { Link, useMatches, useRouterState } from '@tanstack/react-router'
 import { ChevronRight, Menu, Moon, Sun } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useState } from 'react'
@@ -45,28 +45,63 @@ function SidebarNavItem({
 					isActive ? 'text-foreground' : 'text-muted-foreground',
 				)}
 			/>
-			<div
-				className={cn(
-					'flex flex-1 items-center justify-between overflow-hidden whitespace-nowrap transition-opacity duration-300',
-					isCollapsed ? 'opacity-0 group-hover:opacity-100' : 'opacity-100',
-				)}
-			>
-				<span className="truncate">{item.label}</span>
-				{hasChildren && (
-					<div className="ml-auto shrink-0 transition-transform duration-200">
+			{!isCollapsed && (
+				<div className="flex flex-1 items-center justify-between overflow-hidden whitespace-nowrap">
+					<span className="truncate">{item.label}</span>
+					{hasChildren && (
 						<ChevronRight
 							className={cn(
-								'h-3.5 w-3.5 opacity-50 transition-transform duration-200',
+								'ml-auto h-3.5 w-3.5 shrink-0 opacity-50 transition-transform duration-200',
 								isOpen && 'rotate-90',
 							)}
 						/>
-					</div>
-				)}
-			</div>
+					)}
+				</div>
+			)}
 		</SidebarItem>
 	)
 
 	if (hasChildren) {
+		// When collapsed, show submenu as popover on click
+		if (isCollapsed) {
+			return (
+				<div className="relative">
+					<button type="button" onClick={() => setIsOpen(!isOpen)} className="w-full">
+						{content}
+					</button>
+					{isOpen && (
+						<div className="absolute left-full top-0 z-[70] ml-2 min-w-[180px] rounded-lg border border-border bg-popover p-2 shadow-lg">
+							<p className="mb-1.5 px-2 text-xs font-medium text-muted-foreground">{item.label}</p>
+							{item.children?.map((child) => {
+								const childPrefix = child.activePrefix ?? child.to
+								const isChildActive =
+									pathname === childPrefix || pathname.startsWith(`${childPrefix}/`)
+								return (
+									<Link
+										key={child.to}
+										to={child.to}
+										{...(child.search ? { search: child.search } : {})}
+										onClick={() => setIsOpen(false)}
+									>
+										<div
+											className={cn(
+												'flex items-center rounded-md px-2 py-1.5 text-sm transition-colors',
+												isChildActive
+													? 'bg-accent text-foreground font-medium'
+													: 'text-muted-foreground hover:bg-muted/50 hover:text-foreground',
+											)}
+										>
+											{child.label}
+										</div>
+									</Link>
+								)
+							})}
+						</div>
+					)}
+				</div>
+			)
+		}
+
 		return (
 			<div className="flex flex-col space-y-1">
 				<button type="button" onClick={() => setIsOpen(!isOpen)} className="w-full text-left">
@@ -79,12 +114,7 @@ function SidebarNavItem({
 					)}
 				>
 					<div className="overflow-hidden">
-						<div
-							className={cn(
-								'ml-9 mt-1 flex flex-col space-y-1 border-l border-border/50 pl-2 transition-opacity duration-300',
-								isCollapsed ? 'opacity-0 group-hover:opacity-100' : 'opacity-100',
-							)}
-						>
+						<div className="ml-9 mt-1 flex flex-col space-y-1 border-l border-border/50 pl-2">
 							{item.children?.map((child) => {
 								const childPrefix = child.activePrefix ?? child.to
 								const isChildActive =
@@ -160,19 +190,15 @@ function SidebarLogo() {
 			<Link
 				to="/todos"
 				search={{ search: '', page: 1, limit: 20, sort: 'updatedAt', order: 'desc' as const }}
-				className="flex items-center gap-2.5 text-base font-semibold tracking-tight text-foreground transition-colors duration-150 hover:text-primary"
+				className={cn(
+					'flex items-center text-base font-semibold tracking-tight text-foreground transition-colors duration-150 hover:text-primary',
+					isCollapsed ? 'justify-center' : 'gap-2.5',
+				)}
 			>
 				<div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary text-xs font-bold text-primary-foreground">
 					A
 				</div>
-				<span
-					className={cn(
-						'transition-opacity duration-300 whitespace-nowrap',
-						isCollapsed ? 'opacity-0 group-hover:opacity-100' : 'opacity-100',
-					)}
-				>
-					App
-				</span>
+				{!isCollapsed && <span className="whitespace-nowrap">App</span>}
 			</Link>
 		</SidebarHeader>
 	)
@@ -226,6 +252,9 @@ interface AuthedLayoutProps {
 
 export function AuthedLayout({ children, variant }: AuthedLayoutProps) {
 	const pathname = useRouterState({ select: (s) => s.location.pathname })
+	const matches = useMatches()
+	const routeVariant = (matches[matches.length - 1]?.context as { layout?: LayoutVariant })?.layout
+	const finalVariant = variant ?? routeVariant ?? 'default'
 
 	return (
 		<SidebarProvider>
@@ -236,7 +265,7 @@ export function AuthedLayout({ children, variant }: AuthedLayoutProps) {
 				</Sidebar>
 				<div className="flex min-w-0 flex-1 flex-col">
 					<TopHeader />
-					<ContentArea {...(variant ? { variant } : {})} pageKey={pathname}>
+					<ContentArea variant={finalVariant} pageKey={pathname}>
 						{children}
 					</ContentArea>
 				</div>

@@ -70,7 +70,14 @@ export function Sidebar({ children, className }: { children: ReactNode; classNam
 					className,
 				)}
 			>
-				<div className="flex h-full w-[240px] flex-col overflow-hidden">{children}</div>
+				<div
+					className={cn(
+						'flex h-full flex-col overflow-hidden transition-all duration-300',
+						isCollapsed ? 'w-[64px]' : 'w-[240px]',
+					)}
+				>
+					{children}
+				</div>
 
 				{/* Floating Toggle Button (Desktop only) */}
 				<div className="absolute -right-3 top-5 z-[60] hidden md:block">
@@ -139,13 +146,8 @@ export function SidebarGroup({
 	const { mode } = useSidebar()
 	return (
 		<div className={cn('mb-6', className)}>
-			{label && (
-				<p
-					className={cn(
-						'mb-2 px-2 text-xs font-medium uppercase tracking-wider text-muted-foreground transition-opacity duration-300',
-						mode === 'collapsed' ? 'opacity-0 group-hover:opacity-100' : 'opacity-100',
-					)}
-				>
+			{label && mode !== 'collapsed' && (
+				<p className="mb-2 px-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
 					{label}
 				</p>
 			)}
@@ -173,7 +175,8 @@ export function SidebarItem({
 	const content = (
 		<div
 			className={cn(
-				'flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors duration-200',
+				'flex w-full items-center rounded-md py-2 text-sm transition-colors duration-200',
+				isCollapsed ? 'justify-center px-2' : 'gap-3 px-3',
 				active
 					? 'bg-accent text-accent-foreground font-medium'
 					: 'text-muted-foreground hover:bg-muted/50 hover:text-foreground font-medium',
