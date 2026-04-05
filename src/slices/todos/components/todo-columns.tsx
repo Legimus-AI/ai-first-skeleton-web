@@ -13,9 +13,13 @@ function formatRelative(date: string): string {
 	if (minutes < 60) return `Hace ${minutes}m`
 	const hours = Math.floor(minutes / 60)
 	if (hours < 24) return `Hace ${hours}h`
-	const days = Math.floor(hours / 24)
-	if (days < 7) return `Hace ${days}d`
-	return new Date(date).toLocaleDateString(locale, { month: 'short', day: 'numeric' })
+	return new Date(date).toLocaleDateString(locale, {
+		day: 'numeric',
+		month: 'short',
+		year: 'numeric',
+		hour: '2-digit',
+		minute: '2-digit',
+	})
 }
 
 function formatDate(date: string): string {
@@ -90,7 +94,7 @@ export function buildTodoColumns({
 			key: 'updatedAt',
 			label: 'Modificada',
 			sortable: true,
-			className: 'hidden xl:table-cell w-24',
+			className: 'hidden xl:table-cell w-36',
 			render: (item) => (
 				<span className="text-xs text-muted-foreground">{formatRelative(item.updatedAt)}</span>
 			),
@@ -100,7 +104,7 @@ export function buildTodoColumns({
 			label: '',
 			className: 'w-16 text-right',
 			render: (item) => (
-				<div className="flex justify-end gap-0.5 transition-opacity duration-150 md:opacity-0 md:group-hover/row:opacity-100 md:focus-within:opacity-100">
+				<div className="flex justify-end gap-0.5">
 					<Button
 						variant="ghost"
 						size="icon"
