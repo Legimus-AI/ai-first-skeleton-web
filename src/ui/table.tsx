@@ -10,7 +10,16 @@ export function Table({ className, ...props }: ComponentPropsWithoutRef<'table'>
 }
 
 export function TableHeader({ className, ...props }: HTMLAttributes<HTMLTableSectionElement>) {
-	return <thead className={cn('[&_tr]:border-b [&_tr]:border-border', className)} {...props} />
+	return (
+		<thead
+			className={cn(
+				'[&_tr]:border-b [&_tr]:border-border',
+				'dark:[&_tr]:border-[rgba(255,255,255,0.08)]',
+				className,
+			)}
+			{...props}
+		/>
+	)
 }
 
 export function TableBody({ className, ...props }: HTMLAttributes<HTMLTableSectionElement>) {
@@ -22,6 +31,7 @@ export function TableRow({ className, ...props }: HTMLAttributes<HTMLTableRowEle
 		<tr
 			className={cn(
 				'group/row border-b border-border/50 transition-colors duration-150 hover:bg-muted/50 data-[selected=true]:bg-primary/5',
+				'dark:border-[rgba(255,255,255,0.06)] dark:hover:bg-[rgba(255,255,255,0.03)]',
 				className,
 			)}
 			{...props}

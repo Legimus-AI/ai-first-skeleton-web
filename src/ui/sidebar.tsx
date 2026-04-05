@@ -58,13 +58,14 @@ export function Sidebar({ children, className }: { children: ReactNode; classNam
 					type="button"
 					className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm md:hidden"
 					onClick={() => setOpen(false)}
-					aria-label="Close sidebar"
+					aria-label="Cerrar barra lateral"
 				/>
 			)}
 			<aside
 				className={cn(
-					'fixed inset-y-0 left-0 z-50 flex flex-col border-r border-border bg-card transition-all duration-200 md:static md:translate-x-0',
-					isCollapsed ? 'w-16' : 'w-64',
+					'fixed inset-y-0 left-0 z-50 flex flex-col border-r border-border transition-all duration-200 md:static md:translate-x-0',
+					'aether-glass',
+					isCollapsed ? 'w-16' : 'w-60',
 					open ? 'translate-x-0' : '-translate-x-full',
 					className,
 				)}
@@ -84,7 +85,7 @@ export function SidebarCollapseToggle() {
 			type="button"
 			onClick={toggleMode}
 			className="hidden rounded-md p-1.5 text-muted-foreground transition-colors duration-150 hover:bg-accent hover:text-accent-foreground md:block"
-			aria-label={mode === 'expanded' ? 'Collapse sidebar' : 'Expand sidebar'}
+			aria-label={mode === 'expanded' ? 'Colapsar barra lateral' : 'Expandir barra lateral'}
 		>
 			{mode === 'expanded' ? (
 				<PanelLeftClose className="h-4 w-4" />
@@ -170,11 +171,12 @@ export function SidebarItem({
 	const content = (
 		<div
 			className={cn(
-				'flex w-full items-center gap-2 rounded-md px-2 py-2 text-sm font-medium transition-colors duration-150',
+				'relative flex w-full items-center gap-2 rounded-md px-2 py-2 text-sm font-medium transition-colors duration-150',
 				isCollapsed && 'justify-center px-0',
 				active
-					? 'bg-primary/10 text-primary'
+					? 'bg-primary/10 text-primary dark:shadow-[0_0_12px_2px_var(--glow-color)]'
 					: 'text-muted-foreground hover:bg-muted/50 hover:text-foreground',
+				active && 'border-l-2 border-primary',
 				disabled && 'pointer-events-none opacity-50',
 				className,
 			)}

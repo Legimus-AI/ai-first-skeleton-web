@@ -59,8 +59,8 @@ function TopHeader() {
 	const { resolvedTheme, setTheme } = useTheme()
 
 	return (
-		<header className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-3 border-b border-border bg-background/95 px-4 backdrop-blur-sm md:px-6">
-			{/* Mobile hamburger */}
+		<header className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-3 border-b border-border bg-background/95 px-4 backdrop-blur-sm dark:bg-background/80 dark:backdrop-blur-md md:px-6">
+			{/* Boton hamburguesa movil */}
 			<Button
 				variant="ghost"
 				size="icon"
@@ -71,10 +71,10 @@ function TopHeader() {
 				<Menu className="h-5 w-5" />
 			</Button>
 
-			{/* Spacer */}
+			{/* Separador */}
 			<div className="flex-1" />
 
-			{/* Theme toggle */}
+			{/* Cambiar tema */}
 			<Button
 				variant="ghost"
 				size="icon"
@@ -85,7 +85,7 @@ function TopHeader() {
 				{resolvedTheme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
 			</Button>
 
-			{/* User dropdown */}
+			{/* Menu de usuario */}
 			<UserDropdown />
 		</header>
 	)

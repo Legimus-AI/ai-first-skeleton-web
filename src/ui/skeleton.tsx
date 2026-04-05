@@ -9,9 +9,9 @@ export function Skeleton({
 	return (
 		<div
 			className={cn(
-				'rounded-md bg-muted',
+				'rounded-lg bg-muted dark:bg-[rgba(255,255,255,0.06)]',
 				shimmer
-					? 'motion-safe:animate-shimmer bg-gradient-to-r from-muted via-muted/50 to-muted bg-[length:200%_100%]'
+					? 'motion-safe:animate-shimmer bg-gradient-to-r from-muted via-muted/50 to-muted bg-[length:200%_100%] dark:from-[rgba(255,255,255,0.06)] dark:via-[rgba(255,255,255,0.02)] dark:to-[rgba(255,255,255,0.06)]'
 					: 'motion-safe:animate-pulse',
 				className,
 			)}
