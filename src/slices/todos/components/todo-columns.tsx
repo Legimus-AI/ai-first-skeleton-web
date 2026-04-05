@@ -19,9 +19,9 @@ function formatRelative(date: string): string {
 }
 
 interface TodoColumnsOptions {
-	onToggle: (todo: Todo) => void
-	onEdit: (todo: Todo) => void
-	onDelete: (todo: Todo) => void
+	onToggle: (item: Todo) => void
+	onEdit: (item: Todo) => void
+	onDelete: (item: Todo) => void
 }
 
 export function buildTodoColumns({
