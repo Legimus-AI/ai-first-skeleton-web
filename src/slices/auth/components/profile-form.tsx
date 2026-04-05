@@ -1,19 +1,12 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import type { User } from '@repo/shared'
+import { type UpdateProfile, type User, updateProfileSchema } from '@repo/shared'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
-import { z } from 'zod'
 import { api } from '@/lib/api-client'
 import { throwIfNotOk } from '@/lib/api-error'
 import { useCurrentUser } from '@/slices/auth/hooks/use-auth'
 import { Button } from '@/ui/button'
 import { Input } from '@/ui/input'
-
-const profileSchema = z.object({
-	name: z.string().min(1, 'Name is required').max(100),
-})
-
-type ProfileFormData = z.infer<typeof profileSchema>
 
 interface ProfileFormProps {
 	user: User
@@ -26,14 +19,14 @@ export function ProfileForm({ user }: ProfileFormProps) {
 		register,
 		handleSubmit,
 		formState: { errors, isSubmitting, isDirty },
-	} = useForm<ProfileFormData>({
-		resolver: zodResolver(profileSchema),
+	} = useForm<UpdateProfile>({
+		resolver: zodResolver(updateProfileSchema),
 		defaultValues: {
 			name: user.name ?? '',
 		},
 	})
 
-	async function onSubmit(data: ProfileFormData) {
+	async function onSubmit(data: UpdateProfile) {
 		try {
 			const res = await api.patch('/api/v1/auth/me', data)
 			await throwIfNotOk(res)
