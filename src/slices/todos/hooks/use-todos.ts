@@ -1,6 +1,8 @@
 import {
 	type CreateTodo,
 	type ListQuery,
+	type Todo,
+	type TodoListResponse,
 	todoListResponseSchema,
 	todoResponseSchema,
 	type UpdateTodo,
@@ -10,6 +12,7 @@ import { toast } from 'sonner'
 import { api } from '@/lib/api-client'
 import { safeParseResponse, throwIfNotOk } from '@/lib/api-error'
 import { useBulkDelete } from '@/lib/use-bulk-delete'
+import { useOptimisticMutation } from '@/lib/use-optimistic-mutation'
 
 const TODOS_KEY = ['todos'] as const
 
@@ -49,24 +52,29 @@ export function useCreateTodo() {
 	})
 }
 
-export function useUpdateTodo() {
-	const queryClient = useQueryClient()
-	return useMutation({
-		mutationFn: async ({ id, ...input }: UpdateTodo & { id: string }) => {
+export function useUpdateTodo(params?: Partial<ListQuery>) {
+	const queryKey = [...TODOS_KEY, params]
+
+	return useOptimisticMutation<TodoListResponse, UpdateTodo & { id: string }>({
+		queryKey,
+		mutationFn: async ({ id, ...input }) => {
 			const res = await api.patch(`/api/v1/todos/${id}`, input)
 			await throwIfNotOk(res)
 			const json = await res.json()
 			return safeParseResponse(todoResponseSchema, json)
 		},
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: TODOS_KEY })
-			toast.success('Todo updated')
-		},
-		onError: (error: Error) => {
-			toast.error('Failed to update todo', {
-				description: error.message,
-			})
-		},
+		optimisticUpdate: (old, { id, ...input }) => ({
+			...old,
+			data: old.data.map((t) =>
+				t.id === id
+					? ({
+							...t,
+							...Object.fromEntries(Object.entries(input).filter(([, v]) => v !== undefined)),
+						} as Todo)
+					: t,
+			),
+		}),
+		successMessage: 'Todo updated',
 	})
 }
 
