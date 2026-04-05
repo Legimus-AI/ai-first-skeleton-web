@@ -8,6 +8,7 @@ import { Badge } from '@/ui/badge'
 import { Button } from '@/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/ui/card'
 import { Hint } from '@/ui/hint'
+import { InfoTooltip } from '@/ui/info-tooltip'
 
 export const Route = createFileRoute('/_authed/settings/notifications')({
 	component: SettingsNotificationsPage,
@@ -112,6 +113,7 @@ function SettingsNotificationsPage() {
 							<CardTitle className="flex items-center gap-2">
 								<Bell className="h-4 w-4" />
 								Push Notifications
+								<InfoTooltip content="Native browser notifications that appear even when the tab is minimized or in the background. Works on Chrome, Firefox, Edge, and Safari 16.4+." />
 							</CardTitle>
 							<CardDescription>
 								Receive native browser notifications even when the tab is in the background.
@@ -204,6 +206,7 @@ function SettingsNotificationsPage() {
 							<CardTitle className="flex items-center gap-2">
 								{sound.enabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
 								Sound Notifications
+								<InfoTooltip content="Plays an audio cue inside the app when a new notification arrives. Does not affect push notifications." />
 							</CardTitle>
 							<CardDescription>
 								Play a sound when a new notification arrives in the app.
