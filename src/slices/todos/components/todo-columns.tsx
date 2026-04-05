@@ -18,6 +18,14 @@ function formatRelative(date: string): string {
 	return new Date(date).toLocaleDateString(locale, { month: 'short', day: 'numeric' })
 }
 
+function formatDate(date: string): string {
+	return new Date(date).toLocaleDateString(locale, {
+		day: 'numeric',
+		month: 'short',
+		year: 'numeric',
+	})
+}
+
 interface TodoColumnsOptions {
 	onToggle: (item: Todo) => void
 	onEdit: (item: Todo) => void
@@ -33,18 +41,18 @@ export function buildTodoColumns({
 		{
 			key: 'completed',
 			label: '',
-			className: 'w-10',
-			render: (todo) => (
+			className: 'w-8 pr-0',
+			render: (item) => (
 				<button
 					type="button"
-					onClick={() => onToggle(todo)}
+					onClick={() => onToggle(item)}
 					className="transition-colors duration-150"
-					aria-label={`Marcar "${todo.title}" como ${todo.completed ? 'pendiente' : 'completada'}`}
+					aria-label={`Marcar "${item.title}" como ${item.completed ? 'pendiente' : 'completada'}`}
 				>
-					{todo.completed ? (
-						<CheckCircle2 className="h-5 w-5 text-success" />
+					{item.completed ? (
+						<CheckCircle2 className="h-4.5 w-4.5 text-success" />
 					) : (
-						<Circle className="h-5 w-5 text-muted-foreground/40 hover:text-muted-foreground" />
+						<Circle className="h-4.5 w-4.5 text-muted-foreground/40 hover:text-muted-foreground" />
 					)}
 				</button>
 			),
@@ -53,62 +61,71 @@ export function buildTodoColumns({
 			key: 'title',
 			label: 'Titulo',
 			sortable: true,
-			render: (todo) => (
-				<span className={cn('text-sm', todo.completed && 'text-muted-foreground line-through')}>
-					{todo.title}
+			render: (item) => (
+				<span className={cn('text-sm', item.completed && 'text-muted-foreground line-through')}>
+					{item.title}
 				</span>
 			),
 		},
 		{
 			key: 'status',
 			label: 'Estado',
-			className: 'hidden md:table-cell w-28',
-			render: (todo) => (
-				<Badge variant={todo.completed ? 'success' : 'secondary'}>
-					{todo.completed ? 'Completada' : 'Pendiente'}
+			className: 'hidden md:table-cell w-24',
+			render: (item) => (
+				<Badge variant={item.completed ? 'success' : 'secondary'}>
+					{item.completed ? 'Completada' : 'Pendiente'}
 				</Badge>
 			),
 		},
 		{
-			key: 'updatedAt',
-			label: 'Actualizada',
+			key: 'createdAt',
+			label: 'Creada',
 			sortable: true,
-			className: 'hidden lg:table-cell w-32',
-			render: (todo) => (
-				<span className="text-xs text-muted-foreground">{formatRelative(todo.updatedAt)}</span>
+			className: 'hidden lg:table-cell w-28',
+			render: (item) => (
+				<span className="text-xs text-muted-foreground">{formatDate(item.createdAt)}</span>
+			),
+		},
+		{
+			key: 'updatedAt',
+			label: 'Modificada',
+			sortable: true,
+			className: 'hidden xl:table-cell w-24',
+			render: (item) => (
+				<span className="text-xs text-muted-foreground">{formatRelative(item.updatedAt)}</span>
 			),
 		},
 		{
 			key: 'actions',
 			label: '',
-			className: 'w-20 text-right',
-			render: (todo) => (
-				<div className="flex justify-end gap-1 transition-opacity duration-150 md:opacity-0 md:group-hover/row:opacity-100 md:focus-within:opacity-100">
+			className: 'w-16 text-right',
+			render: (item) => (
+				<div className="flex justify-end gap-0.5 transition-opacity duration-150 md:opacity-0 md:group-hover/row:opacity-100 md:focus-within:opacity-100">
 					<Button
 						variant="ghost"
 						size="icon"
-						className="h-8 w-8"
+						className="h-7 w-7"
 						type="button"
 						onClick={(e) => {
 							e.stopPropagation()
-							onEdit(todo)
+							onEdit(item)
 						}}
-						aria-label={`Editar "${todo.title}"`}
+						aria-label={`Editar "${item.title}"`}
 					>
-						<Pencil className="h-4 w-4" />
+						<Pencil className="h-3.5 w-3.5" />
 					</Button>
 					<Button
 						variant="ghost"
 						size="icon"
-						className="h-8 w-8"
+						className="h-7 w-7"
 						type="button"
 						onClick={(e) => {
 							e.stopPropagation()
-							onDelete(todo)
+							onDelete(item)
 						}}
-						aria-label={`Eliminar "${todo.title}"`}
+						aria-label={`Eliminar "${item.title}"`}
 					>
-						<Trash2 className="h-4 w-4 text-destructive" />
+						<Trash2 className="h-3.5 w-3.5 text-destructive" />
 					</Button>
 				</div>
 			),

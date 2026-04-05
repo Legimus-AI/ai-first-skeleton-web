@@ -68,6 +68,7 @@ function toColumnDefs<T>(
 	if (hasSelection) {
 		defs.push({
 			id: '__select__',
+			meta: { className: 'w-10' },
 			header: ({ table }) => {
 				const allSelected = table.getRowCount() > 0 && table.getRowCount() === selectedIds?.size
 				return (

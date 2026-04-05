@@ -171,12 +171,11 @@ export function SidebarItem({
 	const content = (
 		<div
 			className={cn(
-				'relative flex w-full items-center gap-2 rounded-md px-2 py-2 text-sm font-medium transition-colors duration-150',
+				'flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors duration-150',
 				isCollapsed && 'justify-center px-0',
 				active
-					? 'bg-primary/10 text-primary dark:shadow-[0_0_12px_2px_var(--glow-color)]'
+					? 'bg-primary/10 text-primary'
 					: 'text-muted-foreground hover:bg-muted/50 hover:text-foreground',
-				active && 'border-l-2 border-primary',
 				disabled && 'pointer-events-none opacity-50',
 				className,
 			)}
