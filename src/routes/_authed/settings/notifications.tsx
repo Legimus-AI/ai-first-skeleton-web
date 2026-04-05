@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { Bell, BellOff, Volume2, VolumeX } from 'lucide-react'
+import { Bell, BellOff, Send, Volume2, VolumeX } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { usePushNotifications } from '@/lib/use-push-notifications'
@@ -34,6 +34,7 @@ function SettingsNotificationsPage() {
 	const push = usePushNotifications()
 	const sound = useSoundNotifications()
 	const [testPlayed, setTestPlayed] = useState(false)
+	const [pushTestSent, setPushTestSent] = useState(false)
 
 	const playTestSound = useCallback(() => {
 		const ctx = new AudioContext()
@@ -48,12 +49,28 @@ function SettingsNotificationsPage() {
 		setTestPlayed(true)
 	}, [])
 
+	const sendTestPush = useCallback(() => {
+		if (!('Notification' in window) || Notification.permission !== 'granted') return
+		new Notification('Test Notification', {
+			body: 'Push notifications are working correctly!',
+			icon: '/favicon.ico',
+		})
+		setPushTestSent(true)
+	}, [])
+
 	useEffect(() => {
 		if (testPlayed) {
 			const timer = setTimeout(() => setTestPlayed(false), 2000)
 			return () => clearTimeout(timer)
 		}
 	}, [testPlayed])
+
+	useEffect(() => {
+		if (pushTestSent) {
+			const timer = setTimeout(() => setPushTestSent(false), 3000)
+			return () => clearTimeout(timer)
+		}
+	}, [pushTestSent])
 
 	return (
 		<div className="max-w-2xl space-y-6">
@@ -129,6 +146,18 @@ function SettingsNotificationsPage() {
 							</Button>
 						</div>
 					)}
+
+					{push.isSubscribed && (
+						<div className="flex items-center gap-3 rounded-lg border border-border/50 bg-muted/30 px-4 py-3">
+							<Button variant="ghost" size="sm" onClick={sendTestPush} disabled={pushTestSent}>
+								<Send className="mr-1.5 h-3.5 w-3.5" />
+								{pushTestSent ? 'Sent!' : 'Send test notification'}
+							</Button>
+							<span className="text-xs text-muted-foreground">
+								Verify notifications work on this device.
+							</span>
+						</div>
+					)}
 				</CardContent>
 			</Card>
 
@@ -182,14 +211,13 @@ function SettingsNotificationsPage() {
 						</Button>
 					</div>
 
-					{sound.enabled && (
-						<div className="flex items-center gap-3 rounded-lg border border-border/50 bg-muted/30 px-4 py-3">
-							<Button variant="ghost" size="sm" onClick={playTestSound} disabled={testPlayed}>
-								{testPlayed ? 'Played!' : 'Test sound'}
-							</Button>
-							<span className="text-xs text-muted-foreground">Preview the notification sound.</span>
-						</div>
-					)}
+					<div className="flex items-center gap-3 rounded-lg border border-border/50 bg-muted/30 px-4 py-3">
+						<Button variant="ghost" size="sm" onClick={playTestSound} disabled={testPlayed}>
+							<Volume2 className="mr-1.5 h-3.5 w-3.5" />
+							{testPlayed ? 'Played!' : 'Test sound'}
+						</Button>
+						<span className="text-xs text-muted-foreground">Preview the notification sound.</span>
+					</div>
 				</CardContent>
 			</Card>
 		</div>
