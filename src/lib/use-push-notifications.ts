@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { toast } from 'sonner'
 import { api } from '@/lib/api-client'
 import { throwIfNotOk } from '@/lib/api-error'
 
@@ -91,8 +92,13 @@ export function usePushNotifications(): UsePushNotifications {
 			await throwIfNotOk(subRes)
 
 			setIsSubscribed(true)
-		} catch {
+			toast.success('Notifications enabled', {
+				description: "You'll receive alerts on this device.",
+			})
+		} catch (err) {
 			setPermission(Notification.permission)
+			const message = err instanceof Error ? err.message : 'Failed to enable notifications'
+			toast.error('Could not enable notifications', { description: message })
 		} finally {
 			setIsPending(false)
 		}
@@ -114,8 +120,9 @@ export function usePushNotifications(): UsePushNotifications {
 			}
 
 			setIsSubscribed(false)
+			toast.success('Notifications disabled')
 		} catch {
-			// Ignore errors during unsubscribe
+			toast.error('Failed to disable notifications')
 		} finally {
 			setIsPending(false)
 		}

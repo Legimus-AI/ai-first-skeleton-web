@@ -56,7 +56,7 @@ export function UserDropdown() {
 						Gestionar
 					</DropdownMenuItem>
 					<DropdownMenuItem
-						onSelect={() => void navigate({ to: '/api-keys' })}
+						onSelect={() => void navigate({ to: '/settings/api-keys' })}
 						className="gap-2.5 px-3 py-2"
 					>
 						<Settings className="h-4 w-4 text-muted-foreground" />

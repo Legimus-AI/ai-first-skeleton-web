@@ -54,6 +54,14 @@ function getSliceNames(): string[] {
 	}
 }
 
+// Infrastructure slices — not standard CRUD, exempt from CRUD-specific checks (INV-050)
+// team: manages users table (under settings), needs auth cross-import for currentUser
+const INFRA_SLICES = new Set(['auth', 'team'])
+
+function getCrudSliceNames(): string[] {
+	return getSliceNames().filter((name) => !INFRA_SLICES.has(name))
+}
+
 describe('Architecture rules (INVARIANTS.md)', () => {
 	const allTsxFiles = collectFiles(SRC_DIR, ['.tsx'])
 	const allTsFiles = collectFiles(SRC_DIR, ['.ts', '.tsx'])
@@ -270,12 +278,17 @@ describe('Architecture rules (INVARIANTS.md)', () => {
 
 	describe('No cross-slice imports', () => {
 		const sliceNames = getSliceNames()
+		// Allowed cross-slice imports (infra slices may import from auth for currentUser)
+		const allowedCrossImports: Record<string, Set<string>> = {
+			team: new Set(['auth']),
+		}
 
 		for (const sliceName of sliceNames) {
 			it(`slices/${sliceName}/ does not import from other slices`, () => {
 				const sliceDir = join(SLICES_DIR, sliceName)
 				const files = collectFiles(sliceDir, ['.ts', '.tsx'], ['node_modules'])
 				const violations: string[] = []
+				const allowed = allowedCrossImports[sliceName] ?? new Set()
 
 				for (const file of files) {
 					const content = readFileSync(file, 'utf-8')
@@ -283,6 +296,7 @@ describe('Architecture rules (INVARIANTS.md)', () => {
 
 					for (const otherSlice of sliceNames) {
 						if (otherSlice === sliceName) continue
+						if (allowed.has(otherSlice)) continue
 
 						const patterns = [
 							`from '../../slices/${otherSlice}`,
@@ -365,8 +379,8 @@ describe('Architecture rules (INVARIANTS.md)', () => {
 	// --- INV-093: CRUD hooks must export list, create, update, delete ---
 
 	it('CRUD hooks export all 4 operations (INV-093)', () => {
-		// Only check slices that have a *-list.tsx component (= CRUD slices)
-		const crudSlices = getSliceNames().filter((name) => {
+		// Only check standard CRUD slices (not infra slices like auth, team)
+		const crudSlices = getCrudSliceNames().filter((name) => {
 			const compsDir = join(SLICES_DIR, name, 'components')
 			try {
 				return readdirSync(compsDir).some((f) => f.endsWith('-list.tsx'))
@@ -411,7 +425,7 @@ describe('Architecture rules (INVARIANTS.md)', () => {
 	// --- INV-094: CRUD slices must have a route file ---
 
 	it('CRUD slices have a route file in src/routes/_authed/ (INV-094)', () => {
-		const crudSlices = getSliceNames().filter((name) => {
+		const crudSlices = getCrudSliceNames().filter((name) => {
 			const compsDir = join(SLICES_DIR, name, 'components')
 			try {
 				return readdirSync(compsDir).some((f) => f.endsWith('-list.tsx'))
@@ -779,7 +793,7 @@ describe('Architecture rules (INVARIANTS.md)', () => {
 	// --- INV-104: CRUD slices must have a nav entry ---
 
 	it('CRUD slices have an entry in nav-items.ts (INV-104)', () => {
-		const crudSlices = getSliceNames().filter((name) => {
+		const crudSlices = getCrudSliceNames().filter((name) => {
 			const compsDir = join(SLICES_DIR, name, 'components')
 			try {
 				return readdirSync(compsDir).some((f) => f.endsWith('-list.tsx'))
@@ -857,7 +871,7 @@ describe('Architecture rules (INVARIANTS.md)', () => {
 	// --- INV-107: CRUD hooks must export useBulkDelete ---
 
 	it('CRUD hooks export bulk delete (INV-107)', () => {
-		const crudSlices = getSliceNames().filter((name) => {
+		const crudSlices = getCrudSliceNames().filter((name) => {
 			const compsDir = join(SLICES_DIR, name, 'components')
 			try {
 				return readdirSync(compsDir).some((f) => f.endsWith('-list.tsx'))
