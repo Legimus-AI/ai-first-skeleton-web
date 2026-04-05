@@ -22,9 +22,9 @@ export function CrudPageHeader({
 					<h1 className="text-2xl font-semibold tracking-tight text-foreground">{title}</h1>
 					{description && <p className="mt-1 text-sm text-muted-foreground">{description}</p>}
 				</div>
-				<div className="flex items-center gap-3">
-					{search}
-					{action}
+				<div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
+					{search && <div className="w-full sm:w-auto">{search}</div>}
+					{action && <div className="w-full sm:w-auto">{action}</div>}
 				</div>
 			</div>
 			{bulkAction && (

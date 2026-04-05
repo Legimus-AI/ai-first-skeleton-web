@@ -80,7 +80,7 @@ function toColumnDefs<T>(
 							const allIds = new Set(table.getRowModel().rows.map((r) => getId(r.original)))
 							onSelectionChange(allSelected ? new Set() : allIds)
 						}}
-						className="rounded border-input"
+						className="h-4 w-4 rounded border-input text-primary focus:ring-primary/20 accent-primary"
 						aria-label="Select all rows"
 					/>
 				)
@@ -99,7 +99,7 @@ function toColumnDefs<T>(
 							onSelectionChange(next)
 						}}
 						onClick={(e) => e.stopPropagation()}
-						className="rounded border-input"
+						className="h-4 w-4 rounded border-input text-primary focus:ring-primary/20 accent-primary"
 						aria-label={`Select row ${id}`}
 					/>
 				)

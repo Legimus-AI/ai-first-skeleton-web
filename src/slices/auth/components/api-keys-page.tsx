@@ -66,7 +66,7 @@ export function ApiKeysPage() {
 				title="Claves API"
 				description="Crea y gestiona claves para acceso programático a la plataforma."
 				action={
-					<Button onClick={() => setShowCreate(true)}>
+					<Button onClick={() => setShowCreate(true)} className="w-full sm:w-auto aether-squish">
 						<Plus className="mr-1.5 h-4 w-4" />
 						Crear clave
 					</Button>

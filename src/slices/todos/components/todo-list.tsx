@@ -7,6 +7,7 @@ import { Button } from '@/ui/button'
 import { ConfirmDelete } from '@/ui/confirm-delete'
 import { CrudPageHeader } from '@/ui/crud-page-header'
 import { DataTable } from '@/ui/data-table'
+import { FadeIn } from '@/ui/fade-in'
 import { InlineError } from '@/ui/inline-error'
 import { Pagination } from '@/ui/pagination'
 import { SearchInput } from '@/ui/search-input'
@@ -69,7 +70,7 @@ export function TodoList() {
 	}
 
 	return (
-		<div className="space-y-6">
+		<FadeIn className="space-y-6">
 			<CrudPageHeader
 				title="Tareas"
 				description="Gestiona tu lista de tareas."
@@ -83,23 +84,14 @@ export function TodoList() {
 					/>
 				}
 				action={
-					<Button onClick={() => setShowCreate(true)}>
+					<Button onClick={() => setShowCreate(true)} className="w-full sm:w-auto aether-squish">
 						<Plus className="mr-1.5 h-4 w-4" />
 						Nueva tarea
 					</Button>
 				}
 			/>
 
-			{data?.meta && data.meta.total > 0 && (
-				<Pagination
-					meta={data.meta}
-					onPageChange={(p) => setParams({ page: p })}
-					onPerPageChange={(l) => setParams({ limit: l, page: 1 })}
-					perPageOptions={[10, 15, 25, 50]}
-				/>
-			)}
-
-			<div className="rounded-md border bg-card">
+			<div className="overflow-hidden rounded-xl border border-border/50 bg-card shadow-sm">
 				<DataTable
 					data={data?.data ?? []}
 					columns={columns}
@@ -113,7 +105,7 @@ export function TodoList() {
 					emptyMessage={
 						params.search
 							? `Sin resultados para "${params.search}"`
-							: 'Sin tareas aun. Crea la primera!'
+							: 'Sin tareas aún. ¡Crea la primera!'
 					}
 					emptyIcon={<CheckCircle2 className="h-6 w-6 text-muted-foreground" />}
 					emptyAction={
@@ -122,11 +114,12 @@ export function TodoList() {
 								size="sm"
 								variant="outline"
 								onClick={() => setParams({ search: '', page: 1 })}
+								className="aether-squish"
 							>
-								Limpiar busqueda
+								Limpiar búsqueda
 							</Button>
 						) : (
-							<Button size="sm" onClick={() => setShowCreate(true)}>
+							<Button size="sm" onClick={() => setShowCreate(true)} className="aether-squish">
 								<Plus className="mr-1.5 h-4 w-4" />
 								Nueva tarea
 							</Button>
@@ -192,7 +185,7 @@ export function TodoList() {
 						setDeleteId(null)
 					}
 				}}
-				title="Eliminar tarea?"
+				title="¿Eliminar tarea?"
 				isPending={deleteTodo.isPending}
 			/>
 
@@ -200,26 +193,26 @@ export function TodoList() {
 				open={showBulkDelete}
 				onOpenChange={setShowBulkDelete}
 				onConfirm={handleBulkDelete}
-				title={`Eliminar ${selectedIds.size} tarea${selectedIds.size === 1 ? '' : 's'}?`}
-				description={`Se eliminaran permanentemente ${selectedIds.size} elemento${selectedIds.size === 1 ? '' : 's'}. Esta accion no se puede deshacer.`}
+				title={`¿Eliminar ${selectedIds.size} tarea${selectedIds.size === 1 ? '' : 's'}?`}
+				description={`Se eliminarán permanentemente ${selectedIds.size} elemento${selectedIds.size === 1 ? '' : 's'}. Esta acción no se puede deshacer.`}
 				isPending={bulkDelete.isPending}
 			/>
 
 			{/* Floating Bulk Actions Bar */}
 			{selectedIds.size > 0 && (
-				<div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-8 fade-in duration-300">
-					<div className="flex items-center gap-3 rounded-full border border-border/50 bg-background/80 backdrop-blur-xl px-4 py-2.5 shadow-2xl ring-1 ring-black/5 dark:ring-white/10">
-						<span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground">
+				<div className="fixed bottom-8 left-1/2 z-50 -translate-x-1/2 animate-in fade-in slide-in-from-bottom-8 duration-300">
+					<div className="flex items-center gap-2 sm:gap-3 rounded-full border border-border/50 bg-background/95 px-3 sm:px-4 py-2 shadow-2xl ring-1 ring-black/5 backdrop-blur-xl dark:ring-white/10">
+						<span className="flex h-5 w-5 sm:h-6 sm:w-6 shrink-0 items-center justify-center rounded-full bg-primary text-[10px] sm:text-xs font-medium text-primary-foreground">
 							{selectedIds.size}
 						</span>
-						<span className="text-sm font-medium text-foreground pr-2 border-r border-border/50">
+						<span className="hidden sm:block border-r border-border/50 pr-2 text-sm font-medium text-foreground">
 							Seleccionadas
 						</span>
 						<Button
 							variant="ghost"
 							size="sm"
 							onClick={() => setSelectedIds(new Set())}
-							className="h-8 rounded-full px-3 text-muted-foreground hover:text-foreground hover:bg-muted/50"
+							className="h-7 sm:h-8 rounded-full px-2 sm:px-3 text-xs sm:text-sm text-muted-foreground hover:bg-muted/50 hover:text-foreground"
 						>
 							Cancelar
 						</Button>
@@ -227,14 +220,14 @@ export function TodoList() {
 							variant="destructive"
 							size="sm"
 							onClick={() => setShowBulkDelete(true)}
-							className="h-8 rounded-full px-3"
+							className="h-7 sm:h-8 rounded-full px-2 sm:px-3 text-xs sm:text-sm"
 						>
-							<Trash2 className="mr-1.5 h-3.5 w-3.5" />
+							<Trash2 className="mr-1.5 h-3 w-3 sm:h-3.5 sm:w-3.5" />
 							Eliminar
 						</Button>
 					</div>
 				</div>
 			)}
-		</div>
+		</FadeIn>
 	)
 }
