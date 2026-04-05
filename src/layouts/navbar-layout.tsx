@@ -100,7 +100,7 @@ export function AuthedLayout({ children, variant }: NavbarLayoutProps) {
 		<div className="min-h-screen bg-background">
 			{/* Top navbar */}
 			<header className="sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur-sm">
-				<div className="mx-auto flex h-14 max-w-7xl items-center gap-6 px-4 md:px-6">
+				<div className="mx-auto flex h-14 items-center gap-6 px-4 md:px-6">
 					{/* Logo */}
 					<Link
 						to="/"
