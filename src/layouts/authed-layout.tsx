@@ -1,7 +1,7 @@
 import { Link, useMatches, useRouterState } from '@tanstack/react-router'
 import { ChevronRight, Menu, Moon, Sun } from 'lucide-react'
 import type { ReactNode } from 'react'
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { cn } from '@/lib/cn'
 import { useTheme } from '@/lib/theme-provider'
 import { Button } from '@/ui/button'
@@ -82,7 +82,7 @@ function SidebarNavItem({
 					</button>
 					{isOpen && (
 						<>
-							{/* biome-ignore lint/a11y/useSemanticElements: backdrop overlay for dismiss */}
+								{/* biome-ignore lint/a11y/noStaticElementInteractions: backdrop overlay for popover dismiss */}
 							<div
 								className="fixed inset-0 z-[998]"
 								onClick={() => setIsOpen(false)}
@@ -177,10 +177,24 @@ function SidebarNavItem({
 	)
 }
 
+function useIsMobile() {
+	const [isMobile, setIsMobile] = useState(false)
+	useEffect(() => {
+		const mq = window.matchMedia('(max-width: 767px)')
+		setIsMobile(mq.matches)
+		const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches)
+		mq.addEventListener('change', handler)
+		return () => mq.removeEventListener('change', handler)
+	}, [])
+	return isMobile
+}
+
 function SidebarNav() {
 	const pathname = useRouterState({ select: (s) => s.location.pathname })
 	const { mode } = useSidebar()
-	const isCollapsed = mode === 'collapsed'
+	const isMobile = useIsMobile()
+	// On mobile, sidebar is always expanded (full drawer). Collapse is desktop-only.
+	const isCollapsed = isMobile ? false : mode === 'collapsed'
 
 	const groups = new Map<string, typeof navItems>()
 	for (const item of navItems) {
@@ -209,7 +223,8 @@ function SidebarNav() {
 
 function SidebarLogo() {
 	const { mode } = useSidebar()
-	const isCollapsed = mode === 'collapsed'
+	const isMobile = useIsMobile()
+	const isCollapsed = isMobile ? false : mode === 'collapsed'
 	return (
 		<SidebarHeader>
 			<Link

@@ -63,9 +63,12 @@ export function Sidebar({ children, className }: { children: ReactNode; classNam
 			)}
 			<aside
 				className={cn(
-					'group relative fixed inset-y-0 left-0 z-50 flex flex-col overflow-visible border-r border-border transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] md:static md:translate-x-0',
-					'aether-glass',
-					isCollapsed ? 'w-[64px]' : 'w-[240px]',
+					'group relative fixed inset-y-0 left-0 z-50 flex flex-col overflow-visible border-r border-border transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]',
+					'aether-glass md:static md:translate-x-0',
+					// Mobile: always full 240px drawer
+					'w-[240px]',
+					// Desktop: respect collapse mode
+					isCollapsed ? 'md:w-[64px]' : 'md:w-[240px]',
 					open ? 'translate-x-0' : '-translate-x-full',
 					className,
 				)}
@@ -73,7 +76,8 @@ export function Sidebar({ children, className }: { children: ReactNode; classNam
 				<div
 					className={cn(
 						'flex h-full flex-col overflow-hidden transition-all duration-300',
-						isCollapsed ? 'w-[64px]' : 'w-[240px]',
+						'w-[240px]',
+						isCollapsed ? 'md:w-[64px]' : 'md:w-[240px]',
 					)}
 				>
 					{children}
