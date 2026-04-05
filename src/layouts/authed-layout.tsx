@@ -27,10 +27,12 @@ function SidebarNavItem({
 	item,
 	pathname,
 	isCollapsed,
+	onNavigate,
 }: {
 	item: NavItem
 	pathname: string
 	isCollapsed: boolean
+	onNavigate?: () => void
 }) {
 	const prefix = item.activePrefix ?? item.to
 	const isActive = pathname === prefix || pathname.startsWith(`${prefix}/`)
@@ -82,7 +84,7 @@ function SidebarNavItem({
 					</button>
 					{isOpen && (
 						<>
-								{/* biome-ignore lint/a11y/noStaticElementInteractions: backdrop overlay for popover dismiss */}
+							{/* biome-ignore lint/a11y/noStaticElementInteractions: backdrop overlay for popover dismiss */}
 							<div
 								className="fixed inset-0 z-[998]"
 								onClick={() => setIsOpen(false)}
@@ -149,6 +151,7 @@ function SidebarNavItem({
 										key={child.to}
 										to={child.to}
 										{...(child.search ? { search: child.search } : {})}
+										onClick={onNavigate}
 									>
 										<div
 											className={cn(
@@ -171,7 +174,7 @@ function SidebarNavItem({
 	}
 
 	return (
-		<Link to={item.to} {...(item.search ? { search: item.search } : {})}>
+		<Link to={item.to} {...(item.search ? { search: item.search } : {})} onClick={onNavigate}>
 			{content}
 		</Link>
 	)
@@ -191,10 +194,13 @@ function useIsMobile() {
 
 function SidebarNav() {
 	const pathname = useRouterState({ select: (s) => s.location.pathname })
-	const { mode } = useSidebar()
+	const { mode, setOpen } = useSidebar()
 	const isMobile = useIsMobile()
-	// On mobile, sidebar is always expanded (full drawer). Collapse is desktop-only.
 	const isCollapsed = isMobile ? false : mode === 'collapsed'
+
+	const handleNavigate = useCallback(() => {
+		if (isMobile) setOpen(false)
+	}, [isMobile, setOpen])
 
 	const groups = new Map<string, typeof navItems>()
 	for (const item of navItems) {
@@ -213,6 +219,7 @@ function SidebarNav() {
 							item={item}
 							pathname={pathname}
 							isCollapsed={isCollapsed}
+							onNavigate={handleNavigate}
 						/>
 					))}
 				</SidebarGroup>
