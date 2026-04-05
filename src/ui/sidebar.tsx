@@ -64,15 +64,15 @@ export function Sidebar({ children, className }: { children: ReactNode; classNam
 			<aside
 				className={cn(
 					'group relative fixed inset-y-0 left-0 z-50 flex flex-col overflow-visible border-r border-border transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] md:static md:translate-x-0',
-					'aether-glass hover:w-[240px]',
-					isCollapsed ? 'w-[64px]' : 'w-[240px]',
+					'aether-glass',
+					isCollapsed ? 'w-[64px] hover:w-[240px]' : 'w-[240px]',
 					open ? 'translate-x-0' : '-translate-x-full',
 					className,
 				)}
 			>
 				<div className="flex h-full w-[240px] flex-col overflow-hidden">{children}</div>
 
-				{/* Floating Toggle Button (Desktop only) — pointer-events-auto ensures clickability over main content */}
+				{/* Floating Toggle Button (Desktop only) */}
 				<div className="absolute -right-3 top-5 z-[60] hidden md:block">
 					<SidebarCollapseToggle />
 				</div>
@@ -89,7 +89,7 @@ export function SidebarCollapseToggle() {
 		<button
 			type="button"
 			onClick={toggleMode}
-			className="flex h-6 w-6 items-center justify-center rounded-full border border-border bg-background text-muted-foreground shadow-sm transition-all hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring opacity-0 group-hover:opacity-100"
+			className="flex h-6 w-6 items-center justify-center rounded-full border border-border bg-background text-muted-foreground shadow-sm transition-all hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
 			aria-label={mode === 'expanded' ? 'Colapsar barra lateral' : 'Expandir barra lateral'}
 		>
 			{mode === 'expanded' ? (
