@@ -1,7 +1,7 @@
 import { Link, useMatches, useRouterState } from '@tanstack/react-router'
 import { ChevronRight, Menu, Moon, Sun } from 'lucide-react'
 import type { ReactNode } from 'react'
-import { useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { cn } from '@/lib/cn'
 import { useTheme } from '@/lib/theme-provider'
 import { Button } from '@/ui/button'
@@ -61,16 +61,30 @@ function SidebarNavItem({
 		</SidebarItem>
 	)
 
+	const buttonRef = useRef<HTMLButtonElement>(null)
+	const [popoverPos, setPopoverPos] = useState({ top: 0, left: 0 })
+
+	const openPopover = useCallback(() => {
+		if (buttonRef.current) {
+			const rect = buttonRef.current.getBoundingClientRect()
+			setPopoverPos({ top: rect.top, left: rect.right + 8 })
+		}
+		setIsOpen((prev) => !prev)
+	}, [])
+
 	if (hasChildren) {
-		// When collapsed, show submenu as popover on click
+		// When collapsed, show submenu as fixed popover on click
 		if (isCollapsed) {
 			return (
-				<div className="relative">
-					<button type="button" onClick={() => setIsOpen(!isOpen)} className="w-full">
+				<>
+					<button ref={buttonRef} type="button" onClick={openPopover} className="w-full">
 						{content}
 					</button>
 					{isOpen && (
-						<div className="absolute left-full top-0 z-[70] ml-2 min-w-[180px] rounded-lg border border-border bg-popover p-2 shadow-lg">
+						<div
+							className="fixed z-[999] min-w-[180px] rounded-lg border border-border bg-popover p-2 shadow-lg"
+							style={{ top: popoverPos.top, left: popoverPos.left }}
+						>
 							<p className="mb-1.5 px-2 text-xs font-medium text-muted-foreground">{item.label}</p>
 							{item.children?.map((child) => {
 								const childPrefix = child.activePrefix ?? child.to
@@ -98,7 +112,7 @@ function SidebarNavItem({
 							})}
 						</div>
 					)}
-				</div>
+				</>
 			)
 		}
 
