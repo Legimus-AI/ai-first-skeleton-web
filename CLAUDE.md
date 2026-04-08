@@ -1,4 +1,4 @@
-@AGENTS.md
+@INVARIANTS.md
 
 # Frontend Component Repo
 
@@ -14,6 +14,12 @@ This makes the frontend compatible with ANY backend that follows the AI-First AP
 - Same error shapes (`{ error: { code, message, requestId } }`)
 
 Types come from `@repo/shared` (Zod schemas), resolved via pnpm workspaces.
+
+## Key files
+
+For full agent guidelines, read `AGENTS.md`.
+For the design system, read `DESIGN_SYSTEM.md`.
+For reference docs and examples, see the `docs/` directory.
 
 ## After placing in a backend repo
 
