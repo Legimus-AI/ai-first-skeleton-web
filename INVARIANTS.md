@@ -34,6 +34,10 @@
 16. **No array index as `key`.** Biome enforces `noArrayIndexKey: "error"`. Always use unique IDs (`key={item.id}`).
 17. **No derived state in `useState`.** If a value can be computed from props or query data, derive it inline.
 
+## Lib Reuse
+
+112. **No local redefinitions of `lib/` exports.** If `lib/` exports a function, slices must import it — never redefine locally. Duplicating utilities causes drift and bloat.
+
 ## Security
 
 18. **No secrets in frontend code.** All env vars exposed to the browser are PUBLIC — never store API keys, tokens, or credentials.

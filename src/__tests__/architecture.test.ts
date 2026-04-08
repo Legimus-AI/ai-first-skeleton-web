@@ -86,23 +86,16 @@ describe('Architecture rules (INVARIANTS.md)', () => {
 	it('No hardcoded Tailwind color scales in components', () => {
 		const violations: string[] = []
 		// Patterns that indicate hardcoded colors
+		// Catch ALL Tailwind color scales with numeric suffixes (emerald-500, amber-300, etc.).
+		// bg-white/bg-black/text-white/text-black are caught separately.
+		// ring-black/5 and ring-white/10 are excluded (valid shadcn opacity utilities).
 		const colorPatterns = [
 			/\bbg-white\b/,
 			/\bbg-black\b/,
 			/\btext-white\b/,
 			/\btext-black\b/,
-			/\bbg-gray-\d+/,
-			/\btext-gray-\d+/,
-			/\bborder-gray-\d+/,
-			/\bbg-red-\d+/,
-			/\btext-red-\d+/,
-			/\bbg-blue-\d+/,
-			/\btext-blue-\d+/,
-			/\bbg-green-\d+/,
-			/\btext-green-\d+/,
-			/\bbg-\[#[0-9a-fA-F]+\]/,
-			/\btext-\[#[0-9a-fA-F]+\]/,
-			/\bborder-\[#[0-9a-fA-F]+\]/,
+			/\b(?:bg|text|border)-(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-\d+/,
+			/\b(?:bg|text|border)-\[#[0-9a-fA-F]+\]/,
 		]
 
 		for (const file of allTsxFiles) {
@@ -916,6 +909,69 @@ describe('Architecture rules (INVARIANTS.md)', () => {
 		if (!content.includes('600')) {
 			expect.fail(
 				'INV-108: SearchInput debounce must be 600ms. Found a different value in ui/search-input.tsx.',
+			)
+		}
+	})
+
+	// --- INV-112: No local redefinitions of lib/ exports ---
+
+	it('Slices do not redefine functions exported by lib/ (INV-112)', () => {
+		const LIB_DIR = join(SRC_DIR, 'lib')
+		const libFiles = collectFiles(LIB_DIR, ['.ts', '.tsx'], ['node_modules', '__tests__'])
+
+		// Collect all exported function/const names from lib/ (skip comments)
+		const libExports = new Set<string>()
+		for (const file of libFiles) {
+			const content = readFileSync(file, 'utf-8')
+			const lines = content.split('\n')
+			for (const line of lines) {
+				const trimmed = line.trimStart()
+				if (trimmed.startsWith('//') || trimmed.startsWith('*') || trimmed.startsWith('/*')) continue
+				const fnMatch = line.match(/export\s+function\s+(\w+)/)
+				if (fnMatch?.[1]) libExports.add(fnMatch[1])
+				const constMatch = line.match(/export\s+const\s+(\w+)/)
+				if (constMatch?.[1]) libExports.add(constMatch[1])
+			}
+		}
+
+		if (libExports.size === 0) return
+
+		// Scan slices for local function definitions that shadow lib exports
+		const sliceFiles = collectFiles(SLICES_DIR, ['.ts', '.tsx'], ['node_modules', '__tests__'])
+		const violations: string[] = []
+
+		for (const file of sliceFiles) {
+			const content = readFileSync(file, 'utf-8')
+			const relPath = relative(SRC_DIR, file)
+			const lines = content.split('\n')
+
+			for (let i = 0; i < lines.length; i++) {
+				const line = lines[i] ?? ''
+
+				// Match: function name( or const name =
+				const fnMatch = line.match(/^\s*(?:export\s+)?function\s+(\w+)\s*\(/)
+				const constMatch = line.match(/^\s*(?:export\s+)?const\s+(\w+)\s*=/)
+				const name = fnMatch?.[1] ?? constMatch?.[1]
+
+				if (name && libExports.has(name)) {
+					const libFile = libFiles.find((f) => {
+						const c = readFileSync(f, 'utf-8')
+						return (
+							new RegExp(`export\\s+function\\s+${name}\\b`).test(c) ||
+							new RegExp(`export\\s+const\\s+${name}\\b`).test(c)
+						)
+					})
+					const libName = libFile ? relative(SRC_DIR, libFile) : 'lib/'
+					violations.push(
+						`${relPath}:${i + 1} defines ${name}() but ${libName} already exports it. Import from @/${libName.replace(/\.tsx?$/, '')} instead.`,
+					)
+				}
+			}
+		}
+
+		if (violations.length > 0) {
+			expect.fail(
+				`Local redefinitions of lib/ exports (INV-112):\n${violations.map((v) => `  - ${v}`).join('\n')}\n\nFix: Import the function from lib/ instead of redefining it locally.`,
 			)
 		}
 	})

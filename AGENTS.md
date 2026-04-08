@@ -137,6 +137,7 @@ Reusable components in `src/ui/` (shadcn/ui copy-paste pattern — we OWN these)
 - Use `dangerouslySetInnerHTML` — sanitize with DOMPurify if needed
 - Store UI state (tabs, filters, sort) in `useState` alone — persist in URL query params
 - Use raw `useMutation` for toggles/inline edits — use `useOptimisticMutation`
+- Define utility functions in components — search `lib/` first (`format-date`, `cn`, `api-client`, etc.)
 
 For the complete forbidden patterns list, see `INVARIANTS.md`.
 
