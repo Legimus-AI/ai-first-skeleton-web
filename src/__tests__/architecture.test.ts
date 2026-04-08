@@ -926,7 +926,12 @@ describe('Architecture rules (INVARIANTS.md)', () => {
 			const lines = content.split('\n')
 			for (const line of lines) {
 				const trimmed = line.trimStart()
-				if (trimmed.startsWith('//') || trimmed.startsWith('*') || trimmed.startsWith('/*')) continue
+				if (
+					trimmed.startsWith('//') ||
+					trimmed.startsWith('*') ||
+					trimmed.startsWith('/*')
+				)
+					continue
 				const fnMatch = line.match(/export\s+function\s+(\w+)/)
 				if (fnMatch?.[1]) libExports.add(fnMatch[1])
 				const constMatch = line.match(/export\s+const\s+(\w+)/)
