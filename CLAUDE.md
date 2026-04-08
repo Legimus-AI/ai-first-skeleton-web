@@ -1,4 +1,5 @@
 @INVARIANTS.md
+@DESIGN_SYSTEM.md
 
 # Frontend Component Repo
 
