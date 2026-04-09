@@ -9,7 +9,7 @@ context: inline
 You are editing a slice component. These rules are NON-NEGOTIABLE:
 
 1. **One component per file** — file name = component name in kebab-case
-2. **Max 250 lines** — split into subcomponents if larger
+2. **Max ~300 lines** — split into subcomponents if larger
 3. **No cross-slice component imports** — never import components from another slice. Hooks (data) may cross slices for composed views — document in architecture test `allowedCrossImports`
 4. **Types from `@repo/shared`** — never redefine types locally
 5. **No raw `fetch()`** — use the slice's TanStack Query hooks
