@@ -84,8 +84,6 @@ export function useDeleteTodo() {
 		mutationFn: async (id: string) => {
 			const res = await api.delete(`/api/v1/todos/${id}`)
 			await throwIfNotOk(res)
-			const json = await res.json()
-			return safeParseResponse(todoResponseSchema, json)
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: TODOS_KEY })
