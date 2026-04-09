@@ -102,7 +102,7 @@ Every CRUD list view MUST include:
 | `keepPreviousData` | `placeholderData: keepPreviousData` in list hook (INV-097) |
 | Schema validation | `safeParseResponse()` on all API responses (INV-096) |
 
-Cross-slice data: compose at route level, never import between slices (INV-111).
+Cross-slice data: hooks may cross slices (data), components never cross slices (UI). Document exceptions in architecture test `allowedCrossImports` (INV-111).
 
 ## Routing
 

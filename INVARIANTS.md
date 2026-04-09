@@ -79,7 +79,7 @@
 
 109. **Inline action icons, not dropdown menus.** Table rows use direct Edit + Delete icon buttons. Never use `DropdownMenu` / three-dot `⋯` for row actions — inline icons are immediately visible, fewer clicks.
 110. **Create and Edit use modal dialogs.** New entities open a `FormDialog`. Editing opens the same `FormDialog` pre-populated with `defaultValues`. Only use dedicated pages for complex entities (>6 fields, tabs, nested data).
-111. **Route-level composition for cross-slice data.** Slices NEVER import from other slices. Routes compose data from multiple slices and pass as props. See F7 in the architecture spec.
+111. **Cross-slice composition rules.** Slices NEVER import **components** from other slices (UI coupling). Slices MAY import **hooks** from other slices when the view is a composed feature that genuinely needs cross-domain data (e.g., detail view + analytics, config form + related entities). For simple cases, routes compose data and pass as props. For complex composed views (tabs, panels), the component owns its data fetching via cross-slice hooks. Document each exception in the architecture test's `allowedCrossImports`.
 
 ## Testing
 

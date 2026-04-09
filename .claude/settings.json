@@ -18,7 +18,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo '{\"hookSpecificOutput\":{\"additionalContext\":\"COMPONENT RULES: One component per file, max 250 lines, no cross-slice imports, types from @repo/shared, no raw fetch, no useEffect for data, Tailwind semantic tokens only (no bg-white, no hardcoded colors).\"}}'",
+            "command": "echo '{\"hookSpecificOutput\":{\"additionalContext\":\"COMPONENT RULES: One component per file, max 250 lines, no cross-slice component imports (hooks OK with allowedCrossImports), types from @repo/shared, no raw fetch, no useEffect for data, Tailwind semantic tokens only (no bg-white, no hardcoded colors).\"}}'",
             "statusMessage": "Injecting component rules reminder..."
           }
         ]
