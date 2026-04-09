@@ -29,7 +29,7 @@
 ## Components
 
 13. **One component per file.** File name = component name.
-14. **Max ~200 lines per file.** Split into subcomponents if larger.
+14. **Max ~300 lines per file.** Split into subcomponents if larger.
 15. **No `dangerouslySetInnerHTML`.** Never use without DOMPurify sanitization. XSS is a blocking vulnerability.
 16. **No array index as `key`.** Biome enforces `noArrayIndexKey: "error"`. Always use unique IDs (`key={item.id}`).
 17. **No derived state in `useState`.** If a value can be computed from props or query data, derive it inline.

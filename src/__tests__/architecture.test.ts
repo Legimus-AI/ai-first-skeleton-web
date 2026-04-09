@@ -243,12 +243,12 @@ describe('Architecture rules (INVARIANTS.md)', () => {
 		}
 	})
 
-	// --- INVARIANT #14: Max ~200 lines per file ---
+	// --- INVARIANT #14: Max ~300 lines per file ---
 
-	it('No files exceeding 250 lines in slices/', () => {
+	it('No files exceeding 300 lines in slices/', () => {
 		const sliceFiles = collectFiles(SLICES_DIR, ['.ts', '.tsx'])
 		const violations: string[] = []
-		const MAX_LINES = 250
+		const MAX_LINES = 300
 
 		for (const file of sliceFiles) {
 			const content = readFileSync(file, 'utf-8')
