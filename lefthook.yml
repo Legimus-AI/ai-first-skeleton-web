@@ -5,6 +5,10 @@ pre-commit:
       run: pnpm lint
     typecheck:
       run: pnpm typecheck
+    no-hardcoded-colors:
+      glob: "src/**/*.tsx"
+      run: "! grep -nE '\\b(bg|text|border)-(white|black)\\b|\\b(bg|text|border)-\\[#[0-9a-fA-F]+\\]|\\b(bg|text|border)-(slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-[0-9]' {staged_files}"
+      fail_text: "Hardcoded colors found. Use theme tokens (bg-background, text-foreground, bg-success, etc.)"
 
 commit-msg:
   commands:

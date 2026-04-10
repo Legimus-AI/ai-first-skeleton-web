@@ -81,6 +81,12 @@
 110. **Create and Edit use modal dialogs.** New entities open a `FormDialog`. Editing opens the same `FormDialog` pre-populated with `defaultValues`. Only use dedicated pages for complex entities (>6 fields, tabs, nested data).
 111. **Cross-slice composition rules.** Slices NEVER import **components** from other slices (UI coupling). Slices MAY import **hooks** from other slices when the view is a composed feature that genuinely needs cross-domain data (e.g., detail view + analytics, config form + related entities). For simple cases, routes compose data and pass as props. For complex composed views (tabs, panels), the component owns its data fetching via cross-slice hooks. Document each exception in the architecture test's `allowedCrossImports`.
 
+## Design System Artifacts
+
+200. **DESIGN_SYSTEM.md must exist and be complete.** Must contain all required sections: Design Principles, Color Tokens, Typography, Spacing, Component Patterns, Motion System, Responsive Strategy, Screen-Type Patterns, Quality Checklist. Enforced by architecture test.
+201. **DESIGN_BRIEF.md must exist and be filled.** The brief defines WHO uses this product and WHY. An empty template is a violation — answers must be present. Without a brief, design decisions are arbitrary. Run `/design-audit` to fill it.
+202. **styles.css must define semantic tokens.** Required tokens: `--background`, `--foreground`, `--card`, `--primary`, `--border`, `--muted`. No project ships without a themed palette.
+
 ## Testing
 
 28. **Architecture rules are tested.** INVARIANTS rules are enforced by `src/__tests__/architecture.test.ts`. Adding a new invariant means adding a corresponding test.

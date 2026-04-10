@@ -977,3 +977,129 @@ describe('Architecture rules (INVARIANTS.md)', () => {
 		}
 	})
 })
+
+// ============================================================================
+// Design System Artifacts (enforces design decisions are documented)
+// ============================================================================
+
+describe('Design System artifacts', () => {
+	const ROOT_DIR = join(SRC_DIR, '..')
+
+	// --- DESIGN_SYSTEM.md must exist and have required sections ---
+
+	it('DESIGN_SYSTEM.md exists and has all 12 sections', () => {
+		const dsPath = join(ROOT_DIR, 'DESIGN_SYSTEM.md')
+		let content: string
+		try {
+			content = readFileSync(dsPath, 'utf-8')
+		} catch {
+			expect.fail(
+				'DESIGN_SYSTEM.md not found at project root.\n\nFix: Run /design-audit to generate one, or copy from the skeleton template.',
+			)
+			return
+		}
+
+		const requiredSections = [
+			'Design Principles',
+			'Color Tokens',
+			'Typography',
+			'Spacing',
+			'Component Patterns',
+			'Motion System',
+			'Responsive',
+			'Screen-Type Patterns',
+			'Quality Checklist',
+		]
+
+		const missingSections = requiredSections.filter(
+			(section) => !content.toLowerCase().includes(section.toLowerCase()),
+		)
+
+		if (missingSections.length > 0) {
+			expect.fail(
+				`DESIGN_SYSTEM.md is missing sections:\n${missingSections.map((s) => `  - ${s}`).join('\n')}\n\nFix: Run /design-audit to complete it, or add the missing sections from the skeleton template.`,
+			)
+		}
+	})
+
+	// --- DESIGN_BRIEF.md must exist and have key fields answered ---
+
+	it('DESIGN_BRIEF.md exists and has required fields answered', () => {
+		const briefPath = join(ROOT_DIR, 'DESIGN_BRIEF.md')
+		let content: string
+		try {
+			content = readFileSync(briefPath, 'utf-8')
+		} catch {
+			expect.fail(
+				'DESIGN_BRIEF.md not found at project root.\n\nFix: Run /design-audit to create and fill it through the guided interview.',
+			)
+			return
+		}
+
+		// Required fields: each must have a heading AND a non-empty answer below it.
+		// We check that the field heading exists AND has content after it (not just the question).
+		const requiredFields = [
+			{
+				name: 'User Job / Target Task',
+				patterns: [/user\s*job/i, /tarea\s*principal/i, /primary\s*task/i, /target\s*task/i],
+			},
+			{
+				name: 'User Profile / Audience',
+				patterns: [/user\s*profile/i, /perfil/i, /audience/i, /usuario.*tipo/i],
+			},
+			{
+				name: 'Brand Posture / Visual Direction',
+				patterns: [/brand\s*posture/i, /postura/i, /visual\s*direction/i, /premium|sober|friendly|bold/i],
+			},
+		]
+
+		const missingFields: string[] = []
+		for (const field of requiredFields) {
+			const found = field.patterns.some((p) => p.test(content))
+			if (!found) {
+				missingFields.push(field.name)
+			}
+		}
+
+		if (missingFields.length > 0) {
+			expect.fail(
+				`DESIGN_BRIEF.md is missing required fields:\n${missingFields.map((f) => `  - ${f}`).join('\n')}\n\nFix: Run /design-audit to fill it. These fields define WHO uses this product, WHAT they do, and HOW it should feel — without them, design decisions are arbitrary.`,
+			)
+		}
+
+		// Also check it's not just a template — must have substantive content
+		const nonEmptyLines = content.split('\n').filter((l) => {
+			const trimmed = l.trim()
+			return trimmed.length > 0 && !trimmed.startsWith('#') && !trimmed.startsWith('>')
+				&& !trimmed.startsWith('-') && !trimmed.startsWith('|')
+		})
+		if (nonEmptyLines.length < 10) {
+			expect.fail(
+				'DESIGN_BRIEF.md has fields but appears to lack substantive answers (< 10 lines of content).\n\nFix: Run /design-audit to complete the brief with actual answers about your users and product.',
+			)
+		}
+	})
+
+	// --- styles.css must use semantic tokens, not hardcoded colors ---
+
+	it('styles.css defines semantic color tokens', () => {
+		const stylesPath = join(SRC_DIR, 'styles.css')
+		let content: string
+		try {
+			content = readFileSync(stylesPath, 'utf-8')
+		} catch {
+			expect.fail('src/styles.css not found. Every project needs a theme file with CSS custom properties.')
+			return
+		}
+
+		const requiredTokens = ['--background', '--foreground', '--card', '--primary', '--border', '--muted']
+
+		const missingTokens = requiredTokens.filter((token) => !content.includes(token))
+
+		if (missingTokens.length > 0) {
+			expect.fail(
+				`styles.css is missing required semantic tokens:\n${missingTokens.map((t) => `  - ${t}`).join('\n')}\n\nFix: Add theme tokens. See DESIGN_SYSTEM.md Section 2 for the required palette.`,
+			)
+		}
+	})
+})
