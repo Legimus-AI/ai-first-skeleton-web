@@ -5,6 +5,9 @@ import { routeTree } from './routeTree.gen'
 export const router = createRouter({
 	routeTree,
 	context: { queryClient: {} as QueryClient },
+	defaultPreload: 'intent',
+	defaultPreloadStaleTime: 0,
+	defaultViewTransition: true,
 })
 
 declare module '@tanstack/react-router' {
