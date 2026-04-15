@@ -6,16 +6,16 @@ import {
 	teamMemberResponseSchema,
 	type UpdateMemberRole,
 } from '@repo/shared'
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { keepPreviousData, queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { api } from '@/lib/api-client'
 import { safeParseResponse, throwIfNotOk } from '@/lib/api-error'
 import { useBulkDelete } from '@/lib/use-bulk-delete'
 
-const TEAM_KEY = ['team'] as const
+export const TEAM_KEY = ['team'] as const
 
-export function useTeamMembers(params?: Partial<ListQuery>) {
-	return useQuery({
+export const teamQueryOptions = (params?: Partial<ListQuery>) =>
+	queryOptions({
 		queryKey: [...TEAM_KEY, params],
 		queryFn: async () => {
 			const res = await api.get('/api/v1/team', params)
@@ -25,6 +25,9 @@ export function useTeamMembers(params?: Partial<ListQuery>) {
 		},
 		placeholderData: keepPreviousData,
 	})
+
+export function useTeamMembers(params?: Partial<ListQuery>) {
+	return useQuery(teamQueryOptions(params))
 }
 
 export function useInviteMember() {

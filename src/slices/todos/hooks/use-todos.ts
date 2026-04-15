@@ -7,17 +7,17 @@ import {
 	todoResponseSchema,
 	type UpdateTodo,
 } from '@repo/shared'
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { keepPreviousData, queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { api } from '@/lib/api-client'
 import { safeParseResponse, throwIfNotOk } from '@/lib/api-error'
 import { useBulkDelete } from '@/lib/use-bulk-delete'
 import { useOptimisticMutation } from '@/lib/use-optimistic-mutation'
 
-const TODOS_KEY = ['todos'] as const
+export const TODOS_KEY = ['todos'] as const
 
-export function useTodos(params?: Partial<ListQuery>) {
-	return useQuery({
+export const todosQueryOptions = (params?: Partial<ListQuery>) =>
+	queryOptions({
 		queryKey: [...TODOS_KEY, params],
 		queryFn: async () => {
 			const res = await api.get('/api/v1/todos', params)
@@ -27,6 +27,9 @@ export function useTodos(params?: Partial<ListQuery>) {
 		},
 		placeholderData: keepPreviousData,
 	})
+
+export function useTodos(params?: Partial<ListQuery>) {
+	return useQuery(todosQueryOptions(params))
 }
 
 export function useCreateTodo() {
