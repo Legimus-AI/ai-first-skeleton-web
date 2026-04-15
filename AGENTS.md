@@ -108,6 +108,26 @@ Cross-slice data: hooks may cross slices (data), components never cross slices (
 
 - File-based via TanStack Router + Vite plugin. Route files in `src/routes/`.
 - `routeTree.gen.ts` is auto-generated — do NOT edit.
+- Router enables `defaultPreload: 'intent'` — hovering a `<Link>` preloads route code + runs loaders.
+- `defaultPreloadStaleTime: 0` ensures preloads always fetch fresh data.
+- `defaultViewTransition: true` enables native cross-fade between routes (View Transitions API).
+
+### Route Loaders & queryOptions
+
+Every CRUD list route must have a `loader` that calls `ensureQueryData` with a `queryOptions` factory:
+
+```ts
+// In hook file: extract queryOptions factory
+export const todosQueryOptions = (params?: Partial<ListQuery>) =>
+  queryOptions({ queryKey: [...TODOS_KEY, params], queryFn: async () => { /* fetch */ }, placeholderData: keepPreviousData })
+
+export function useTodos(params?: Partial<ListQuery>) { return useQuery(todosQueryOptions(params)) }
+
+// In route file: wire loader
+loader: ({ context }) => context.queryClient.ensureQueryData(todosQueryOptions()),
+```
+
+This guarantees data is in cache before the component renders. Combined with hover preloading, navigation feels instant.
 
 ## Theming
 

@@ -19,20 +19,22 @@
 7. **No raw `fetch()` calls.** All API calls go through `@/lib/api-client`. Never use raw `fetch()`.
 8. **No `useEffect` for data fetching.** Use TanStack Query hooks.
 9. **No local state for server data.** Use TanStack Query for all server state.
+10. **CRUD hooks must export a `queryOptions` factory.** Every list query must be extractable via `queryOptions()` from `@tanstack/react-query`. The hook wraps it: `useX = (params) => useQuery(xQueryOptions(params))`. This enables route loaders and prefetching outside React.
+11. **CRUD list routes must have a `loader`.** Every route with a list view must call `context.queryClient.ensureQueryData(xQueryOptions())` in its `loader`. This guarantees data is cached before the component renders.
 
 ## Styling
 
-10. **No CSS files.** Tailwind classes only, CVA for variants.
-11. **No hardcoded colors.** Never use `bg-white`, `text-black`, `text-gray-*`, `bg-[#hex]`. Use semantic theme tokens (`bg-background`, `text-foreground`, `text-muted-foreground`).
-12. **Dark mode must work.** Every component must work in both light and dark mode using theme tokens.
+12. **No CSS files.** Tailwind classes only, CVA for variants.
+13. **No hardcoded colors.** Never use `bg-white`, `text-black`, `text-gray-*`, `bg-[#hex]`. Use semantic theme tokens (`bg-background`, `text-foreground`, `text-muted-foreground`).
+14. **Dark mode must work.** Every component must work in both light and dark mode using theme tokens.
 
 ## Components
 
-13. **One component per file.** File name = component name.
-14. **Max ~300 lines per file.** Split into subcomponents if larger.
-15. **No `dangerouslySetInnerHTML`.** Never use without DOMPurify sanitization. XSS is a blocking vulnerability.
-16. **No array index as `key`.** Biome enforces `noArrayIndexKey: "error"`. Always use unique IDs (`key={item.id}`).
-17. **No derived state in `useState`.** If a value can be computed from props or query data, derive it inline.
+15. **One component per file.** File name = component name.
+16. **One file = one responsibility.** Soft cap ~300 lines (add file-level comment justifying cohesion if exceeded). Hard cap 800 lines (split mandatory). Never split artificially — cross-file navigation costs more than a long cohesive file for AI agents.
+17. **No `dangerouslySetInnerHTML`.** Never use without DOMPurify sanitization. XSS is a blocking vulnerability.
+18. **No array index as `key`.** Biome enforces `noArrayIndexKey: "error"`. Always use unique IDs (`key={item.id}`).
+19. **No derived state in `useState`.** If a value can be computed from props or query data, derive it inline.
 
 ## Lib Reuse
 
@@ -40,28 +42,28 @@
 
 ## Security
 
-18. **No secrets in frontend code.** All env vars exposed to the browser are PUBLIC — never store API keys, tokens, or credentials.
-19. **Validate user-provided URLs** before rendering in `href`/`src` — block `javascript:` protocol.
+20. **No secrets in frontend code.** All env vars exposed to the browser are PUBLIC — never store API keys, tokens, or credentials.
+21. **Validate user-provided URLs** before rendering in `href`/`src` — block `javascript:` protocol.
 
 ## UI States
 
-20. **Every data-driven component handles all states:** Loading (skeleton placeholders), Empty (descriptive message + CTA), Error (inline message or toast), Success (toast for mutations).
-21. **Skeleton loading preferred over spinners.** Use `<Skeleton />` placeholders matching final layout dimensions — never spinning overlays or generic loaders.
+22. **Every data-driven component handles all states:** Loading (skeleton placeholders), Empty (descriptive message + CTA), Error (inline message or toast), Success (toast for mutations).
+23. **Skeleton loading preferred over spinners.** Use `<Skeleton />` placeholders matching final layout dimensions — never spinning overlays or generic loaders.
 
 ## Forms & Interactions
 
-22. **Every field must have a `<label>`.** No inputs without accessible labels.
-23. **Anti double-submit.** Disable submit button + show loading state during mutations using `isPending`.
-24. **Destructive actions require confirmation.** Delete/irreversible operations require a confirm dialog. Never delete on single click.
+24. **Every field must have a `<label>`.** No inputs without accessible labels.
+25. **Anti double-submit.** Disable submit button + show loading state during mutations using `isPending`.
+26. **Destructive actions require confirmation.** Delete/irreversible operations require a confirm dialog. Never delete on single click.
 
 ## Accessibility
 
-25. **Visible focus styles.** All interactive elements must have `:focus-visible` styles.
-26. **Semantic HTML.** `<button>` for actions, `<a>` for navigation, landmark elements for page structure.
+27. **Visible focus styles.** All interactive elements must have `:focus-visible` styles.
+28. **Semantic HTML.** `<button>` for actions, `<a>` for navigation, landmark elements for page structure.
 
 ## Type Organization
 
-27. **No `types/` directories or `types.ts` barrel files.** Types live next to the code that uses them (colocation > organization by file type).
+29. **No `types/` directories or `types.ts` barrel files.** Types live next to the code that uses them (colocation > organization by file type).
 
 ## Layout Architecture
 
@@ -89,17 +91,17 @@
 
 ## Testing
 
-28. **Architecture rules are tested.** INVARIANTS rules are enforced by `src/__tests__/architecture.test.ts`. Adding a new invariant means adding a corresponding test.
+30. **Architecture rules are tested.** INVARIANTS rules are enforced by `src/__tests__/architecture.test.ts`. Adding a new invariant means adding a corresponding test.
 
 ## Documentation Sync
 
-29. **Spec must match implementation.** If you change a pattern in the skeleton, update the architecture spec in the same commit or PR. Documentation drift is a bug.
+31. **Spec must match implementation.** If you change a pattern in the skeleton, update the architecture spec in the same commit or PR. Documentation drift is a bug.
 
 ### Plan-First
 
-30. **Every feature starts with a plan** — create `docs/plans/<feature>.md` from template before coding. Confidence < 5 = plan only, no implementation.
+32. **Every feature starts with a plan** — create `docs/plans/<feature>.md` from template before coding. Confidence < 5 = plan only, no implementation.
 
 ### Operational
 
-31. **Anti-thrashing gate** — 4 consecutive failures on same task = mandatory human escalation. Never brute-force past repeated failures.
-32. **Decisions are logged** — append to `docs/DECISIONS.ndjson` when choosing between alternatives. Never modify or delete existing entries.
+33. **Anti-thrashing gate** — 4 consecutive failures on same task = mandatory human escalation. Never brute-force past repeated failures.
+34. **Decisions are logged** — append to `docs/DECISIONS.ndjson` when choosing between alternatives. Never modify or delete existing entries.
