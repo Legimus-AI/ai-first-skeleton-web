@@ -1,6 +1,6 @@
 import type { MemberRole, TeamMember } from '@repo/shared'
 import { Shield, Trash2 } from 'lucide-react'
-import { formatDate } from '@/lib/format-date'
+import { formatDate } from '@/utils/format-date'
 import { Badge } from '@/ui/badge'
 import { Button } from '@/ui/button'
 import type { Column } from '@/ui/data-table'

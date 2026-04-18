@@ -29,7 +29,7 @@ That's it. The skeleton auto-configures the push sender on startup.
 ## Frontend Usage
 
 ```tsx
-import { usePushNotifications } from '@/lib/use-push-notifications'
+import { usePushNotifications } from '@/utils/use-push-notifications'
 
 function NotificationToggle() {
   const { isSupported, permission, isSubscribed, subscribe, unsubscribe, isPending } =

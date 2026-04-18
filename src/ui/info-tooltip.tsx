@@ -1,5 +1,5 @@
 import { Info } from 'lucide-react'
-import { cn } from '@/lib/cn'
+import { cn } from '@/utils/cn'
 import { Tooltip } from '@/ui/tooltip'
 
 interface InfoTooltipProps {

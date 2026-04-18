@@ -8,9 +8,9 @@ import {
 } from '@repo/shared'
 import { keepPreviousData, queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { api } from '@/lib/api-client'
-import { safeParseResponse, throwIfNotOk } from '@/lib/api-error'
-import { useBulkDelete } from '@/lib/use-bulk-delete'
+import { api } from '@/utils/api-client'
+import { safeParseResponse, throwIfNotOk } from '@/utils/api-error'
+import { useBulkDelete } from '@/utils/use-bulk-delete'
 
 export const TEAM_KEY = ['team'] as const
 

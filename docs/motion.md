@@ -12,7 +12,7 @@ Lightweight animation primitives for page transitions, list reveals, and compone
 | PageTransition | `@/ui/animate-presence-wrapper` | Animated page transitions (wrap route outlet) |
 | AnimatedListItem | `@/ui/animated-list` | Staggered entrance for list items |
 
-## Timing Tokens (`@/lib/motion-config`)
+## Timing Tokens (`@/utils/motion-config`)
 
 | Token | Duration | Use for |
 |-------|----------|---------|

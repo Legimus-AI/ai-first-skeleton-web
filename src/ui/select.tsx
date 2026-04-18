@@ -1,5 +1,5 @@
 import type { ComponentPropsWithoutRef } from 'react'
-import { cn } from '@/lib/cn'
+import { cn } from '@/utils/cn'
 
 export function Select({ className, children, ...props }: ComponentPropsWithoutRef<'select'>) {
 	return (

@@ -8,7 +8,7 @@ Error tracking + performance monitoring for the frontend.
 pnpm add @sentry/react
 ```
 
-## 2. Create `src/lib/sentry.ts`
+## 2. Create `src/utils/sentry.ts`
 
 ```ts
 import * as Sentry from '@sentry/react'

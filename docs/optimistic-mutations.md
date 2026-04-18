@@ -1,6 +1,6 @@
 # Optimistic Mutations
 
-Use `useOptimisticMutation` from `@/lib/use-optimistic-mutation` for mutations that should feel instant (toggles, inline edits, status changes).
+Use `useOptimisticMutation` from `@/utils/use-optimistic-mutation` for mutations that should feel instant (toggles, inline edits, status changes).
 
 ## Usage
 
