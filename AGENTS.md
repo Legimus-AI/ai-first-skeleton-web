@@ -23,7 +23,7 @@ Before generating any new view, page, or component with visual/interaction decis
 
 - **Functional components only.** No class components.
 - Use TanStack Query for all server state (no local state for API data).
-- Use `api` from `@/utils/api-client` for all API calls. See [`docs/api-client.md`](docs/api-client.md) for examples.
+- Use `api` from `@/services/api-client` for all API calls. See [`docs/api-client.md`](docs/api-client.md) for examples.
 - Import types from `@repo/shared` for forms (React Hook Form + Zod).
 - Tailwind CSS only — no CSS files, no CSS-in-JS.
 - Use CVA (`class-variance-authority`) for component variants.
@@ -46,7 +46,7 @@ Types follow colocation — no `types/` directories or barrel files (INV-027):
 | Hook options | Inline in the hook file |
 | Form data | Inline via `z.infer<typeof formSchema>` |
 | UI primitive props | In the `ui/*.tsx` file |
-| Frontend-only service types | In `utils/<service>.ts` (promote to services/<service>.ts when 2+ external clients exist) next to the fetch function |
+| Frontend-only service types | In `services/<service>.ts` next to the fetch function |
 
 ### Component Patterns
 
@@ -64,6 +64,29 @@ Types follow colocation — no `types/` directories or barrel files (INV-027):
 ### Centralized Env Config
 
 All env vars via `import.meta.env.VITE_*` (never `process.env`). Use a centralized `src/env.ts` for typed access with validation. New vars must be prefixed `VITE_` for client-side access.
+
+### Where to Put New Code (ADR 0012)
+
+| Who uses it? | What it does | Where it goes |
+|---|---|---|
+| 1 slice only | anything | `slices/<name>/` |
+| 2+ slices | HTTP, SSE, WebSocket, browser API | `services/<name>-service.ts` |
+| 2+ slices | React hook (no domain entity mentioned) | `hooks/use-<name>.ts` |
+| 2+ slices | pure function (no React, no fetch) | `utils/<name>.ts` |
+| App-wide | React context provider | `providers/<name>-provider.tsx` |
+| 2+ slices | cross-cutting constant | `constants/<domain>.ts` |
+
+**Black-box rule:** "Would this file work verbatim in a different app of the same stack (TanStack, Tailwind) but different domain?"
+- **Yes** → top-level (`services/`, `hooks/`, `utils/`, `providers/`)
+- **No** (mentions product, assistant, conversation, etc.) → `slices/<name>/`
+
+**Contracts** (enforced by architecture tests):
+- `utils/` — no `.tsx`, no `react` imports, no `fetch`/`axios`
+- `services/` — no imports from `slices/`
+- `hooks/` top-level — no imports from `slices/`; files must start with `use-`
+- No grab-bag files (`utils.ts`, `helpers.ts`, `common.ts`, `misc.ts`, `shared.ts`) in any of the above
+
+See the `README.md` in each folder for the full contract + examples.
 
 ## Adding a New CRUD Slice
 
@@ -135,7 +158,7 @@ OKLCH color tokens in `src/styles.css` (shadcn/ui + Tailwind v4 `@theme inline`)
 
 ## UI Primitives
 
-Reusable components in `src/ui/` (shadcn/ui copy-paste pattern — we OWN these): Button, Input, Card, Badge, Skeleton, Separator, Sonner, AlertDialog, Dialog, DropdownMenu. Use `cn()` from `src/utils/cn.ts` to merge classes.
+Reusable components in `src/ui/` (shadcn/ui copy-paste pattern — we OWN these): Button, Input, Card, Badge, Skeleton, Separator, Sonner, AlertDialog, Dialog, DropdownMenu. Use `cn()` from `src/utils/cn.ts` (only pure helpers live in utils/) to merge classes.
 
 ## React Performance (non-obvious rules)
 
@@ -153,7 +176,7 @@ Reusable components in `src/ui/` (shadcn/ui copy-paste pattern — we OWN these)
 - Create CSS files — use Tailwind classes
 - Use `useEffect` for data fetching — use TanStack Query
 - Edit `routeTree.gen.ts` — auto-generated
-- Use raw `fetch()` — use `api` from `@/utils/api-client`
+- Use raw `fetch()` — use `api` from `@/services/api-client`
 - Use `dangerouslySetInnerHTML` — sanitize with DOMPurify if needed
 - Store UI state (tabs, filters, sort) in `useState` alone — persist in URL query params
 - Use raw `useMutation` for toggles/inline edits — use `useOptimisticMutation`

@@ -8,8 +8,8 @@ import {
 } from '@repo/shared'
 import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { api } from '@/utils/api-client'
-import { safeParseResponse, throwIfNotOk } from '@/utils/api-error'
+import { api } from '@/services/api-client'
+import { safeParseResponse, throwIfNotOk } from '@/services/api-error'
 
 export const apiKeysQueryOptions = queryOptions({
 	queryKey: ['auth', 'api-keys'],

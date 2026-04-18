@@ -54,7 +54,7 @@ export const USER_ROLE_PATTERN = /^(admin|member|guest)$/
 
 // ❌ Constants with side effects
 // constants/limits.ts
-import { api } from '@/utils/api-client'  // NO — constants are pure
+import { api } from '@/services/api-client'  // NO — constants are pure
 
 // ❌ Functions in constants
 // constants/errors.ts

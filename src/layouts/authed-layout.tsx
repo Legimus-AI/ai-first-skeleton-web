@@ -3,7 +3,7 @@ import { ChevronRight, Menu, Moon, Sun } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { cn } from '@/utils/cn'
-import { useTheme } from '@/utils/theme-provider'
+import { useTheme } from '@/providers/theme-provider'
 import { Button } from '@/ui/button'
 import {
 	Sidebar,

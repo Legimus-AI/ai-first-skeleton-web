@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { parseListParams } from '@/utils/use-query-params'
+import { parseListParams } from '@/hooks/use-query-params'
 import { todosQueryOptions } from '@/slices/todos/hooks/use-todos'
 import { TodoList } from '@/slices/todos/components/todo-list'
 

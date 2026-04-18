@@ -9,10 +9,10 @@ import {
 } from '@repo/shared'
 import { keepPreviousData, queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { api } from '@/utils/api-client'
-import { safeParseResponse, throwIfNotOk } from '@/utils/api-error'
-import { useBulkDelete } from '@/utils/use-bulk-delete'
-import { useOptimisticMutation } from '@/utils/use-optimistic-mutation'
+import { api } from '@/services/api-client'
+import { safeParseResponse, throwIfNotOk } from '@/services/api-error'
+import { useBulkDelete } from '@/hooks/use-bulk-delete'
+import { useOptimisticMutation } from '@/hooks/use-optimistic-mutation'
 
 export const TODOS_KEY = ['todos'] as const
 

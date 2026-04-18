@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { api } from '@/utils/api-client'
-import { throwIfNotOk } from '@/utils/api-error'
+import { api } from '@/services/api-client'
+import { throwIfNotOk } from '@/services/api-error'
 
 /** Generic bulk delete hook — reusable across ALL slices.
  *

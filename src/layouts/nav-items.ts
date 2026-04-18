@@ -1,7 +1,7 @@
 import type { LucideIcon } from 'lucide-react'
 import { CheckCircle2, LayoutDashboard, Settings } from 'lucide-react'
-import type { ListParams } from '@/utils/use-query-params'
-import { DEFAULT_LIST_PARAMS } from '@/utils/use-query-params'
+import type { ListParams } from '@/hooks/use-query-params'
+import { DEFAULT_LIST_PARAMS } from '@/hooks/use-query-params'
 
 // ─── Navigation Config ───────────────────────────────────────────────────────
 // Main app navigation shown in the sidebar / navbar.

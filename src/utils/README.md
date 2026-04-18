@@ -1,51 +1,54 @@
-# `utils/` — Non-Visual Reusable Code
+# `utils/` — Pure Helpers
 
-Frontend equivalent of backend `utils/` + a bit more. Follows React/TS idiomatic convention: this is the bucket for non-visual reusable code.
+Stateless, deterministic, framework-free functions. Frontend equivalent of the backend `utils/` contract — same rules, same discipline.
 
-Peer to `slices/`, `ui/`, `constants/`.
+Peer to `slices/`, `ui/`, `services/`, `hooks/`, `providers/`, `constants/`.
 
-## What goes here
+## Contract
 
-- **Pure helpers** — `cn.ts` (classname merge), `format-date.ts`, `platform.ts`
-- **Custom hooks** — `use-bulk-delete.ts`, `use-optimistic-mutation.ts`, `use-query-params.ts`
-- **API client** — `api-client.ts`, `api-error.ts` (kept here while there's only 1 external client; promote to `services/` when a second is added)
-- **React infra** — `theme-provider.tsx`
-
-## What does NOT go here
-
-| If it is... | Put it in... |
-|-------------|--------------|
-| A visual component (Button, Card, Dialog) | `ui/` |
-| A slice resource (Todo, User) | `slices/<name>/` |
-| A cross-cutting constant | `constants/<domain>.ts` |
-| A second+ external API adapter (Stripe direct, Algolia) | Promote to `services/` (follow backend pattern) |
+- **Pure** — same input, same output; no `Math.random()`, no `Date.now()` at module level, no I/O
+- **No React** — no `useState`, `useEffect`, no JSX. Files end in `.ts`, never `.tsx`
+- **No fetch/axios** — no network. That belongs in `services/`
+- **No hooks** — no `use-*.ts` files here. Those belong in `hooks/` (cross-slice) or `slices/<X>/hooks/` (domain)
+- **No grab-bag files** — `utils.ts`, `helpers.ts`, `common.ts`, `misc.ts`, `shared.ts` rejected by architecture test
 
 ## File naming
 
-**One concept per file**. Never a grab-bag `utils.ts` / `helpers.ts` / `common.ts` / `misc.ts`.
+One concept per file, kebab-case by responsibility:
 
-- Pure helpers → kebab-case by responsibility: `format-date.ts`, `cn.ts`
-- Hooks → `use-<thing>.ts` (React convention)
-- API client → `api-client.ts`, `api-error.ts`
-- Context providers → `<thing>-provider.tsx`
+- `cn.ts` — classname merge (`clsx` + `tailwind-merge`)
+- `format-date.ts` — date/time formatting helpers
+- `platform.ts` — platform detection (OS, browser)
 
-## Convention vs backend
+## When to add a file here
 
-Frontend `utils/` is **broader** than backend `utils/`. Backend separates `services/` (external I/O) strictly. Frontend keeps `api-client.ts` here because:
-- There's usually only ONE external client (the backend).
-- React ecosystem convention (shadcn, tanstack-query examples) puts it in `lib/` (now `utils/`).
-- Hooks and API calls are tightly coupled in React.
+| Scope | Location |
+|-------|----------|
+| Pure function, used by 2+ slices | `utils/<name>.ts` (here) |
+| React hook (stateful logic) | `hooks/use-<name>.ts` |
+| External adapter (HTTP, browser API) | `services/<name>-service.ts` |
+| Context provider (`.tsx`) | `providers/<name>-provider.tsx` |
+| Visual primitive | `ui/<name>.tsx` |
+| Domain-scoped helper | `slices/<name>/<responsibility>.ts` |
 
-**When to promote to `services/`:** if you add Stripe-direct, Algolia, SendGrid, or any second external client called DIRECTLY from the frontend (not via backend), create `src/services/` and move `api-client.ts` there for symmetry.
+## Mental model
+
+`utils/` is to frontend what `components/ui/` is to UI primitives: small, composable, framework-free pieces. Backend `utils/` and frontend `utils/` share the exact same contract — pure helpers, one concept per file.
 
 ## Anti-patterns
 
-```typescript
-// ❌ Grab-bag
-// utils/utils.ts — rejected by architecture test
-// utils/helpers.ts — rejected
-// utils/common.ts — rejected
+```ts
+// ❌ Hook in utils/
+// utils/use-bulk-delete.ts — goes in hooks/
 
-// ❌ Visual component here
-// utils/modal.tsx — goes in ui/ instead
+// ❌ TSX in utils/
+// utils/theme-provider.tsx — goes in providers/
+
+// ❌ fetch in utils/
+// utils/api-client.ts — goes in services/
+
+// ❌ Grab-bag
+// utils/utils.ts, utils/helpers.ts, utils/common.ts — rejected
 ```
+
+See ADR 0012 (frontend-structure) in ai-first-architecture spec.

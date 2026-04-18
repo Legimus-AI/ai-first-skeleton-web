@@ -150,7 +150,7 @@ describe('Architecture rules (INVARIANTS.md)', () => {
 
 		if (violations.length > 0) {
 			expect.fail(
-				`Raw fetch() calls found (INVARIANT #7):\n${violations.map((v) => `  - ${v}`).join('\n')}\n\nFix: Use the api client from @/utils/api-client.`,
+				`Raw fetch() calls found (INVARIANT #7):\n${violations.map((v) => `  - ${v}`).join('\n')}\n\nFix: Use the api client from @/services/api-client.`,
 			)
 		}
 	})
@@ -512,7 +512,7 @@ describe('Architecture rules (INVARIANTS.md)', () => {
 
 		if (violations.length > 0) {
 			expect.fail(
-				`Raw Zod .parse() in hooks (INV-096):\n${violations.map((v) => `  - ${v}`).join('\n')}\n\nFix: Use safeParseResponse(schema, json) from @/utils/api-error instead of schema.parse(json).`,
+				`Raw Zod .parse() in hooks (INV-096):\n${violations.map((v) => `  - ${v}`).join('\n')}\n\nFix: Use safeParseResponse(schema, json) from @/services/api-error instead of schema.parse(json).`,
 			)
 		}
 	})
@@ -890,7 +890,7 @@ describe('Architecture rules (INVARIANTS.md)', () => {
 
 		if (violations.length > 0) {
 			expect.fail(
-				`CRUD slices without bulk delete (INV-107):\n${violations.map((v) => `  - ${v}`).join('\n')}\n\nFix: Add useBulkDelete hook using useBulkDelete() from @/utils/use-bulk-delete.`,
+				`CRUD slices without bulk delete (INV-107):\n${violations.map((v) => `  - ${v}`).join('\n')}\n\nFix: Add useBulkDelete hook using useBulkDelete() from @/hooks/use-bulk-delete.`,
 			)
 		}
 	})
@@ -1100,6 +1100,103 @@ describe('Design System artifacts', () => {
 			expect.fail(
 				`styles.css is missing required semantic tokens:\n${missingTokens.map((t) => `  - ${t}`).join('\n')}\n\nFix: Add theme tokens. See DESIGN_SYSTEM.md Section 2 for the required palette.`,
 			)
+		}
+	})
+
+	// --- ADR 0012: Frontend structure (services / hooks / utils / providers) ---
+
+	const SERVICES_DIR = join(SRC_DIR, 'services')
+	const HOOKS_DIR = join(SRC_DIR, 'hooks')
+	const UTILS_DIR = join(SRC_DIR, 'utils')
+	const PROVIDERS_DIR = join(SRC_DIR, 'providers')
+
+	const GRAB_BAG_NAMES = ['utils.ts', 'helpers.ts', 'common.ts', 'misc.ts', 'shared.ts']
+
+	it('No grab-bag files in services/, hooks/, utils/, providers/ (ADR 0012)', () => {
+		const violations: string[] = []
+		for (const dir of [SERVICES_DIR, HOOKS_DIR, UTILS_DIR, PROVIDERS_DIR]) {
+			for (const name of GRAB_BAG_NAMES) {
+				const candidate = join(dir, name)
+				try {
+					statSync(candidate)
+					violations.push(relative(SRC_DIR, candidate))
+				} catch {
+					// does not exist — good
+				}
+			}
+		}
+		if (violations.length > 0) {
+			expect.fail(
+				`Grab-bag filenames forbidden (ADR 0012):\n${violations.map((v) => `  - ${v}`).join('\n')}\n\nFix: Rename by domain/responsibility.`,
+			)
+		}
+	})
+
+	it('utils/ contains only pure .ts (no .tsx, no React, no fetch) (ADR 0012)', () => {
+		const utilsFiles = collectFiles(UTILS_DIR, ['.ts', '.tsx'])
+		const violations: string[] = []
+		for (const file of utilsFiles) {
+			const relPath = relative(SRC_DIR, file)
+			if (file.endsWith('.tsx')) {
+				violations.push(`${relPath} — .tsx forbidden in utils/ (move to providers/ or ui/)`)
+				continue
+			}
+			const content = readFileSync(file, 'utf-8')
+			if (/from ['"]react['"]/.test(content)) {
+				violations.push(`${relPath} — imports react (move hooks to hooks/, providers to providers/)`)
+			}
+			if (/\bfetch\s*\(/.test(content) || /from ['"]axios['"]/.test(content)) {
+				violations.push(`${relPath} — HTTP call in utils/ (move to services/)`)
+			}
+		}
+		if (violations.length > 0) {
+			expect.fail(`utils/ purity violated (ADR 0012):\n${violations.map((v) => `  - ${v}`).join('\n')}`)
+		}
+	})
+
+	it('services/ does not import from slices/ (ADR 0012)', () => {
+		const serviceFiles = collectFiles(SERVICES_DIR, ['.ts', '.tsx'])
+		const violations: string[] = []
+		for (const file of serviceFiles) {
+			const content = readFileSync(file, 'utf-8')
+			if (/from ['"]@\/slices\//.test(content)) {
+				violations.push(relative(SRC_DIR, file))
+			}
+		}
+		if (violations.length > 0) {
+			expect.fail(
+				`services/ imports from slices/ (ADR 0012 — services are domain-agnostic):\n${violations.map((v) => `  - ${v}`).join('\n')}`,
+			)
+		}
+	})
+
+	it('hooks/ top-level does not import from slices/ (ADR 0012)', () => {
+		const hookFiles = collectFiles(HOOKS_DIR, ['.ts', '.tsx'])
+		const violations: string[] = []
+		for (const file of hookFiles) {
+			const content = readFileSync(file, 'utf-8')
+			if (/from ['"]@\/slices\//.test(content)) {
+				violations.push(relative(SRC_DIR, file))
+			}
+		}
+		if (violations.length > 0) {
+			expect.fail(
+				`hooks/ imports from slices/ (ADR 0012 — domain hooks belong in slices/<X>/hooks/):\n${violations.map((v) => `  - ${v}`).join('\n')}`,
+			)
+		}
+	})
+
+	it('hooks/ files are prefixed with use- (ADR 0012)', () => {
+		try {
+			const entries = readdirSync(HOOKS_DIR).filter((f) => f.endsWith('.ts') || f.endsWith('.tsx'))
+			const violations = entries.filter((f) => !f.startsWith('use-') && f !== 'README.md')
+			if (violations.length > 0) {
+				expect.fail(
+					`hooks/ files must start with 'use-':\n${violations.map((v) => `  - ${v}`).join('\n')}`,
+				)
+			}
+		} catch {
+			// hooks dir missing — not this test's concern
 		}
 	})
 })
