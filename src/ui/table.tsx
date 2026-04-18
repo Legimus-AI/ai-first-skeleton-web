@@ -1,5 +1,5 @@
 import type { ComponentPropsWithoutRef, HTMLAttributes } from 'react'
-import { cn } from '@/lib/cn'
+import { cn } from '@/utils/cn'
 
 export function Table({ className, ...props }: ComponentPropsWithoutRef<'table'>) {
 	return (

@@ -8,7 +8,7 @@ import {
 import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useMemo } from 'react'
-import { cn } from '@/lib/cn'
+import { cn } from '@/utils/cn'
 import { Skeleton } from '@/ui/skeleton'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/ui/table'
 

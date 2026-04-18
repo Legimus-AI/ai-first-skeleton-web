@@ -2,8 +2,8 @@ import { Link, useMatches, useRouterState } from '@tanstack/react-router'
 import { ChevronRight, Menu, Moon, Sun } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { cn } from '@/lib/cn'
-import { useTheme } from '@/lib/theme-provider'
+import { cn } from '@/utils/cn'
+import { useTheme } from '@/utils/theme-provider'
 import { Button } from '@/ui/button'
 import {
 	Sidebar,

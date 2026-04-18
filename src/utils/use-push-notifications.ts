@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
-import { api } from '@/lib/api-client'
-import { throwIfNotOk } from '@/lib/api-error'
+import { api } from '@/utils/api-client'
+import { throwIfNotOk } from '@/utils/api-error'
 
 type PushPermission = NotificationPermission | 'unsupported'
 

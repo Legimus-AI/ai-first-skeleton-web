@@ -1,7 +1,7 @@
 import { AlertCircle, Copy, RefreshCw } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { ErrorBoundary as ReactErrorBoundary } from 'react-error-boundary'
-import { ApiError } from '@/lib/api-error'
+import { ApiError } from '@/utils/api-error'
 import { Button } from '@/ui/button'
 
 function buildDebugPayload(error: unknown): string {

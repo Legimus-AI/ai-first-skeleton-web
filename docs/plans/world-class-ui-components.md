@@ -23,7 +23,7 @@ These are **skeleton-level patterns** (reusable UI components and hooks), NOT pr
 
 **Files to create:**
 - `src/ui/command-menu.tsx` — the component (wraps `cmdk` with our theme tokens)
-- `src/lib/use-command-menu.ts` — global toggle hook (⌘K / Ctrl+K listener)
+- `src/utils/use-command-menu.ts` — global toggle hook (⌘K / Ctrl+K listener)
 - Wire into `src/components/app-layout.tsx` — render at layout level
 
 **Pattern for slices:**
@@ -48,7 +48,7 @@ export function useTodoCommands() {
 **Dep:** None (TanStack Query already installed)
 
 **Files to create:**
-- `src/lib/use-optimistic-mutation.ts` — generic hook
+- `src/utils/use-optimistic-mutation.ts` — generic hook
 
 **Pattern:**
 ```tsx
@@ -95,7 +95,7 @@ const toggleTodo = useOptimisticMutation({
 
 **Files to create:**
 - `src/ui/undo-toast.tsx` — reusable component
-- `src/lib/use-undo-delete.ts` — hook wrapping delayed delete + undo
+- `src/utils/use-undo-delete.ts` — hook wrapping delayed delete + undo
 
 **Pattern:**
 ```tsx
@@ -148,7 +148,7 @@ const { deleteWithUndo } = useUndoDelete({
 **Files to create:**
 - `src/ui/animate-presence.tsx` — wrapper for enter/exit animations
 - `src/ui/fade-in.tsx` — simple fade-in on mount
-- `src/lib/motion-config.ts` — shared duration/easing tokens
+- `src/utils/motion-config.ts` — shared duration/easing tokens
 
 **Rules:**
 - `motion-safe:` prefix on all animations (respect prefers-reduced-motion)
@@ -184,7 +184,7 @@ Default behavior unchanged. Only activates when `virtualized` prop is true.
 
 **Files to create:**
 - `src/ui/global-search.tsx` — search results panel within command menu
-- `src/lib/use-global-search.ts` — aggregates search across registered slice endpoints
+- `src/utils/use-global-search.ts` — aggregates search across registered slice endpoints
 
 **Pattern for slices:**
 ```tsx
@@ -239,7 +239,7 @@ Week 2:
 
 ## Definition of Done (each item)
 
-- [ ] Component created in `src/ui/` or hook in `src/lib/`
+- [ ] Component created in `src/ui/` or hook in `src/utils/`
 - [ ] Used in todos slice as reference implementation
 - [ ] Architecture test added (if applicable)
 - [ ] AGENTS.md updated with pattern documentation

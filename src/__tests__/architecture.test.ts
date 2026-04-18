@@ -150,7 +150,7 @@ describe('Architecture rules (INVARIANTS.md)', () => {
 
 		if (violations.length > 0) {
 			expect.fail(
-				`Raw fetch() calls found (INVARIANT #7):\n${violations.map((v) => `  - ${v}`).join('\n')}\n\nFix: Use the api client from @/lib/api-client.`,
+				`Raw fetch() calls found (INVARIANT #7):\n${violations.map((v) => `  - ${v}`).join('\n')}\n\nFix: Use the api client from @/utils/api-client.`,
 			)
 		}
 	})
@@ -512,7 +512,7 @@ describe('Architecture rules (INVARIANTS.md)', () => {
 
 		if (violations.length > 0) {
 			expect.fail(
-				`Raw Zod .parse() in hooks (INV-096):\n${violations.map((v) => `  - ${v}`).join('\n')}\n\nFix: Use safeParseResponse(schema, json) from @/lib/api-error instead of schema.parse(json).`,
+				`Raw Zod .parse() in hooks (INV-096):\n${violations.map((v) => `  - ${v}`).join('\n')}\n\nFix: Use safeParseResponse(schema, json) from @/utils/api-error instead of schema.parse(json).`,
 			)
 		}
 	})
@@ -890,7 +890,7 @@ describe('Architecture rules (INVARIANTS.md)', () => {
 
 		if (violations.length > 0) {
 			expect.fail(
-				`CRUD slices without bulk delete (INV-107):\n${violations.map((v) => `  - ${v}`).join('\n')}\n\nFix: Add useBulkDelete hook using useBulkDelete() from @/lib/use-bulk-delete.`,
+				`CRUD slices without bulk delete (INV-107):\n${violations.map((v) => `  - ${v}`).join('\n')}\n\nFix: Add useBulkDelete hook using useBulkDelete() from @/utils/use-bulk-delete.`,
 			)
 		}
 	})

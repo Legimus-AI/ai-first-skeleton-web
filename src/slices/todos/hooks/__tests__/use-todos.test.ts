@@ -8,11 +8,11 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { renderHook, waitFor } from '@testing-library/react'
 import { createElement, type ReactNode } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { api } from '@/lib/api-client'
+import { api } from '@/utils/api-client'
 import { useTodos } from '../use-todos'
 
 // Mock the api client
-vi.mock('@/lib/api-client', () => ({
+vi.mock('@/utils/api-client', () => ({
 	api: {
 		get: vi.fn(),
 		post: vi.fn(),

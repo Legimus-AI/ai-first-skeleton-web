@@ -1,12 +1,12 @@
 # API Client
 
-Backend-agnostic fetch wrapper (`src/lib/api-client.ts`) — works with any AI-First Skeleton backend.
+Backend-agnostic fetch wrapper (`src/utils/api-client.ts`) — works with any AI-First Skeleton backend.
 
 ## Usage
 
 ```ts
-import { api } from '@/lib/api-client'
-import { throwIfNotOk } from '@/lib/api-error'
+import { api } from '@/utils/api-client'
+import { throwIfNotOk } from '@/utils/api-error'
 
 // GET with query params
 const res = await api.get('/api/todos', { page: '1', limit: '20' })
@@ -30,7 +30,7 @@ Response types come from `@repo/shared` (Zod schemas), validated at runtime.
 All API errors are typed and structured:
 
 ```typescript
-import { throwIfNotOk } from '@/lib/api-error'
+import { throwIfNotOk } from '@/utils/api-error'
 
 const res = await api.get('/api/todos')
 await throwIfNotOk(res) // throws ApiError { code, message, requestId }
@@ -41,7 +41,7 @@ Error codes from `@repo/shared`: `VALIDATION_ERROR`, `NOT_FOUND`, `UNAUTHORIZED`
 For granular error handling:
 
 ```typescript
-import { parseApiError } from '@/lib/api-error'
+import { parseApiError } from '@/utils/api-error'
 
 const error = await parseApiError(res) // { code, message, requestId? }
 if (error.code === 'NOT_FOUND') { /* handle */ }

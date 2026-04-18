@@ -23,7 +23,7 @@ Before generating any new view, page, or component with visual/interaction decis
 
 - **Functional components only.** No class components.
 - Use TanStack Query for all server state (no local state for API data).
-- Use `api` from `@/lib/api-client` for all API calls. See [`docs/api-client.md`](docs/api-client.md) for examples.
+- Use `api` from `@/utils/api-client` for all API calls. See [`docs/api-client.md`](docs/api-client.md) for examples.
 - Import types from `@repo/shared` for forms (React Hook Form + Zod).
 - Tailwind CSS only — no CSS files, no CSS-in-JS.
 - Use CVA (`class-variance-authority`) for component variants.
@@ -46,7 +46,7 @@ Types follow colocation — no `types/` directories or barrel files (INV-027):
 | Hook options | Inline in the hook file |
 | Form data | Inline via `z.infer<typeof formSchema>` |
 | UI primitive props | In the `ui/*.tsx` file |
-| Frontend-only service types | In `lib/<service>.ts` next to the fetch function |
+| Frontend-only service types | In `utils/<service>.ts` (promote to services/<service>.ts when 2+ external clients exist) next to the fetch function |
 
 ### Component Patterns
 
@@ -135,7 +135,7 @@ OKLCH color tokens in `src/styles.css` (shadcn/ui + Tailwind v4 `@theme inline`)
 
 ## UI Primitives
 
-Reusable components in `src/ui/` (shadcn/ui copy-paste pattern — we OWN these): Button, Input, Card, Badge, Skeleton, Separator, Sonner, AlertDialog, Dialog, DropdownMenu. Use `cn()` from `src/lib/cn.ts` to merge classes.
+Reusable components in `src/ui/` (shadcn/ui copy-paste pattern — we OWN these): Button, Input, Card, Badge, Skeleton, Separator, Sonner, AlertDialog, Dialog, DropdownMenu. Use `cn()` from `src/utils/cn.ts` to merge classes.
 
 ## React Performance (non-obvious rules)
 
@@ -153,11 +153,11 @@ Reusable components in `src/ui/` (shadcn/ui copy-paste pattern — we OWN these)
 - Create CSS files — use Tailwind classes
 - Use `useEffect` for data fetching — use TanStack Query
 - Edit `routeTree.gen.ts` — auto-generated
-- Use raw `fetch()` — use `api` from `@/lib/api-client`
+- Use raw `fetch()` — use `api` from `@/utils/api-client`
 - Use `dangerouslySetInnerHTML` — sanitize with DOMPurify if needed
 - Store UI state (tabs, filters, sort) in `useState` alone — persist in URL query params
 - Use raw `useMutation` for toggles/inline edits — use `useOptimisticMutation`
-- Define utility functions in components — search `lib/` first (`format-date`, `cn`, `api-client`, etc.)
+- Define utility functions in components — search `utils/` first (`format-date`, `cn`, `api-client`, etc.)
 
 For the complete forbidden patterns list, see `INVARIANTS.md`.
 

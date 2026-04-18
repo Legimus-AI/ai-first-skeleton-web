@@ -1,6 +1,6 @@
 import { CircleAlert, CircleCheck, Info, Loader2, TriangleAlert } from 'lucide-react'
 import { Toaster as SonnerToaster, type ToasterProps } from 'sonner'
-import { useTheme } from '@/lib/theme-provider'
+import { useTheme } from '@/utils/theme-provider'
 
 const icons = {
 	success: <CircleCheck className="h-4 w-4 text-success" />,

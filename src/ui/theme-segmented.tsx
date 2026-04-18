@@ -1,5 +1,5 @@
 import { Monitor, Moon, Sun } from 'lucide-react'
-import { cn } from '@/lib/cn'
+import { cn } from '@/utils/cn'
 
 const options = [
 	{ value: 'light', icon: Sun, label: 'Claro' },

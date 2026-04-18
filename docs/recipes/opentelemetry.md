@@ -8,7 +8,7 @@ Distributed tracing for the frontend. Correlates browser spans with backend trac
 pnpm add @opentelemetry/sdk-trace-web @opentelemetry/auto-instrumentations-web @opentelemetry/exporter-trace-otlp-http
 ```
 
-## 2. Create `src/lib/otel.ts`
+## 2. Create `src/utils/otel.ts`
 
 ```ts
 import { WebTracerProvider } from '@opentelemetry/sdk-trace-web'

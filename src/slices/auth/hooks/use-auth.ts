@@ -9,8 +9,8 @@ import {
 import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { toast } from 'sonner'
-import { api } from '@/lib/api-client'
-import { safeParseResponse, throwIfNotOk } from '@/lib/api-error'
+import { api } from '@/utils/api-client'
+import { safeParseResponse, throwIfNotOk } from '@/utils/api-error'
 
 export const authQueryOptions = queryOptions({
 	queryKey: ['auth', 'me'],

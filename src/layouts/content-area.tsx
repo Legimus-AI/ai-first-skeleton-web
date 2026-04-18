@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { cn } from '@/lib/cn'
+import { cn } from '@/utils/cn'
 
 // ─── Layout Variants ─────────────────────────────────────────────────────────
 // Routes declare their layout variant via route context or search params.

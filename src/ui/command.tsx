@@ -2,7 +2,7 @@ import { Command as CommandPrimitive } from 'cmdk'
 import { Search } from 'lucide-react'
 import type { ComponentPropsWithoutRef, ElementRef } from 'react'
 import { forwardRef } from 'react'
-import { cn } from '@/lib/cn'
+import { cn } from '@/utils/cn'
 import { Dialog, DialogContent } from '@/ui/dialog'
 
 export const Command = forwardRef<

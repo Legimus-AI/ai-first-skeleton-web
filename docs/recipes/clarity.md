@@ -10,7 +10,7 @@ pnpm add clarity-js
 
 Or use the script tag approach (no package needed).
 
-## 2. Create `src/lib/clarity.ts`
+## 2. Create `src/utils/clarity.ts`
 
 ### Option A: clarity-js package
 

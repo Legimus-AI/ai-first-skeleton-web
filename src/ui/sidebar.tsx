@@ -1,6 +1,6 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { createContext, type ReactNode, use, useEffect, useState } from 'react'
-import { cn } from '@/lib/cn'
+import { cn } from '@/utils/cn'
 import { Tooltip } from '@/ui/tooltip'
 
 // ─── Context ──────────────────────────────────────────────────────────────────
