@@ -1,3 +1,4 @@
+@AGENTS.md
 @INVARIANTS.md
 @DESIGN_SYSTEM.md
 

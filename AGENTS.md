@@ -86,7 +86,7 @@ All env vars via `import.meta.env.VITE_*` (never `process.env`). Use a centraliz
 - `hooks/` top-level — no imports from `slices/`; files must start with `use-`
 - No grab-bag files (`utils.ts`, `helpers.ts`, `common.ts`, `misc.ts`, `shared.ts`) in any of the above
 
-See the `README.md` in each folder for the full contract + examples.
+See the `AGENTS.md` in each folder for the full contract + examples.
 
 ## Adding a New CRUD Slice
 
