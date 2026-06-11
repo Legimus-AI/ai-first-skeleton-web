@@ -8,3 +8,6 @@ coverage/
 *.tsbuildinfo
 routeTree.gen.ts
 .tanstack/
+
+# Guard against monorepo mirror contamination (this repo IS apps/web)
+apps/
