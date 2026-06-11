@@ -3,6 +3,25 @@
 > AI agents MUST read this file before generating any view, page, or component with visual/interaction decisions.
 > If Layer 1 is empty, ask the user to fill it first — do not generate final UI without this context.
 
+## Layer 0 — Product Archetype (ANSWER FIRST)
+
+### 0. Product Archetype
+> Which archetype best matches the product's dominant workflow? This decides the layout shell and which PATTERN invariants apply (see INVARIANTS.md "Rule Layers").
+
+| Value | Dominant workflow | Default shell |
+|-------|------------------|---------------|
+| `admin-crud` | List, filter, create, edit records | `authed-layout` (sidebar) or `navbar-layout` |
+| `conversational` | Converse, triage threads, inbox | `split-layout` |
+| `focused-tool` | Compose, edit, review one artifact | `focused-layout` |
+| `split-view` | Browse a list while inspecting detail | `split-layout` |
+| `custom` | None of the above fits | Design from scratch — see AGENTS.md "Layout Reasoning" |
+
+<!-- Example: "admin-crud — internal ops team manages orders and inventory" -->
+
+> **If `custom`:** you MUST (1) state here why no archetype fits, (2) design with the
+> frontend-design skill respecting CORE invariants only, (3) log the decision in
+> `docs/DECISIONS.ndjson`. CORE invariants never relax.
+
 ## Layer 1 — Core (MANDATORY)
 
 ### 1. User Job

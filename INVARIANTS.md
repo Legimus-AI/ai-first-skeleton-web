@@ -2,6 +2,22 @@
 
 > Rules that must NEVER be broken. Violating any of these is a blocking issue.
 
+## Rule Layers
+
+Every rule belongs to a layer. The layer decides WHEN it applies:
+
+| Layer | Applies to | Rules |
+|-------|-----------|-------|
+| **CORE** | Every file, every design, every archetype — never relaxes | 1-9, 12-29, 100-103, 105, 108, 111, 112 |
+| **PATTERN: CRUD** | Only slices with a `*-list.tsx` component (enforced conditionally by tests) | 10, 11, 104, 106, 107, 109, 110 |
+| **ARTIFACT** | Repo-level design artifacts | 200-202 |
+| **OPERATIONAL** | Process rules | 30-34 |
+
+A non-CRUD slice (chat, editor, viewer, canvas) is NOT exempt from CORE — only from
+PATTERN: CRUD. The `*-list.tsx` filename suffix is the explicit opt-in to the CRUD
+contract — non-CRUD slices must not use it. See `DESIGN_BRIEF.md` Layer 0 and
+AGENTS.md "Layout Reasoning" for how to pick or design a layout per product archetype.
+
 ## Governance
 
 1. **Zero `any` types.** Biome enforces `noExplicitAny: "error"` and `noImplicitAnyLet: "error"`. Use Zod inference, generics, or `unknown` with narrowing. The ONLY escape: `biome-ignore` with library name and specific technical justification.
@@ -19,8 +35,8 @@
 7. **No raw `fetch()` calls.** All API calls go through `@/utils/api-client`. Never use raw `fetch()`.
 8. **No `useEffect` for data fetching.** Use TanStack Query hooks.
 9. **No local state for server data.** Use TanStack Query for all server state.
-10. **CRUD hooks must export a `queryOptions` factory.** Every list query must be extractable via `queryOptions()` from `@tanstack/react-query`. The hook wraps it: `useX = (params) => useQuery(xQueryOptions(params))`. This enables route loaders and prefetching outside React.
-11. **CRUD list routes must have a `loader`.** Every route with a list view must call `context.queryClient.ensureQueryData(xQueryOptions())` in its `loader`. This guarantees data is cached before the component renders.
+10. **CRUD hooks must export a `queryOptions` factory.** *(PATTERN: CRUD)* Every list query must be extractable via `queryOptions()` from `@tanstack/react-query`. The hook wraps it: `useX = (params) => useQuery(xQueryOptions(params))`. This enables route loaders and prefetching outside React.
+11. **CRUD list routes must have a `loader`.** *(PATTERN: CRUD)* Every route with a list view must call `context.queryClient.ensureQueryData(xQueryOptions())` in its `loader`. This guarantees data is cached before the component renders.
 
 ## Styling
 
@@ -71,16 +87,16 @@
 101. **Navigation must be data-driven.** All nav items live in `layouts/nav-items.ts` as a typed array. `authed-layout.tsx` imports and renders from this array. No hardcoded `<Link>` in the layout shell.
 102. **No `max-w-*` in layout files except `content-area.tsx`.** Width constraints are managed by layout variants (`default` | `full` | `narrow` | `wide`) in `content-area.tsx` only.
 103. **No deep relative imports.** Imports with `../../../` or deeper are forbidden. Use `@/` alias for all cross-directory imports.
-104. **CRUD slices must have a nav entry.** Every slice with a `*-list.tsx` component must have a corresponding entry in `layouts/nav-items.ts`.
+104. **CRUD slices must have a nav entry.** *(PATTERN: CRUD)* Every slice with a `*-list.tsx` component must have a corresponding entry in `layouts/nav-items.ts`.
 105. **Routes with `beforeLoad` must have `pendingComponent`.** Prevents white flash during async operations like auth checks.
-106. **CRUD list components must use `ConfirmDelete`.** Every list with delete actions must import and use `ConfirmDelete` from `@/ui/confirm-delete`. No single-click deletes.
-107. **CRUD hooks must export `useBulkDelete`.** Every CRUD slice must have a bulk delete hook using `useBulkDelete()` from `@/utils/use-bulk-delete`. Bulk operations are mandatory.
+106. **CRUD list components must use `ConfirmDelete`.** *(PATTERN: CRUD)* Every list with delete actions must import and use `ConfirmDelete` from `@/ui/confirm-delete`. No single-click deletes.
+107. **CRUD hooks must export `useBulkDelete`.** *(PATTERN: CRUD)* Every CRUD slice must have a bulk delete hook using `useBulkDelete()` from `@/utils/use-bulk-delete`. Bulk operations are mandatory.
 108. **SearchInput debounce is 600ms.** The `SearchInput` component in `@/ui/search-input.tsx` uses a 600ms debounce. Do not change this value without updating the invariant.
 
 ## CRUD View Contract
 
-109. **Inline action icons, not dropdown menus.** Table rows use direct Edit + Delete icon buttons. Never use `DropdownMenu` / three-dot `⋯` for row actions — inline icons are immediately visible, fewer clicks.
-110. **Create and Edit use modal dialogs.** New entities open a `FormDialog`. Editing opens the same `FormDialog` pre-populated with `defaultValues`. Only use dedicated pages for complex entities (>6 fields, tabs, nested data).
+109. **Inline action icons, not dropdown menus.** *(PATTERN: CRUD)* Table rows use direct Edit + Delete icon buttons. Never use `DropdownMenu` / three-dot `⋯` for row actions — inline icons are immediately visible, fewer clicks.
+110. **Create and Edit use modal dialogs.** *(PATTERN: CRUD)* New entities open a `FormDialog`. Editing opens the same `FormDialog` pre-populated with `defaultValues`. Only use dedicated pages for complex entities (>6 fields, tabs, nested data).
 111. **Cross-slice composition rules.** Slices NEVER import **components** from other slices (UI coupling). Slices MAY import **hooks** from other slices when the view is a composed feature that genuinely needs cross-domain data (e.g., detail view + analytics, config form + related entities). For simple cases, routes compose data and pass as props. For complex composed views (tabs, panels), the component owns its data fetching via cross-slice hooks. Document each exception in the architecture test's `allowedCrossImports`.
 
 ## Design System Artifacts

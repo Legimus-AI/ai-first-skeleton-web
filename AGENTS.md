@@ -88,15 +88,46 @@ All env vars via `import.meta.env.VITE_*` (never `process.env`). Use a centraliz
 
 See the `AGENTS.md` in each folder for the full contract + examples.
 
+## Layout Reasoning (read BEFORE choosing any layout)
+
+The admin sidebar is ONE preset, not THE default. Before building views, resolve the
+product archetype from `DESIGN_BRIEF.md` Layer 0 and justify the shell choice:
+
+**Decision rule — look at the DOMINANT user flow:**
+
+| Dominant flow | Use |
+|---------------|-----|
+| List, filter, create, edit records | `authed-layout` (sidebar) or `navbar-layout` preset |
+| Converse, triage threads, inbox | `split-layout` preset |
+| Compose, write, edit ONE artifact | `focused-layout` preset |
+| Browse list + inspect detail side by side | `split-layout` preset |
+| None of the above (canvas, map, player, novel UX) | **Design from scratch** — governed escape hatch below |
+
+**Governed escape hatch (`archetype: custom`):**
+1. State in `DESIGN_BRIEF.md` Layer 0 why no preset fits.
+2. Design intentionally (use the frontend-design skill if available) — novel layout,
+   distinctive visual direction, NOT a generic admin panel.
+3. Respect ALL CORE invariants (tokens, a11y, no raw fetch, type-safety, INV-102 widths
+   via `ContentArea`). Only PATTERN: CRUD rules are waived — and only because there is
+   no `*-list.tsx`.
+4. Append the decision to `docs/DECISIONS.ndjson` (INV-034).
+
+Reference examples: `src/slices/todos/` (CRUD pattern) and `src/slices/chat/`
+(non-CRUD conversational pattern). Both pass the same CORE enforcement.
+
+**Naming is the opt-in:** the `*-list.tsx` filename suffix is what activates the
+PATTERN: CRUD contract (DataTable, Pagination, ConfirmDelete, useBulkDelete). In
+non-CRUD slices, do NOT name components `*-list.tsx` unless you want that contract
+— e.g. the chat slice uses `conversations.tsx`, not `conversation-list.tsx`.
+
 ## Adding a New CRUD Slice
 
-**ALWAYS use the generator. NEVER create slice files manually:**
+There is no frontend slice generator — copy the reference slice instead:
 
-```bash
-bun scripts/generate-slice.ts <name>
-```
-
-Architecture tests verify completeness. If you skip the generator, the tests will catch it.
+1. **Copy the structure of `src/slices/todos/`** (the gold CRUD slice) and rename.
+2. Follow the CRUD View Contract below — architecture tests verify completeness.
+3. For non-CRUD slices (chat, editor, viewer), see `src/slices/chat/` and the
+   "Layout Reasoning" section — the CRUD contract does not apply to them.
 
 ### Slice Structure
 
