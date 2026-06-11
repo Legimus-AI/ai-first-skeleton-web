@@ -37,7 +37,8 @@ export function ChatPage() {
 	const [messagesById, setMessagesById] = useState(seedMessages)
 	const [activeId, setActiveId] = useState<string | null>('welcome')
 
-	const activeConversation = conversations.find((c) => c.id === activeId) ?? null
+	const activeConversation =
+		conversations.find((conversation) => conversation.id === activeId) ?? null
 	const activeMessages = activeId ? (messagesById[activeId] ?? []) : []
 
 	function sendMessage(text: string) {
@@ -48,8 +49,8 @@ export function ChatPage() {
 			[activeId]: [...(prev[activeId] ?? []), userMessage],
 		}))
 		setConversations((prev) =>
-			prev.map((c) =>
-				c.id === activeId ? { ...c, lastMessage: text } : c,
+			prev.map((conversation) =>
+				conversation.id === activeId ? { ...conversation, lastMessage: text } : conversation,
 			),
 		)
 	}
