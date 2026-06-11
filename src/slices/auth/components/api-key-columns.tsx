@@ -1,8 +1,8 @@
 import type { ApiKey } from '@repo/shared'
 import { Trash2 } from 'lucide-react'
-import { formatDate } from '@/utils/format-date'
 import { Button } from '@/ui/button'
 import type { Column } from '@/ui/data-table'
+import { formatDate } from '@/utils/format-date'
 
 function formatRelative(date: string) {
 	const diff = Date.now() - new Date(date).getTime()

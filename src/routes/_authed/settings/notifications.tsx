@@ -2,13 +2,13 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Bell, BellOff, Send, Volume2, VolumeX } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
-import { isMac } from '@/utils/platform'
 import { usePushNotifications } from '@/hooks/use-push-notifications'
 import { Badge } from '@/ui/badge'
 import { Button } from '@/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/ui/card'
 import { Hint } from '@/ui/hint'
 import { InfoTooltip } from '@/ui/info-tooltip'
+import { isMac } from '@/utils/platform'
 
 export const Route = createFileRoute('/_authed/settings/notifications')({
 	component: SettingsNotificationsPage,

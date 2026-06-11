@@ -1,10 +1,10 @@
 import type { MemberRole, TeamMember } from '@repo/shared'
 import { Shield, Trash2 } from 'lucide-react'
-import { formatDate } from '@/utils/format-date'
 import { Badge } from '@/ui/badge'
 import { Button } from '@/ui/button'
 import type { Column } from '@/ui/data-table'
 import { Select } from '@/ui/select'
+import { formatDate } from '@/utils/format-date'
 
 const ROLE_VARIANTS: Record<MemberRole, 'default' | 'success' | 'secondary'> = {
 	owner: 'default',

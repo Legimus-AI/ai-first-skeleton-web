@@ -2,7 +2,6 @@ import { Link, useMatches, useRouterState } from '@tanstack/react-router'
 import { ChevronRight, Menu, Moon, Sun } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { cn } from '@/utils/cn'
 import { useTheme } from '@/providers/theme-provider'
 import { Button } from '@/ui/button'
 import {
@@ -15,6 +14,7 @@ import {
 	useSidebar,
 } from '@/ui/sidebar'
 import { UserDropdown } from '@/ui/user-dropdown'
+import { cn } from '@/utils/cn'
 import type { LayoutVariant } from './content-area'
 import { ContentArea } from './content-area'
 import type { NavItem } from './nav-items'

@@ -8,9 +8,9 @@ import {
 import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useMemo } from 'react'
-import { cn } from '@/utils/cn'
 import { Skeleton } from '@/ui/skeleton'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/ui/table'
+import { cn } from '@/utils/cn'
 
 // ─── Public API (unchanged — consumer-facing) ────────────────────────────────
 

@@ -1,6 +1,6 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { cn } from '@/utils/cn'
 import { Button } from '@/ui/button'
+import { cn } from '@/utils/cn'
 
 interface PaginationMeta {
 	page: number

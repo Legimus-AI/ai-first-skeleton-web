@@ -1,8 +1,8 @@
 import type { Todo } from '@repo/shared'
 import { ArrowDown, ArrowRight, ArrowUp, CheckCircle2, Circle, Pencil, Trash2 } from 'lucide-react'
-import { cn } from '@/utils/cn'
 import { Button } from '@/ui/button'
 import type { Column } from '@/ui/data-table'
+import { cn } from '@/utils/cn'
 
 function formatDate(date: string): string {
 	const d = new Date(date)

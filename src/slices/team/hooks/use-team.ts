@@ -6,11 +6,17 @@ import {
 	teamMemberResponseSchema,
 	type UpdateMemberRole,
 } from '@repo/shared'
-import { keepPreviousData, queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import {
+	keepPreviousData,
+	queryOptions,
+	useMutation,
+	useQuery,
+	useQueryClient,
+} from '@tanstack/react-query'
 import { toast } from 'sonner'
+import { useBulkDelete } from '@/hooks/use-bulk-delete'
 import { api } from '@/services/api-client'
 import { safeParseResponse, throwIfNotOk } from '@/services/api-error'
-import { useBulkDelete } from '@/hooks/use-bulk-delete'
 
 export const TEAM_KEY = ['team'] as const
 
