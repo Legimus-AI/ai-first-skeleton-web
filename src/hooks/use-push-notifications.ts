@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
 import { toast } from 'sonner'
 import { api } from '@/services/api-client'
 import { throwIfNotOk } from '@/services/api-error'
@@ -24,6 +25,15 @@ function isPushSupported(): boolean {
 	return 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window
 }
 
+const SUBSCRIPTION_KEY = ['push', 'subscription'] as const
+
+/** Registers the service worker and reads the current browser push subscription. */
+async function readSubscription(): Promise<boolean> {
+	const registration = await navigator.serviceWorker.register('/sw.js')
+	const subscription = await registration.pushManager.getSubscription()
+	return subscription !== null
+}
+
 /**
  * Hook for managing browser push notifications.
  *
@@ -45,28 +55,20 @@ function isPushSupported(): boolean {
  */
 export function usePushNotifications(): UsePushNotifications {
 	const supported = isPushSupported()
+	const queryClient = useQueryClient()
 	const [permission, setPermission] = useState<PushPermission>(
 		supported ? Notification.permission : 'unsupported',
 	)
-	const [isSubscribed, setIsSubscribed] = useState(false)
-	const [isPending, setIsPending] = useState(false)
 
-	// Register SW and check existing subscription on mount
-	useEffect(() => {
-		if (!supported) return
+	const subscriptionQuery = useQuery({
+		queryKey: SUBSCRIPTION_KEY,
+		queryFn: readSubscription,
+		enabled: supported,
+		staleTime: Number.POSITIVE_INFINITY,
+	})
 
-		navigator.serviceWorker
-			.register('/sw.js')
-			.then((reg) => reg.pushManager.getSubscription())
-			.then((sub) => setIsSubscribed(sub !== null))
-			.catch(() => setIsSubscribed(false))
-	}, [supported])
-
-	const subscribe = useCallback(async () => {
-		if (!supported || isPending) return
-		setIsPending(true)
-
-		try {
+	const subscribeMutation = useMutation({
+		mutationFn: async () => {
 			// 1. Get VAPID public key from backend
 			const keyRes = await api.get('/api/v1/push/vapid-key')
 			await throwIfNotOk(keyRes)
@@ -82,8 +84,6 @@ export function usePushNotifications(): UsePushNotifications {
 				applicationServerKey: urlBase64ToUint8Array(data.publicKey).buffer as ArrayBuffer,
 			})
 
-			setPermission(Notification.permission)
-
 			// 4. Send subscription to backend
 			const json = subscription.toJSON()
 			const subRes = await api.post('/api/v1/push/subscribe', {
@@ -91,25 +91,22 @@ export function usePushNotifications(): UsePushNotifications {
 				keys: { p256dh: json.keys?.p256dh, auth: json.keys?.auth },
 			})
 			await throwIfNotOk(subRes)
-
-			setIsSubscribed(true)
+		},
+		onSettled: () => setPermission(Notification.permission),
+		onSuccess: () => {
+			queryClient.setQueryData(SUBSCRIPTION_KEY, true)
 			toast.success('Notifications enabled', {
 				description: "You'll receive alerts on this device.",
 			})
-		} catch (err) {
-			setPermission(Notification.permission)
+		},
+		onError: (err) => {
 			const message = err instanceof Error ? err.message : 'Failed to enable notifications'
 			toast.error('Could not enable notifications', { description: message })
-		} finally {
-			setIsPending(false)
-		}
-	}, [supported, isPending])
+		},
+	})
 
-	const unsubscribe = useCallback(async () => {
-		if (!supported || isPending) return
-		setIsPending(true)
-
-		try {
+	const unsubscribeMutation = useMutation({
+		mutationFn: async () => {
 			const registration = await navigator.serviceWorker.ready
 			const subscription = await registration.pushManager.getSubscription()
 
@@ -119,17 +116,32 @@ export function usePushNotifications(): UsePushNotifications {
 				// Unsubscribe browser
 				await subscription.unsubscribe()
 			}
-
-			setIsSubscribed(false)
+		},
+		onSuccess: () => {
+			queryClient.setQueryData(SUBSCRIPTION_KEY, false)
 			toast.success('Notifications disabled')
-		} catch {
+		},
+		onError: () => {
 			toast.error('Failed to disable notifications')
-		} finally {
-			setIsPending(false)
-		}
-	}, [supported, isPending])
+		},
+	})
 
-	return { isSupported: supported, permission, isSubscribed, subscribe, unsubscribe, isPending }
+	const isPending = subscribeMutation.isPending || unsubscribeMutation.isPending
+
+	return {
+		isSupported: supported,
+		permission,
+		isSubscribed: subscriptionQuery.data ?? false,
+		subscribe: async () => {
+			if (!supported || isPending) return
+			await subscribeMutation.mutateAsync().catch(() => {})
+		},
+		unsubscribe: async () => {
+			if (!supported || isPending) return
+			await unsubscribeMutation.mutateAsync().catch(() => {})
+		},
+		isPending,
+	}
 }
 
 /** Convert a VAPID public key from base64 URL encoding to a Uint8Array. */
