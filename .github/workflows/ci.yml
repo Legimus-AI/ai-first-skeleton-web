@@ -40,11 +40,18 @@ jobs:
           node-version: 22
 
       # architecture.test.ts is pure node:fs + regex (no @repo/shared, no React,
-      # no jsdom), so it runs standalone via npx WITHOUT the workspace install the
-      # other tests need. It is the sole guardian of the CORE-vs-PATTERN:CRUD
-      # layering (ADR 0014) and the archetype↔shell gate — it MUST run on every PR.
+      # no jsdom) — the sole guardian of the CORE-vs-PATTERN:CRUD layering (ADR 0014)
+      # and the archetype↔shell gate, so it MUST run on every PR. The repo's own
+      # package.json has workspace:* deps that block any install, so we temp-swap it
+      # for a throwaway one, install ONLY vitest, restore, then run (same reason the
+      # lint job downloads Biome as a standalone binary).
       - name: Architecture rules
-        run: npx -y vitest@3.2.4 run --config vitest.config.arch.ts
+        run: |
+          mv package.json .package.json.bak
+          npm init -y >/dev/null 2>&1
+          npm install --no-audit --no-fund vitest@3.2.4 >/dev/null 2>&1
+          mv -f .package.json.bak package.json
+          npx vitest run --config vitest.config.arch.ts
 
   # ─── Why the OTHER tests are not run here ─────────────────────────────
   # The component/hook tests (React, @testing-library, jsdom) and the
