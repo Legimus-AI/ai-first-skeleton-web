@@ -60,6 +60,24 @@ The API Keys page is accessible from the navigation bar when logged in (key icon
 
 Uses a backend-agnostic fetch wrapper (`src/lib/api-client.ts`). Response types come from `@repo/shared` (Zod schemas) — validated at runtime. No dependency on any specific backend framework.
 
+## Layout archetypes
+
+The skeleton does not assume every product is an admin dashboard. Before building views,
+declare a **product archetype** in `DESIGN_BRIEF.md` Layer 0; it selects the layout shell
+(one import in `src/routes/_authed.tsx`) and which invariants apply.
+
+| Archetype | Shell | Reference slice |
+|-----------|-------|-----------------|
+| `admin-crud` | `authed-layout` (sidebar) / `navbar-layout` | `src/slices/todos/` |
+| `conversational` / `split-view` | `split-layout` | `src/slices/chat/` |
+| `focused-tool` | `focused-layout` | `src/slices/editor/` |
+| `custom` | design from scratch (governed) | — |
+
+`architecture.test.ts` enforces this: a filled brief must declare an archetype and the wired
+shell must match it; the `custom` escape hatch requires a logged decision in
+`docs/DECISIONS.ndjson`. Only `*-list.tsx` slices opt into the CRUD contract, so non-CRUD
+products are never forced into a DataTable. See AGENTS.md "Layout Reasoning".
+
 ## Stack
 
 | Layer | Technology |

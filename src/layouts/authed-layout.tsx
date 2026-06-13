@@ -302,15 +302,18 @@ export function AuthedLayout({ children, variant }: AuthedLayoutProps) {
 	const matches = useMatches()
 	const routeVariant = (matches[matches.length - 1]?.context as { layout?: LayoutVariant })?.layout
 	const finalVariant = variant ?? routeVariant ?? 'default'
+	// bleed surfaces (chat, canvas) need a bounded height so their inner pane scrolls;
+	// every other route keeps min-h-screen page scrolling untouched.
+	const isBleed = finalVariant === 'bleed'
 
 	return (
 		<SidebarProvider>
-			<div className="flex min-h-screen">
+			<div className={cn('flex', isBleed ? 'h-screen overflow-hidden' : 'min-h-screen')}>
 				<Sidebar>
 					<SidebarLogo />
 					<SidebarNav />
 				</Sidebar>
-				<div className="flex min-w-0 flex-1 flex-col">
+				<div className={cn('flex min-w-0 flex-1 flex-col', isBleed && 'min-h-0')}>
 					<TopHeader />
 					<ContentArea variant={finalVariant} pageKey={pathname}>
 						{children}

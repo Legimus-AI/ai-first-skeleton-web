@@ -22,6 +22,8 @@
 > frontend-design skill respecting CORE invariants only, (3) log the decision in
 > `docs/DECISIONS.ndjson`. CORE invariants never relax.
 
+**Selected archetype:** _(replace with one value from the table above — this is enforced by architecture.test.ts)_
+
 ## Layer 1 — Core (MANDATORY)
 
 ### 1. User Job
