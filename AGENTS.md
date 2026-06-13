@@ -112,8 +112,10 @@ product archetype from `DESIGN_BRIEF.md` Layer 0 and justify the shell choice:
    no `*-list.tsx`.
 4. Append the decision to `docs/DECISIONS.ndjson` (INV-034).
 
-Reference examples: `src/slices/todos/` (CRUD pattern) and `src/slices/chat/`
-(non-CRUD conversational pattern). Both pass the same CORE enforcement.
+Reference examples — one per archetype family, all passing the same CORE enforcement:
+- `src/slices/todos/` — `admin-crud` (DataTable, pagination, the full CRUD contract)
+- `src/slices/chat/` — `conversational` (SplitPane, optimistic local append, no `*-list.tsx`)
+- `src/slices/editor/` — `focused-tool` (single-artifact composer, content-as-hero, no CRUD)
 
 **Naming is the opt-in:** the `*-list.tsx` filename suffix is what activates the
 PATTERN: CRUD contract (DataTable, Pagination, ConfirmDelete, useBulkDelete). In
@@ -126,8 +128,9 @@ There is no frontend slice generator — copy the reference slice instead:
 
 1. **Copy the structure of `src/slices/todos/`** (the gold CRUD slice) and rename.
 2. Follow the CRUD View Contract below — architecture tests verify completeness.
-3. For non-CRUD slices (chat, editor, viewer), see `src/slices/chat/` and the
-   "Layout Reasoning" section — the CRUD contract does not apply to them.
+3. For non-CRUD slices, copy the matching reference: `src/slices/chat/` (conversational)
+   or `src/slices/editor/` (focused-tool). See the "Layout Reasoning" section — the CRUD
+   contract does not apply to them.
 
 ### Slice Structure
 
