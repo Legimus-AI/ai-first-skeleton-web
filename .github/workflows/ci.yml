@@ -29,17 +29,29 @@ jobs:
       - name: Lint
         run: ./biome check src
 
-  # ─── Why tests are NOT run here ───────────────────────────────────────
-  # This skeleton depends on @repo/shared (workspace:*), which means
-  # `pnpm install` fails outside the monorepo context. Biome can be
-  # downloaded as a standalone binary (see above), but vitest, jsdom,
-  # React, and all other deps require a full node_modules install.
-  #
-  # Tests follow a branch-based strategy in the MONOREPO CI instead:
+  architecture:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # architecture.test.ts is pure node:fs + regex (no @repo/shared, no React,
+      # no jsdom), so it runs standalone via npx WITHOUT the workspace install the
+      # other tests need. It is the sole guardian of the CORE-vs-PATTERN:CRUD
+      # layering (ADR 0014) and the archetype↔shell gate — it MUST run on every PR.
+      - name: Architecture rules
+        run: npx -y vitest@3.2.4 run --config vitest.config.arch.ts
+
+  # ─── Why the OTHER tests are not run here ─────────────────────────────
+  # The component/hook tests (React, @testing-library, jsdom) and the
+  # use-todos test import @repo/shared / @/services, which need a full
+  # node_modules install — impossible standalone with workspace:* deps.
+  # Those run in the MONOREPO CI:
   #   - dev branch  → vitest --changed origin/dev --run --passWithNoTests
   #   - main branch → vitest run --coverage --passWithNoTests (full suite)
-  #
-  # If this skeleton is ever extracted into a standalone repo (replacing
-  # workspace:* with published package versions), add a test job here
-  # mirroring that same pattern.
+  # Only the dependency-free architecture test runs in this repo's own CI.
   # ──────────────────────────────────────────────────────────────────────
