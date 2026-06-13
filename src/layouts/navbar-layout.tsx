@@ -1,9 +1,10 @@
 import { Link, useRouterState } from '@tanstack/react-router'
-import { Menu, Moon, Sun, X } from 'lucide-react'
+import { Menu, X } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useState } from 'react'
-import { useTheme } from '@/providers/theme-provider'
+import { AppLogo } from '@/ui/app-logo'
 import { Button } from '@/ui/button'
+import { ThemeToggle } from '@/ui/theme-toggle'
 import { UserDropdown } from '@/ui/user-dropdown'
 import type { LayoutVariant } from './content-area'
 import { ContentArea } from './content-area'
@@ -44,7 +45,6 @@ function NavLinks() {
 
 function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
 	const pathname = useRouterState({ select: (s) => s.location.pathname })
-	const { resolvedTheme, setTheme } = useTheme()
 
 	if (!open) return null
 
@@ -74,15 +74,7 @@ function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
 			</nav>
 			<div className="flex items-center justify-between border-t border-border px-4 py-3">
 				<UserDropdown />
-				<Button
-					variant="ghost"
-					size="icon"
-					className="h-8 w-8"
-					onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
-					aria-label="Cambiar tema"
-				>
-					{resolvedTheme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-				</Button>
+				<ThemeToggle />
 			</div>
 		</div>
 	)
@@ -103,15 +95,7 @@ export function AuthedLayout({ children, variant }: NavbarLayoutProps) {
 			<header className="sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur-sm">
 				<div className="mx-auto flex h-14 items-center gap-6 px-4 md:px-6">
 					{/* Logo */}
-					<Link
-						to="/"
-						className="flex items-center gap-2 text-base font-semibold tracking-tight text-foreground transition-colors duration-150 hover:text-primary"
-					>
-						<div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-xs font-bold text-primary-foreground">
-							A
-						</div>
-						<span className="hidden sm:inline">App</span>
-					</Link>
+					<AppLogo size="md" />
 
 					{/* Desktop nav — text-only links with active underline */}
 					<NavLinks />
