@@ -1098,6 +1098,107 @@ describe('Design System artifacts', () => {
 		}
 	})
 
+	// --- ADR 0014: Product Archetype (Layer 0) must be load-bearing, not advisory ---
+	//
+	// The archetype mechanism only beats the admin-sidebar default if it is ENFORCED.
+	// Once a real project fills the brief, Layer 0 must (a) resolve to one archetype and
+	// (b) wire the matching shell in _authed.tsx. The pristine skeleton is exempt (same
+	// isPristineTemplate signal as the brief test) so the shipped skeleton stays green.
+	it('Product Archetype (Layer 0) is resolved and matches the wired layout (ADR 0014)', () => {
+		const briefPath = join(ROOT_DIR, 'DESIGN_BRIEF.md')
+		let brief: string
+		try {
+			brief = readFileSync(briefPath, 'utf-8')
+		} catch {
+			expect.fail('DESIGN_BRIEF.md not found at project root.')
+			return
+		}
+
+		// Pristine skeleton ships the full questionnaire (>=5 example markers) — exempt,
+		// so the skeleton itself stays green until a real project fills the brief.
+		if ((brief.match(/<!-- Example:/g) ?? []).length >= 5) return
+
+		const ARCHETYPES = ['admin-crud', 'conversational', 'focused-tool', 'split-view', 'custom']
+
+		// The chosen archetype is the agent's ANSWER, not the decision-table rows or the
+		// instructional blockquotes. Strip table rows (|), blockquotes (>), comments (<!--)
+		// and headings (#); whatever archetype token survives is the declared answer.
+		const layer0 = brief.split(/^##\s/m).find((s) => /Product Archetype/i.test(s)) ?? ''
+		const answer = layer0
+			.split('\n')
+			.filter((l) => {
+				const t = l.trim()
+				return (
+					!t.startsWith('|') && !t.startsWith('>') && !t.startsWith('<!--') && !t.startsWith('#')
+				)
+			})
+			.join('\n')
+		const declared = ARCHETYPES.filter((a) => new RegExp(`\\b${a}\\b`).test(answer))
+		const [archetype, ...extra] = declared
+
+		if (!archetype) {
+			expect.fail(
+				`DESIGN_BRIEF.md Layer 0 — Product Archetype is not answered.\n\nFix: set "**Selected archetype:**" to one of ${ARCHETYPES.join(' | ')}. This decides the layout shell and which PATTERN invariants apply (INVARIANTS.md "Rule Layers"). Without it, the admin sidebar wins by default — the exact bias ADR 0014 exists to prevent.`,
+			)
+			return
+		}
+		if (extra.length > 0) {
+			expect.fail(
+				`DESIGN_BRIEF.md Layer 0 declares multiple archetypes (${declared.join(', ')}). Pick exactly one.`,
+			)
+			return
+		}
+
+		// custom is the governed escape hatch: it skips the shell check but MUST log a
+		// rationale to DECISIONS.ndjson (AGENTS.md "Layout Reasoning", INV-034). A custom
+		// archetype that logs nothing is just an ungoverned one.
+		if (archetype === 'custom') {
+			let decisions = ''
+			try {
+				decisions = readFileSync(join(ROOT_DIR, 'docs/DECISIONS.ndjson'), 'utf-8')
+			} catch {
+				/* falls through to the assertion below */
+			}
+			const logged = decisions.split('\n').some((line) => {
+				if (!line.trim()) return false
+				try {
+					return String(JSON.parse(line).decision ?? '')
+						.toLowerCase()
+						.includes('archetype: custom')
+				} catch {
+					return false
+				}
+			})
+			expect(
+				logged,
+				'archetype: custom requires a logged decision.\n\nFix: append a line to docs/DECISIONS.ndjson with "decision":"archetype: custom — <why no preset fits>". A governed escape hatch that logs nothing is just an ungoverned one (AGENTS.md "Layout Reasoning", INV-034).',
+			).toBe(true)
+			return
+		}
+
+		// Non-custom: the shell imported in _authed.tsx must match the declared archetype.
+		const ARCHETYPE_SHELLS: Record<string, string[]> = {
+			'admin-crud': ['authed-layout', 'navbar-layout'],
+			conversational: ['split-layout'],
+			'split-view': ['split-layout'],
+			'focused-tool': ['focused-layout'],
+		}
+		const authedPath = join(SRC_DIR, 'routes', '_authed.tsx')
+		let authed = ''
+		try {
+			authed = readFileSync(authedPath, 'utf-8')
+		} catch {
+			expect.fail('src/routes/_authed.tsx not found — cannot verify the wired layout shell.')
+			return
+		}
+		const wiredShell = authed.match(/from\s+'@\/layouts\/([a-z-]+)'/)?.[1] ?? ''
+		const allowed = ARCHETYPE_SHELLS[archetype] ?? []
+		expect(
+			allowed.includes(wiredShell),
+			`Product Archetype "${archetype}" requires one of [${allowed.join(', ')}] as the authenticated shell, but src/routes/_authed.tsx imports "${wiredShell || '(none found)'}".\n\nFix: change the import in _authed.tsx to '@/layouts/${allowed[0]}', or correct the archetype in DESIGN_BRIEF.md Layer 0. (See the Layout Reasoning table in AGENTS.md.)`,
+		).toBe(true)
+	})
+
 	// --- styles.css must use semantic tokens, not hardcoded colors ---
 
 	it('styles.css defines semantic color tokens', () => {
