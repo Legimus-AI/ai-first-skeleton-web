@@ -1,5 +1,12 @@
 import type { LucideIcon } from 'lucide-react'
-import { CheckCircle2, FileText, LayoutDashboard, MessageSquare, Settings } from 'lucide-react'
+import {
+	CheckCircle2,
+	FileText,
+	LayoutDashboard,
+	LayoutGrid,
+	MessageSquare,
+	Settings,
+} from 'lucide-react'
 import type { ListParams } from '@/hooks/use-query-params'
 import { DEFAULT_LIST_PARAMS } from '@/hooks/use-query-params'
 
@@ -36,6 +43,12 @@ export const navItems: NavItem[] = [
 		icon: CheckCircle2,
 		group: 'Menu',
 		search: DEFAULT_LIST_PARAMS,
+	},
+	{
+		label: 'Board',
+		to: '/board',
+		icon: LayoutGrid,
+		group: 'Menu',
 	},
 	{
 		label: 'Chat',
