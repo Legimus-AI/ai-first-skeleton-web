@@ -71,7 +71,7 @@ declare a **product archetype** in `DESIGN_BRIEF.md` Layer 0; it selects the lay
 | `admin-crud` | `authed-layout` (sidebar) / `navbar-layout` | `src/slices/todos/` |
 | `conversational` / `split-view` | `split-layout` | `src/slices/chat/` |
 | `focused-tool` | `focused-layout` | `src/slices/editor/` |
-| `custom` | design from scratch (governed) | — |
+| `custom` | design from scratch (governed) | `src/slices/board/` (full-bleed kanban) |
 
 `architecture.test.ts` enforces this: a filled brief must declare an archetype and the wired
 shell must match it; the `custom` escape hatch requires a logged decision in

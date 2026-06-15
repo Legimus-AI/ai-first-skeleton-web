@@ -1120,20 +1120,14 @@ describe('Design System artifacts', () => {
 
 		const ARCHETYPES = ['admin-crud', 'conversational', 'focused-tool', 'split-view', 'custom']
 
-		// The chosen archetype is the agent's ANSWER, not the decision-table rows or the
-		// instructional blockquotes. Strip table rows (|), blockquotes (>), comments (<!--)
-		// and headings (#); whatever archetype token survives is the declared answer.
-		const layer0 = brief.split(/^##\s/m).find((s) => /Product Archetype/i.test(s)) ?? ''
-		const answer = layer0
-			.split('\n')
-			.filter((l) => {
-				const t = l.trim()
-				return (
-					!t.startsWith('|') && !t.startsWith('>') && !t.startsWith('<!--') && !t.startsWith('#')
-				)
-			})
-			.join('\n')
-		const declared = ARCHETYPES.filter((a) => new RegExp(`\\b${a}\\b`).test(answer))
+		// The declared archetype is the value on the canonical "**Selected archetype:**"
+		// line — NOT any slug mentioned elsewhere in the Layer 0 prose. The rationale for
+		// `custom` legitimately names the presets it rejects ("not admin-crud, not chat…"),
+		// so scanning all prose would false-positive with "multiple archetypes". Read the
+		// answer line only — explaining your reasoning must never fail the gate.
+		const selectedLine =
+			brief.split('\n').find((line) => /\*\*Selected archetype:\*\*/i.test(line)) ?? ''
+		const declared = ARCHETYPES.filter((a) => new RegExp(`\\b${a}\\b`).test(selectedLine))
 		const [archetype, ...extra] = declared
 
 		if (!archetype) {
@@ -1144,7 +1138,7 @@ describe('Design System artifacts', () => {
 		}
 		if (extra.length > 0) {
 			expect.fail(
-				`DESIGN_BRIEF.md Layer 0 declares multiple archetypes (${declared.join(', ')}). Pick exactly one.`,
+				`DESIGN_BRIEF.md "**Selected archetype:**" names more than one archetype (${declared.join(', ')}). Put exactly one value on that line (explain rejected presets in prose — that's fine).`,
 			)
 			return
 		}
