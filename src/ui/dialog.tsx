@@ -2,6 +2,7 @@ import * as DialogPrimitive from '@radix-ui/react-dialog'
 import { X } from 'lucide-react'
 import type { ComponentPropsWithoutRef, ElementRef, HTMLAttributes } from 'react'
 import { forwardRef } from 'react'
+import { isFloatingListboxEventTarget } from '@/ui/floating-listbox'
 import { cn } from '@/utils/cn'
 
 const Dialog = DialogPrimitive.Root
@@ -33,11 +34,18 @@ DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
 const DialogContent = forwardRef<
 	ElementRef<typeof DialogPrimitive.Content>,
 	ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
->(({ className, children, ...props }, ref) => (
+>(({ className, children, onInteractOutside, ...props }, ref) => (
 	<DialogPortal>
 		<DialogOverlay />
 		<DialogPrimitive.Content
 			ref={ref}
+			onInteractOutside={(event) => {
+				if (isFloatingListboxEventTarget(event.detail.originalEvent.target)) {
+					event.preventDefault()
+					return
+				}
+				onInteractOutside?.(event)
+			}}
 			className={cn(
 				'fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border border-border/50 bg-popover p-6 text-popover-foreground shadow-lg duration-200 sm:rounded-2xl',
 				'dark:border-border dark:shadow-2xl dark:ring-1 dark:ring-white/10',
