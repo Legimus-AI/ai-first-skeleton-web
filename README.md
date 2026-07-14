@@ -91,3 +91,8 @@ products are never forced into a DataTable. See AGENTS.md "Layout Reasoning".
 | Forms | React Hook Form + Zod |
 | UI Components | shadcn/ui (copy-paste owned) |
 | Lint/Format | Biome |
+
+Body-portaled comboboxes should use `src/ui/floating-listbox.ts` together with
+`src/ui/floating-listbox-panel.tsx`. They keep dropdown geometry in viewport coordinates,
+protect dialog outside-interaction handling, and compose a nested scroll lock so native
+wheel/touch input works inside Radix dialogs.
