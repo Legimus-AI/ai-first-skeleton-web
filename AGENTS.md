@@ -61,6 +61,20 @@ Types follow colocation — no `types/` directories or barrel files (INV-027):
 - `flex` / `grid` with responsive columns. No fixed widths — prefer `max-w-*`.
 - Page padding: `p-4 md:p-8`. Tables: `overflow-x-auto`. Sidebar: hamburger on mobile.
 
+### Scroll Ownership and Browser QA
+
+- Fixed-height app shells must have exactly one vertical scroll owner. If an ancestor
+  clips overflow, the bounded flex child that owns page content needs `min-h-0` plus
+  `overflow-y-auto` or `overflow-y-scroll`.
+- `100vh`, `100dvh`, and `min-height` size a region; they do not make clipped content
+  scrollable.
+- Programmatic `scrollTop` or `scrollTo()` proves geometry only. Release evidence must
+  use trusted wheel, touch, or keyboard input over the real scroll area and reach the
+  last meaningful element.
+- After CDP viewport testing, restore dimensions that fit the real browser window and
+  verify `innerHeight <= outerHeight`. A taller emulated viewport can make physically
+  off-screen content look visible to the DOM, suppressing the scrollbar.
+
 ### Centralized Env Config
 
 All env vars via `import.meta.env.VITE_*` (never `process.env`). Use a centralized `src/env.ts` for typed access with validation. New vars must be prefixed `VITE_` for client-side access.

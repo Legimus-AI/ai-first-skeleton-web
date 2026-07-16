@@ -11,7 +11,7 @@ Every rule belongs to a layer. The layer decides WHEN it applies:
 | **CORE** | Every file, every design, every archetype — never relaxes | 1-9, 12-29, 100-103, 105, 108, 111, 112 |
 | **PATTERN: CRUD** | Only slices with a `*-list.tsx` component (enforced conditionally by tests) | 10, 11, 104, 106, 107, 109, 110 |
 | **ARTIFACT** | Repo-level design artifacts | 200-202 |
-| **OPERATIONAL** | Process rules | 30-34 |
+| **OPERATIONAL** | Process rules | 30-35 |
 
 A non-CRUD slice (chat, editor, viewer, canvas) is NOT exempt from CORE — only from
 PATTERN: CRUD. The `*-list.tsx` filename suffix is the explicit opt-in to the CRUD
@@ -121,3 +121,4 @@ AGENTS.md "Layout Reasoning" for how to pick or design a layout per product arch
 
 33. **Anti-thrashing gate** — 4 consecutive failures on same task = mandatory human escalation. Never brute-force past repeated failures.
 34. **Decisions are logged** — append to `docs/DECISIONS.ndjson` when choosing between alternatives. Never modify or delete existing entries.
+35. **Browser scroll QA uses the real viewport and trusted input.** Fixed-height shells have exactly one vertical scroll owner. Programmatic `scrollTop`/`scrollTo()` is geometry evidence only; verify the last meaningful element with trusted wheel, touch, or keyboard input. After CDP resizing, restore dimensions that fit the real browser window and verify `innerHeight <= outerHeight` before handoff.

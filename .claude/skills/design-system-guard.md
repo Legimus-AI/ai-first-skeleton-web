@@ -27,3 +27,7 @@ You are editing a UI primitive or layout. Read `DESIGN_SYSTEM.md` for the full s
 - Dark-first: true black background (`#000000`), obsidian card surfaces
 - Hairline borders at 8% white opacity
 - Responsive: mobile-first (`p-4 md:p-8`, `grid-cols-1 md:grid-cols-2`)
+- Fixed-height shells have exactly one vertical scroll owner: a bounded flex child with `min-h-0` and `overflow-y-auto` or `overflow-y-scroll`
+- `100vh`/`100dvh` does not create scrolling; clipped content must remain reachable
+- Browser QA uses trusted wheel, touch, or keyboard input over the real scroll area, not programmatic `scrollTop`/`scrollTo()`
+- After CDP resizing, restore real-window dimensions and verify `innerHeight <= outerHeight`
