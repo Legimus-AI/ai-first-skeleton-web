@@ -12,12 +12,12 @@
 		"lint": "biome check src",
 		"lint:fix": "biome check src --write",
 		"format": "biome format src --write",
-		"test": "vitest run --passWithNoTests",
+		"test": "vitest run",
 		"test:watch": "vitest",
-		"test:coverage": "vitest run --coverage --passWithNoTests",
+		"test:coverage": "vitest run --coverage",
 		"pretypecheck": "pnpm route:generate",
 		"typecheck": "tsc --noEmit",
-		"verify": "biome check src && tsc --noEmit && vitest run --passWithNoTests",
+		"verify": "pnpm lint && pnpm typecheck && pnpm test",
 		"prepare": "lefthook install"
 	},
 	"dependencies": {

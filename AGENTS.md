@@ -11,6 +11,25 @@ React 19 SPA with Vite, TanStack Router, TanStack Query, and Tailwind CSS.
 | Test | `pnpm test` |
 | Type check | `pnpm typecheck` |
 
+## Risk-Weighted Verification
+
+Keep the smallest maintainable verifier set that protects distinct production
+risks. Mock external boundaries, never the behavior or state transition at risk.
+
+- Admit a test only when it has a behavior oracle, a plausible defect, and a
+  production-faithful substrate that is not already covered more cheaply.
+- Prioritize auth and tenant boundaries, destructive mutations, optimistic
+  state and rollback, URL-restorable state, accessibility/scroll behavior, API
+  contracts, regressions, and the smallest critical browser journeys.
+- For regressions, prove the verifier fails before the fix and passes after it.
+- Do not add markup/class assertions, framework smoke tests, snapshots, repeated
+  CRUD compatibility cases, test-count targets, or coverage filler.
+- `pnpm test` is the canonical package verifier. Empty discovery must fail.
+  `src/__tests__/architecture.test.ts` remains the mandatory standalone CI guard;
+  behavior tests run in the complete monorepo where workspace dependencies exist.
+- Treat coverage as a gap sensor. If coverage is collected, missing or invalid
+  coverage fails, but no universal percentage target is required.
+
 ## Design Brief (MANDATORY)
 
 Before generating any new view, page, or component with visual/interaction decisions:

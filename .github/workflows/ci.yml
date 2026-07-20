@@ -58,7 +58,8 @@ jobs:
   # use-todos test import @repo/shared / @/services, which need a full
   # node_modules install — impossible standalone with workspace:* deps.
   # Those run in the MONOREPO CI:
-  #   - dev branch  → vitest --changed origin/dev --run --passWithNoTests
-  #   - main branch → vitest run --coverage --passWithNoTests (full suite)
+  #   - dev branch  → vitest --changed origin/dev --run
+  #   - main branch → vitest run --coverage (full suite)
+  # Empty test discovery or invalid coverage is a failure, not a green build.
   # Only the dependency-free architecture test runs in this repo's own CI.
   # ──────────────────────────────────────────────────────────────────────

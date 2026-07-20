@@ -66,6 +66,21 @@ describe('Architecture rules (INVARIANTS.md)', () => {
 	const allTsxFiles = collectFiles(SRC_DIR, ['.tsx'])
 	const allTsFiles = collectFiles(SRC_DIR, ['.ts', '.tsx'])
 
+	// --- INVARIANT #36: Canonical verifier discovery cannot be empty ---
+
+	it('Canonical verifier scripts reject empty test discovery (INV-036)', () => {
+		const packageJson = JSON.parse(readFileSync(join(SRC_DIR, '..', 'package.json'), 'utf-8')) as {
+			scripts?: Record<string, string>
+		}
+		const canonicalScripts = ['test', 'test:coverage', 'verify'] as const
+
+		for (const scriptName of canonicalScripts) {
+			const script = packageJson.scripts?.[scriptName]
+			expect(script, `package.json scripts.${scriptName} must exist`).toBeTypeOf('string')
+			expect(script).not.toContain('--passWithNoTests')
+		}
+	})
+
 	// --- INVARIANT #10: No CSS files ---
 
 	it('No CSS files in src/ (except styles.css)', () => {

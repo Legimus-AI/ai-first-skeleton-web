@@ -11,7 +11,7 @@ Every rule belongs to a layer. The layer decides WHEN it applies:
 | **CORE** | Every file, every design, every archetype — never relaxes | 1-9, 12-29, 100-103, 105, 108, 111, 112 |
 | **PATTERN: CRUD** | Only slices with a `*-list.tsx` component (enforced conditionally by tests) | 10, 11, 104, 106, 107, 109, 110 |
 | **ARTIFACT** | Repo-level design artifacts | 200-202 |
-| **OPERATIONAL** | Process rules | 30-34 |
+| **OPERATIONAL** | Process rules | 30-37 |
 
 A non-CRUD slice (chat, editor, viewer, canvas) is NOT exempt from CORE — only from
 PATTERN: CRUD. The `*-list.tsx` filename suffix is the explicit opt-in to the CRUD
@@ -121,3 +121,6 @@ AGENTS.md "Layout Reasoning" for how to pick or design a layout per product arch
 
 33. **Anti-thrashing gate** — 4 consecutive failures on same task = mandatory human escalation. Never brute-force past repeated failures.
 34. **Decisions are logged** — append to `docs/DECISIONS.ndjson` when choosing between alternatives. Never modify or delete existing entries.
+35. **Verification is risk-weighted.** Every automated test must protect a distinct production risk with an observable behavior oracle and a production-faithful substrate. Mock external boundaries, never the behavior at risk. Do not add ceremonial markup, framework, snapshot, repeated CRUD, test-count, or coverage-filler tests.
+36. **Verifier discovery cannot be empty.** Canonical test and coverage commands must fail when no tests are discovered or coverage is missing or invalid. Coverage is a gap sensor, not a universal percentage target.
+37. **Regressions prove causality.** A regression verifier must fail against the defect and pass after the fix.
