@@ -177,6 +177,10 @@ Every CRUD list view MUST include:
 
 Cross-slice data: hooks may cross slices (data), components never cross slices (UI). Document exceptions in architecture test `allowedCrossImports` (INV-111).
 
+Default mutable administrative lists to backend `updatedAt DESC` ordering with a deterministic ID tie-breaker. Tables, selectors, and form option lists preserve server order; do not add an implicit alphabetical client-side sort.
+
+When a provider, integration, or account needs an API key, token, secret, or account identifier for first use, collect it in the creation dialog. Submit metadata and write-only credentials in one atomic backend operation, keep plaintext out of React state/query caches/logs/responses, and retain a separate rotation action for later changes.
+
 ## Routing
 
 - File-based via TanStack Router + Vite plugin. Route files in `src/routes/`.
