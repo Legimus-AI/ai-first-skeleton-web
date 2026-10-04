@@ -2,6 +2,10 @@
 
 React 19 SPA with Vite, TanStack Router, TanStack Query, and Tailwind CSS.
 
+## Where this repo lives
+
+This repo is cloned into a backend skeleton's `apps/web/` directory and takes its types from `@repo/shared`. The API client is a plain fetch wrapper (`src/services/api-client.ts`), so the frontend works with any backend that follows the AI-First API contract: paths `/api/<slice>` and `/api/<slice>/:id`, `{ data, meta }` for lists, `{ data }` for one record, `{ error: { code, message, requestId } }` for errors. Once placed in a backend repo, run `pnpm dev`, `pnpm test`, `pnpm lint` and `pnpm verify` from the monorepo root.
+
 ## Commands
 
 | Task | Command |
