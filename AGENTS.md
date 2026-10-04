@@ -4,7 +4,7 @@ React 19 SPA with Vite, TanStack Router, TanStack Query, and Tailwind CSS.
 
 ## Where this repo lives
 
-This repo is cloned into a backend skeleton's `apps/web/` directory and takes its types from `@repo/shared`. The API client is a plain fetch wrapper (`src/services/api-client.ts`), so the frontend works with any backend that follows the AI-First API contract: paths `/api/<slice>` and `/api/<slice>/:id`, `{ data, meta }` for lists, `{ data }` for one record, `{ error: { code, message, requestId } }` for errors. Once placed in a backend repo, run `pnpm dev`, `pnpm test`, `pnpm lint` and `pnpm verify` from the monorepo root.
+This repo is cloned into a backend skeleton's `apps/web/` directory and takes its types from `@repo/shared`. The API client is a plain fetch wrapper (`src/services/api-client.ts`), so the frontend works with any backend that follows the AI-First API contract: paths `/api/v1/<slice>` and `/api/v1/<slice>/:id`, `{ data, meta }` for lists, `{ data }` for one record, `{ error: { code, message, requestId } }` for errors. Once placed in a backend repo, run the backend's commands from the monorepo root (the README lists them for both backend skeletons).
 
 ## Commands
 
@@ -12,8 +12,14 @@ This repo is cloned into a backend skeleton's `apps/web/` directory and takes it
 |------|---------|
 | Dev | `pnpm dev` |
 | Build | `pnpm build` |
+| Lint | `pnpm lint` |
 | Test | `pnpm test` |
+| Architecture tests | `pnpm test:arch` |
 | Type check | `pnpm typecheck` |
+| Lint + typecheck + test | `pnpm verify` |
+| Regenerate the route tree | `pnpm route:generate` |
+
+These scripts run inside a backend monorepo (`apps/web/`), where `@repo/shared` resolves. This repo alone cannot install its dependencies; its CI runs Biome and the architecture test standalone.
 
 ## Design Brief (MANDATORY)
 
@@ -244,6 +250,9 @@ Detailed examples and recipes moved out of this file for conciseness:
 
 | Topic | File |
 |-------|------|
+| Index of every doc | [`docs/README.md`](docs/README.md) |
+| Agent guardrails (Claude Code hooks, rules, `.env` deny) & skeleton stamp | [`docs/agent-guardrails.md`](docs/agent-guardrails.md) |
+| Auth flows & API key page | [`docs/auth-and-api-keys.md`](docs/auth-and-api-keys.md) |
 | API client usage & error handling | [`docs/api-client.md`](docs/api-client.md) |
 | Layout architecture & variants | [`docs/layouts.md`](docs/layouts.md) |
 | Motion system & animation primitives | [`docs/motion.md`](docs/motion.md) |
