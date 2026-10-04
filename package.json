@@ -13,6 +13,7 @@
 		"lint:fix": "biome check src --write",
 		"format": "biome format src --write",
 		"test": "vitest run --passWithNoTests",
+		"test:arch": "vitest run --config vitest.config.arch.ts",
 		"test:watch": "vitest",
 		"test:coverage": "vitest run --coverage --passWithNoTests",
 		"pretypecheck": "pnpm route:generate",

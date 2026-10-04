@@ -5,7 +5,7 @@
  * NO browser, NO network — just file system reads and regex patterns.
  * Runs in < 1 second.
  */
-import { readdirSync, readFileSync, statSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import { join, relative } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
@@ -1323,6 +1323,82 @@ describe('Design System artifacts', () => {
 			}
 		} catch {
 			// hooks dir missing — not this test's concern
+		}
+	})
+
+	// --- Agent guardrail config is alive ---
+	// A hook that calls a missing script, or pipes its exit code away, fails silently:
+	// the agent keeps working with no guardrail and nothing reports it.
+
+	it('Agent guardrail config points at things that exist (.claude hooks, scripts, rules)', () => {
+		const repoRoot = join(SRC_DIR, '..')
+		const claudeDir = join(repoRoot, '.claude')
+		if (!existsSync(join(claudeDir, 'settings.json'))) return
+
+		const settings = JSON.parse(readFileSync(join(claudeDir, 'settings.json'), 'utf-8'))
+		const rootScripts = JSON.parse(readFileSync(join(repoRoot, 'package.json'), 'utf-8')).scripts
+		const hookGroups = Object.values(settings.hooks) as { hooks: { command?: string }[] }[][]
+		const hookCommands = hookGroups
+			.flat()
+			.flatMap((group) => group.hooks.map((hook) => hook.command ?? ''))
+		const violations: string[] = []
+
+		const existingHookSources: string[] = []
+		for (const [, hookFileName = ''] of hookCommands
+			.join('\n')
+			.matchAll(/\.claude\/hooks\/([\w.-]+)/g)) {
+			const hookPath = join(claudeDir, 'hooks', hookFileName)
+			if (existsSync(hookPath)) existingHookSources.push(readFileSync(hookPath, 'utf-8'))
+			else violations.push(`settings.json references missing hook .claude/hooks/${hookFileName}`)
+		}
+
+		// WHY: comment prose is not a command; pnpm flags and "run" are not script names.
+		const hookCode = existingHookSources.join('\n').replace(/^\s*#.*$/gm, '')
+		const pnpmCalls = hookCode.matchAll(
+			/pnpm ((?:(?:--filter|-C|--dir) \S+ |-\S+ |run )*)([\w:][\w:-]*)/g,
+		)
+		for (const [, , scriptName = ''] of pnpmCalls) {
+			if (!(scriptName in rootScripts)) {
+				violations.push(`a hook runs "pnpm ${scriptName}" but package.json has no such script`)
+			}
+		}
+
+		for (const hookCommand of hookCommands) {
+			if (hookCommand.includes('|')) {
+				violations.push(`hook command pipes away its exit code: ${hookCommand}`)
+			}
+		}
+
+		const rulesDir = join(claudeDir, 'rules')
+		const ruleFiles = existsSync(rulesDir)
+			? readdirSync(rulesDir).filter((f) => f.endsWith('.md'))
+			: []
+		for (const ruleFile of ruleFiles) {
+			if (!/^---\n[\s\S]*?^paths:/m.test(readFileSync(join(rulesDir, ruleFile), 'utf-8'))) {
+				violations.push(`.claude/rules/${ruleFile} has no "paths:" frontmatter`)
+			}
+		}
+
+		const skillsDir = join(claudeDir, 'skills')
+		const flatSkills = existsSync(skillsDir)
+			? readdirSync(skillsDir).filter((f) => f.endsWith('.md'))
+			: []
+		for (const flatSkill of flatSkills) {
+			violations.push(
+				`.claude/skills/${flatSkill} is a flat file — skills only load as <name>/SKILL.md`,
+			)
+		}
+
+		if (violations.length > 0) {
+			expect.fail(
+				[
+					'Agent guardrail config is broken:',
+					...violations.map((v) => `  - ${v}`),
+					'',
+					'Fix: point hooks at existing scripts, exit with the real status, and keep',
+					'path-scoped guidance in .claude/rules/*.md with a "paths:" frontmatter.',
+				].join('\n'),
+			)
 		}
 	})
 })

@@ -1,7 +1,5 @@
 ---
-description: Enforces Aether design system when editing UI components or styles
 paths: ["**/src/ui/*.tsx", "**/src/styles.css", "**/src/layouts/*.tsx"]
-context: inline
 ---
 
 # Aether Design System Rules (auto-activated)

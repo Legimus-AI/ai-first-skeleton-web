@@ -1,7 +1,5 @@
 ---
-description: Enforces TanStack Query hook patterns when editing slice hooks
 paths: ["**/src/slices/*/hooks/use-*.ts"]
-context: inline
 ---
 
 # Slice Hook Rules (auto-activated)
