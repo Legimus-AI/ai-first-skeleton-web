@@ -9,7 +9,8 @@ src/layouts/
 ├── focused-layout.tsx   ← Minimal header, no nav (editors, composers, single-artifact tools)
 ├── split-layout.tsx     ← Header + full-bleed body for SplitPane (chat, inbox, master-detail)
 ├── public-layout.tsx    ← Centered card (login, register)
-├── content-area.tsx     ← Layout variants: default | full | narrow | wide
+├── not-found.tsx        ← 404 page
+├── content-area.tsx     ← Layout variants: default | full | narrow | wide | bleed
 └── nav-items.ts         ← Typed NavItem[] — add entries here for new slices
 ```
 
@@ -60,19 +61,28 @@ Below `md` the panes stack vertically (list first). See `src/routes/_authed/chat
 
 ## Layout Variants
 
-Routes declare their variant via the `variant` prop on `AuthedLayout`:
+Routes declare their variant in the route context; `ContentArea` (`src/layouts/content-area.tsx`) resolves it to a width:
+
+```tsx
+export const Route = createFileRoute('/_authed/dashboard')({
+  context: () => ({ layout: 'full' as const }),
+  component: DashboardPage,
+})
+```
+
 - `default` — `max-w-7xl` (CRUD tables, standard pages)
 - `full` — no max-width (dashboards, analytics)
 - `narrow` — `max-w-2xl` (settings, simple forms)
 - `wide` — `max-w-[1400px]` (wide content)
+- `bleed` — no padding, no max-width, fills the shell height so the surface owns its scroll (chat, canvas, board; see `src/routes/_authed/board.tsx`)
 
 ## Shared Components
 
 | Component | File | Used by |
 |-----------|------|---------|
-| UserDropdown | `@/ui/user-dropdown` | Both layouts — avatar, profile link, theme toggle, logout |
-| ContentArea | `@/layouts/content-area` | Both layouts — variant-based width constraints |
-| NavItems | `@/layouts/nav-items` | Both layouts — data-driven navigation |
+| UserDropdown | `@/ui/user-dropdown` | Every shell — avatar, profile link, theme toggle, logout |
+| ContentArea | `@/layouts/content-area` | Sidebar, navbar and focused shells — variant-based width constraints (the split shell renders a full-bleed body) |
+| NavItems | `@/layouts/nav-items` | Sidebar, navbar and split shells — data-driven navigation |
 
 ## Profile Page
 
