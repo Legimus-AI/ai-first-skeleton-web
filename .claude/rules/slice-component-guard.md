@@ -1,7 +1,5 @@
 ---
-description: Enforces CRUD component patterns when editing slice components
 paths: ["**/src/slices/*/components/*.tsx"]
-context: inline
 ---
 
 # Slice Component Rules (auto-activated)
