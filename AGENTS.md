@@ -218,7 +218,7 @@ This guarantees data is in cache before the component renders, with a single req
 
 ## Theming
 
-OKLCH color tokens in `src/styles.css` (shadcn/ui + Tailwind v4 `@theme inline`). Never use hardcoded colors — use theme tokens. For the full design spec, read [`DESIGN_SYSTEM.md`](DESIGN_SYSTEM.md).
+The look is an identity: the IDENTITY block in `src/styles.css` (OKLCH colors with shadcn names, fonts, radii, elevation, density, motion) plus the icon set in `src/ui/icons.ts`. The default identity is **Suave**. Components read tokens only: never hex, `rgba()`, Tailwind color scales or `dark:` color overrides; use `rounded-control|button|overlay|surface`, `shadow-control|surface|overlay` and `ease-standard`. Icons are imported only from `@/ui/icons`. The anti-generic list (no icon tiles on KPIs, no uppercase labels, no decorative gradients) is in [`DESIGN_SYSTEM.md`](DESIGN_SYSTEM.md) §12; read the whole spec before UI work.
 
 ## UI Primitives
 
@@ -265,7 +265,7 @@ Detailed examples and recipes moved out of this file for conciseness:
 | E2E testing | [`docs/testing-e2e.md`](docs/testing-e2e.md) |
 | i18n / locale awareness | [`docs/i18n.md`](docs/i18n.md) |
 | Observability (Sentry, Clarity, OTel) | [`docs/recipes/`](docs/recipes/) |
-| Design system (Aether theme) | [`DESIGN_SYSTEM.md`](DESIGN_SYSTEM.md) |
+| Design system (Suave identity, how to swap it) | [`DESIGN_SYSTEM.md`](DESIGN_SYSTEM.md) |
 | Anti-thrashing protocol | [`docs/protocols/anti-thrashing.md`](docs/protocols/anti-thrashing.md) |
 
 ## Documentation Sync (CRITICAL)
