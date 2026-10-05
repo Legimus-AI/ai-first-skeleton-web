@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { inviteMemberSchema } from '@repo/shared'
 import { useEffect } from 'react'
-import { useForm } from 'react-hook-form'
+import { type UseFormSetError, useForm } from 'react-hook-form'
 import type { z } from 'zod'
 import { FormDialog } from '@/ui/form-dialog'
 import { Input } from '@/ui/input'
@@ -12,7 +12,8 @@ type InviteMemberInput = z.input<typeof inviteMemberSchema>
 interface TeamFormProps {
 	open: boolean
 	onOpenChange: (open: boolean) => void
-	onSubmit: (data: InviteMemberInput) => void
+	/** `setError` lets the caller show server field errors (e.g. a taken email) under the inputs. */
+	onSubmit: (data: InviteMemberInput, setError: UseFormSetError<InviteMemberInput>) => void
 	isPending: boolean
 }
 
@@ -31,11 +32,11 @@ export function TeamForm({ open, onOpenChange, onSubmit, isPending }: TeamFormPr
 		<FormDialog
 			open={open}
 			onOpenChange={onOpenChange}
-			title="Invite Member"
-			description="Add a new member to your organization."
-			onSubmit={form.handleSubmit(onSubmit)}
+			title="Invitar miembro"
+			description="Le enviaremos un email con un enlace para crear su contraseña."
+			onSubmit={form.handleSubmit((data) => onSubmit(data, form.setError))}
 			isPending={isPending}
-			submitLabel="Send Invite"
+			submitLabel="Enviar invitación"
 		>
 			<div className="space-y-4">
 				<div className="space-y-2">
@@ -45,7 +46,7 @@ export function TeamForm({ open, onOpenChange, onSubmit, isPending }: TeamFormPr
 					<Input
 						id="invite-email"
 						type="email"
-						placeholder="user@example.com"
+						placeholder="nombre@empresa.com"
 						{...form.register('email')}
 						aria-invalid={!!form.formState.errors.email}
 					/>
@@ -56,11 +57,11 @@ export function TeamForm({ open, onOpenChange, onSubmit, isPending }: TeamFormPr
 
 				<div className="space-y-2">
 					<label htmlFor="invite-name" className="text-sm font-medium text-foreground">
-						Name
+						Nombre
 					</label>
 					<Input
 						id="invite-name"
-						placeholder="Full name"
+						placeholder="Nombre completo"
 						{...form.register('name')}
 						aria-invalid={!!form.formState.errors.name}
 					/>
@@ -71,11 +72,11 @@ export function TeamForm({ open, onOpenChange, onSubmit, isPending }: TeamFormPr
 
 				<div className="space-y-2">
 					<label htmlFor="invite-role" className="text-sm font-medium text-foreground">
-						Role
+						Rol
 					</label>
 					<Select id="invite-role" {...form.register('role')}>
-						<option value="admin">Admin — Full access</option>
-						<option value="user">Member — Standard access</option>
+						<option value="admin">Administrador: acceso total</option>
+						<option value="user">Miembro: usa la app, no gestiona el equipo</option>
 					</Select>
 				</div>
 			</div>

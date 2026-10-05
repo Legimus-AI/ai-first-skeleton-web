@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { createTodoSchema } from '@repo/shared'
 import { useEffect } from 'react'
-import { useForm } from 'react-hook-form'
+import { type UseFormSetError, useForm } from 'react-hook-form'
 import type { z } from 'zod'
 import { FormDialog } from '@/ui/form-dialog'
 import { Input } from '@/ui/input'
@@ -13,7 +13,8 @@ type CreateTodoInput = z.input<typeof createTodoSchema>
 interface TodoFormProps {
 	open: boolean
 	onOpenChange: (open: boolean) => void
-	onSubmit: (data: CreateTodoInput) => void
+	/** `setError` lets the caller show server field errors under the inputs. */
+	onSubmit: (data: CreateTodoInput, setError: UseFormSetError<CreateTodoInput>) => void
 	isPending: boolean
 	defaultValues: Partial<CreateTodoInput> | undefined
 	title: string
@@ -46,19 +47,19 @@ export function TodoForm({
 			open={open}
 			onOpenChange={onOpenChange}
 			title={title}
-			onSubmit={form.handleSubmit(onSubmit)}
+			onSubmit={form.handleSubmit((data) => onSubmit(data, form.setError))}
 			isPending={isPending}
 			submitLabel={submitLabel}
 		>
 			<div className="space-y-5">
 				<div className="space-y-1.5">
 					<label htmlFor="todo-title" className="text-sm font-medium text-foreground">
-						Titulo
+						Título
 					</label>
 					<Input
 						id="todo-title"
 						{...form.register('title')}
-						placeholder="Que hay que hacer?"
+						placeholder="¿Qué hay que hacer?"
 						className="aether-input-inset"
 						autoFocus
 					/>
@@ -69,7 +70,7 @@ export function TodoForm({
 
 				<div className="space-y-1.5">
 					<label htmlFor="todo-description" className="text-sm font-medium text-foreground">
-						Descripcion <span className="text-muted-foreground font-normal">(Opcional)</span>
+						Descripción <span className="text-muted-foreground font-normal">(opcional)</span>
 					</label>
 					<Textarea
 						id="todo-description"

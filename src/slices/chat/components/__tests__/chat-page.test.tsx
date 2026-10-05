@@ -7,12 +7,12 @@ afterEach(cleanup)
 describe('ChatPage (conversational reference)', () => {
 	it('renders the seeded conversation message', () => {
 		render(<ChatPage />)
-		expect(screen.getByText(/conversational reference slice/i)).toBeTruthy()
+		expect(screen.getByText(/ejemplo conversacional/i)).toBeTruthy()
 	})
 
 	it('appends a user message optimistically on send', () => {
 		render(<ChatPage />)
-		const input = screen.getByPlaceholderText('Write a message…')
+		const input = screen.getByPlaceholderText('Escribe un mensaje…')
 		fireEvent.change(input, { target: { value: 'hello world' } })
 		fireEvent.click(screen.getByLabelText('Enviar mensaje'))
 

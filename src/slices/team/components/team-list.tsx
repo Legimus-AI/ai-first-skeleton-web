@@ -1,8 +1,11 @@
-import type { MemberRole } from '@repo/shared'
+import { grantsPermission, rolePermissions, type UpdateMemberRole } from '@repo/shared'
 import { useNavigate, useSearch } from '@tanstack/react-router'
 import { Plus, Trash2, Users } from 'lucide-react'
 import { useCallback, useMemo, useState } from 'react'
+import { usePageInRange } from '@/hooks/use-page-in-range'
 import type { ListParams } from '@/hooks/use-query-params'
+import { useRowSelection } from '@/hooks/use-row-selection'
+import { setFieldErrors } from '@/services/api-error'
 import { useCurrentUser } from '@/slices/auth/hooks/use-auth'
 import { Button } from '@/ui/button'
 import { ConfirmDelete } from '@/ui/confirm-delete'
@@ -19,7 +22,7 @@ import {
 	useTeamMembers,
 	useUpdateMemberRole,
 } from '../hooks/use-team'
-import { buildMemberColumns } from './member-columns'
+import { buildMemberColumns, isManageableMember } from './member-columns'
 import { TeamForm } from './team-form'
 
 export function TeamList() {
@@ -36,7 +39,11 @@ export function TeamList() {
 		[navigate],
 	)
 	const { data: currentUser } = useCurrentUser()
-	const { data, isLoading, isFetching, error } = useTeamMembers(params)
+	// Hide what the API would refuse (403): only roles granting team:write manage members.
+	const canManage = currentUser
+		? grantsPermission(rolePermissions(currentUser.role), 'team:write')
+		: false
+	const { data, isLoading, isFetching, error, refetch } = useTeamMembers(params)
 	const inviteMember = useInviteMember()
 	const updateRole = useUpdateMemberRole()
 	const removeMember = useRemoveMember()
@@ -45,51 +52,59 @@ export function TeamList() {
 	const [showInvite, setShowInvite] = useState(false)
 	const [deleteId, setDeleteId] = useState<string | null>(null)
 	const [showBulkDelete, setShowBulkDelete] = useState(false)
-	const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+	const [selectedIds, setSelectedIds] = useRowSelection(JSON.stringify(params))
 
 	const onRoleChange = useCallback(
-		(id: string, role: MemberRole) => updateRole.mutate({ id, role }),
+		(id: string, role: UpdateMemberRole['role']) => updateRole.mutate({ id, role }),
 		[updateRole],
 	)
 
 	const columns = useMemo(
-		() => buildMemberColumns(onRoleChange, (id) => setDeleteId(id), currentUser?.id),
-		[onRoleChange, currentUser?.id],
+		() =>
+			buildMemberColumns({
+				onRoleChange,
+				onDelete: setDeleteId,
+				canManage,
+				currentUserId: currentUser?.id,
+			}),
+		[onRoleChange, canManage, currentUser?.id],
 	)
+	const setPage = useCallback((page: number) => setParams({ page }), [setParams])
+	const movingToLastPage = usePageInRange(data?.meta, setPage)
 
 	if (error) {
-		return <InlineError message={error.message} onRetry={() => globalThis.location.reload()} />
+		return <InlineError error={error} onRetry={() => void refetch()} />
 	}
 
 	const handleBulkDelete = () => {
 		bulkRemove.mutate([...selectedIds], {
-			onSuccess: () => {
-				setSelectedIds(new Set())
-				setShowBulkDelete(false)
-			},
+			onSuccess: () => setSelectedIds(new Set()),
+			onSettled: () => setShowBulkDelete(false),
 		})
 	}
+
+	const inviteButton = canManage && (
+		<Button onClick={() => setShowInvite(true)} className="w-full sm:w-auto aether-squish">
+			<Plus className="mr-1.5 h-4 w-4" />
+			Invitar miembro
+		</Button>
+	)
 
 	return (
 		<FadeIn className="space-y-6">
 			<CrudPageHeader
-				title="Team"
-				description="Manage members and their roles in your organization."
+				title="Equipo"
+				description="Los miembros de tu organización y sus roles."
 				search={
 					<SearchInput
 						value={params.search}
 						onChange={(v) => setParams({ search: v, page: 1 })}
-						placeholder="Search members..."
+						placeholder="Buscar miembros..."
 						isLoading={isFetching && !isLoading}
 						className="w-full sm:w-64"
 					/>
 				}
-				action={
-					<Button onClick={() => setShowInvite(true)} className="w-full sm:w-auto aether-squish">
-						<Plus className="mr-1.5 h-4 w-4" />
-						Invite Member
-					</Button>
-				}
+				action={inviteButton}
 			/>
 
 			<div className="rounded-xl border border-border/50 bg-card shadow-sm">
@@ -97,20 +112,19 @@ export function TeamList() {
 					data={data?.data ?? []}
 					columns={columns}
 					getId={(m) => m.id}
-					isLoading={isLoading}
+					getRowLabel={(m) => m.name}
+					isLoading={isLoading || movingToLastPage}
 					selectedIds={selectedIds}
-					onSelectionChange={setSelectedIds}
+					{...(canManage && { onSelectionChange: setSelectedIds })}
+					canSelect={(m) => isManageableMember(m, currentUser?.id)}
 					sort={params.sort}
 					order={params.order}
 					onSortChange={(s, o) => setParams({ sort: s, order: o })}
-					emptyMessage="No team members yet."
-					emptyIcon={<Users className="h-6 w-6 text-muted-foreground" />}
-					emptyAction={
-						<Button size="sm" onClick={() => setShowInvite(true)}>
-							<Plus className="mr-1.5 h-4 w-4" />
-							Invite Member
-						</Button>
+					emptyMessage={
+						params.search ? `Sin resultados para "${params.search}"` : 'Aún no hay miembros.'
 					}
+					emptyIcon={<Users className="h-6 w-6 text-muted-foreground" />}
+					emptyAction={inviteButton}
 				/>
 			</div>
 
@@ -119,17 +133,19 @@ export function TeamList() {
 					meta={data.meta}
 					onPageChange={(p) => setParams({ page: p })}
 					onPerPageChange={(l) => setParams({ limit: l, page: 1 })}
-					perPageOptions={[10, 15, 25, 50]}
 				/>
 			)}
 
 			<TeamForm
 				open={showInvite}
 				onOpenChange={setShowInvite}
-				onSubmit={(input) => {
+				onSubmit={(input, setError) => {
 					inviteMember.mutate(
 						{ ...input, role: input.role ?? 'user' },
-						{ onSuccess: () => setShowInvite(false) },
+						{
+							onSuccess: () => setShowInvite(false),
+							onError: (error) => setFieldErrors(error, setError),
+						},
 					)
 				}}
 				isPending={inviteMember.isPending}
@@ -139,13 +155,14 @@ export function TeamList() {
 				open={deleteId !== null}
 				onOpenChange={() => setDeleteId(null)}
 				onConfirm={() => {
-					if (deleteId) {
-						removeMember.mutate(deleteId)
-						setDeleteId(null)
-					}
+					if (deleteId)
+						removeMember.mutate(deleteId, {
+							onSettled: () => setDeleteId(null),
+						})
 				}}
-				title="Remove member?"
-				description="This member will lose access to the organization immediately."
+				title="¿Quitar a este miembro?"
+				description="Perderá el acceso a la organización de inmediato."
+				confirmLabel="Quitar"
 				isPending={removeMember.isPending}
 			/>
 
@@ -153,8 +170,9 @@ export function TeamList() {
 				open={showBulkDelete}
 				onOpenChange={setShowBulkDelete}
 				onConfirm={handleBulkDelete}
-				title={`Remove ${selectedIds.size} member${selectedIds.size === 1 ? '' : 's'}?`}
-				description={`This will remove ${selectedIds.size} member${selectedIds.size === 1 ? '' : 's'} from the organization.`}
+				title={`¿Quitar ${selectedIds.size} miembro${selectedIds.size === 1 ? '' : 's'}?`}
+				description="Perderán el acceso a la organización de inmediato."
+				confirmLabel="Quitar"
 				isPending={bulkRemove.isPending}
 			/>
 
@@ -166,7 +184,7 @@ export function TeamList() {
 							{selectedIds.size}
 						</span>
 						<span className="hidden sm:block border-r border-border/50 pr-2 text-sm font-medium text-foreground">
-							Selected
+							Seleccionados
 						</span>
 						<Button
 							variant="ghost"
@@ -174,7 +192,7 @@ export function TeamList() {
 							onClick={() => setSelectedIds(new Set())}
 							className="h-7 sm:h-8 rounded-full px-2 sm:px-3 text-xs sm:text-sm text-muted-foreground hover:bg-muted/50 hover:text-foreground"
 						>
-							Cancel
+							Cancelar
 						</Button>
 						<Button
 							variant="destructive"
@@ -183,7 +201,7 @@ export function TeamList() {
 							className="h-7 sm:h-8 rounded-full px-2 sm:px-3 text-xs sm:text-sm"
 						>
 							<Trash2 className="mr-1.5 h-3 w-3 sm:h-3.5 sm:w-3.5" />
-							Remove
+							Quitar
 						</Button>
 					</div>
 				</div>

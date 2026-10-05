@@ -46,21 +46,7 @@ export function PublicLayout({
 					</div>
 
 					<form onSubmit={onSubmit} className="space-y-5">
-						{socialLogin && (
-							<>
-								{socialLogin}
-								<div className="relative my-6">
-									<div className="absolute inset-0 flex items-center">
-										<span className="w-full border-t border-border/50" />
-									</div>
-									<div className="relative flex justify-center text-xs uppercase">
-										<span className="bg-card px-2 text-muted-foreground">
-											o continuar con email
-										</span>
-									</div>
-								</div>
-							</>
-						)}
+						{socialLogin}
 						<div className="space-y-4">{children}</div>
 						<div className="space-y-4 pt-2">{footer}</div>
 					</form>

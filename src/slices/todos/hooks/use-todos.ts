@@ -18,15 +18,15 @@ import { toast } from 'sonner'
 import { useBulkDelete } from '@/hooks/use-bulk-delete'
 import { useOptimisticMutation } from '@/hooks/use-optimistic-mutation'
 import { api } from '@/services/api-client'
-import { safeParseResponse, throwIfNotOk } from '@/services/api-error'
+import { safeParseResponse, throwIfNotOk, toUserMessage } from '@/services/api-error'
 
 export const TODOS_KEY = ['todos'] as const
 
 export const todosQueryOptions = (params?: Partial<ListQuery>) =>
 	queryOptions({
 		queryKey: [...TODOS_KEY, params],
-		queryFn: async () => {
-			const res = await api.get('/api/v1/todos', params)
+		queryFn: async ({ signal }) => {
+			const res = await api.get('/api/v1/todos', params, signal)
 			await throwIfNotOk(res)
 			const json = await res.json()
 			return safeParseResponse(todoListResponseSchema, json)
@@ -36,6 +36,21 @@ export const todosQueryOptions = (params?: Partial<ListQuery>) =>
 
 export function useTodos(params?: Partial<ListQuery>) {
 	return useQuery(todosQueryOptions(params))
+}
+
+/** How many todos are completed: a one-row page filtered by `completed`, read from `meta.total`. */
+export const completedTodosCountQueryOptions = queryOptions({
+	queryKey: [...TODOS_KEY, 'completed-count'],
+	queryFn: async ({ signal }) => {
+		const res = await api.get('/api/v1/todos', { completed: 'true', limit: 1 }, signal)
+		await throwIfNotOk(res)
+		const json = await res.json()
+		return safeParseResponse(todoListResponseSchema, json).meta.total
+	},
+})
+
+export function useCompletedTodosCount() {
+	return useQuery(completedTodosCountQueryOptions)
 }
 
 export function useCreateTodo() {
@@ -49,13 +64,13 @@ export function useCreateTodo() {
 		},
 		onSuccess: (_data, variables) => {
 			queryClient.invalidateQueries({ queryKey: TODOS_KEY })
-			toast.success('Todo created', {
-				description: `"${variables.title}" has been added.`,
+			toast.success('Tarea creada', {
+				description: `Agregamos "${variables.title}".`,
 			})
 		},
-		onError: (error: Error) => {
-			toast.error('Failed to create todo', {
-				description: error.message,
+		onError: (error) => {
+			toast.error('No se pudo crear la tarea', {
+				description: toUserMessage(error),
 			})
 		},
 	})
@@ -83,7 +98,7 @@ export function useUpdateTodo(params?: Partial<ListQuery>) {
 					: t,
 			),
 		}),
-		successMessage: 'Todo updated',
+		successMessage: 'Tarea actualizada',
 	})
 }
 
@@ -98,13 +113,11 @@ export function useDeleteTodo() {
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: TODOS_KEY })
-			toast.success('Todo deleted', {
-				description: 'The item has been permanently removed.',
-			})
+			toast.success('Tarea eliminada')
 		},
-		onError: (error: Error) => {
-			toast.error('Failed to delete todo', {
-				description: error.message,
+		onError: (error) => {
+			toast.error('No se pudo eliminar la tarea', {
+				description: toUserMessage(error),
 			})
 		},
 	})

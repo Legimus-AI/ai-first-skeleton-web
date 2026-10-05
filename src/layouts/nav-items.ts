@@ -24,6 +24,8 @@ export interface NavItem {
 	search?: ListParams
 	/** Route prefix used for active state detection. Defaults to `to`. */
 	activePrefix?: string
+	/** Marks a reference demo whose data is not saved anywhere. */
+	demo?: boolean
 	/** Optional sub-items for nested navigation. */
 	children?: Omit<NavItem, 'group' | 'icon'>[]
 }
@@ -41,26 +43,29 @@ export const navItems: NavItem[] = [
 		label: 'Tareas',
 		to: '/todos',
 		icon: CheckCircle2,
-		group: 'Menu',
+		group: 'Menú',
 		search: DEFAULT_LIST_PARAMS,
 	},
 	{
-		label: 'Board',
+		label: 'Tablero',
 		to: '/board',
 		icon: LayoutGrid,
-		group: 'Menu',
+		group: 'Menú',
+		demo: true,
 	},
 	{
 		label: 'Chat',
 		to: '/chat',
 		icon: MessageSquare,
-		group: 'Menu',
+		group: 'Menú',
+		demo: true,
 	},
 	{
 		label: 'Editor',
 		to: '/editor',
 		icon: FileText,
-		group: 'Menu',
+		group: 'Menú',
+		demo: true,
 	},
 	// ─── Sistema ──────────────────────────────────────────────────────────────
 	{
@@ -69,7 +74,6 @@ export const navItems: NavItem[] = [
 		icon: Settings,
 		group: 'Sistema',
 		children: [
-			{ label: 'General', to: '/settings/general' },
 			{ label: 'Equipo', to: '/settings/team', search: DEFAULT_LIST_PARAMS },
 			{ label: 'Seguridad', to: '/settings/security' },
 			{ label: 'Notificaciones', to: '/settings/notifications' },

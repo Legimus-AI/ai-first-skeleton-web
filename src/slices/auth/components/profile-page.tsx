@@ -1,7 +1,8 @@
+import { Link } from '@tanstack/react-router'
 import { Mail, Shield, User } from 'lucide-react'
 import { useCurrentUser } from '@/slices/auth/hooks/use-auth'
 import { Avatar } from '@/ui/avatar'
-import { Button } from '@/ui/button'
+import { buttonVariants } from '@/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/ui/card'
 import { CrudPageHeader } from '@/ui/crud-page-header'
 import { FadeIn } from '@/ui/fade-in'
@@ -35,13 +36,13 @@ export function ProfilePage() {
 			{/* Header Section */}
 			<div className="flex items-center gap-5 rounded-xl border border-border/50 bg-card p-6 shadow-sm">
 				<Avatar size="lg" name={user.name ?? user.email} className="h-16 w-16 text-lg" />
-				<div className="space-y-1">
-					<h1 className="text-2xl font-semibold tracking-tight text-foreground">
+				<div className="min-w-0 space-y-1">
+					<h2 className="text-2xl font-semibold tracking-tight text-foreground break-words">
 						{user.name || 'Usuario'}
-					</h1>
+					</h2>
 					<p className="flex items-center gap-2 text-sm text-muted-foreground">
-						<Mail className="h-4 w-4" />
-						{user.email}
+						<Mail className="h-4 w-4 shrink-0" />
+						<span className="min-w-0 break-all">{user.email}</span>
 					</p>
 				</div>
 			</div>
@@ -72,11 +73,16 @@ export function ProfilePage() {
 						<div className="flex items-center justify-between rounded-lg border border-border/50 bg-muted/50 p-4">
 							<div className="space-y-0.5">
 								<p className="text-sm font-medium text-foreground">Contraseña</p>
-								<p className="text-xs text-muted-foreground">Gestiona tu contraseña de acceso</p>
+								<p className="text-xs text-muted-foreground">
+									Te enviaremos un enlace a tu email para crear una nueva.
+								</p>
 							</div>
-							<Button variant="outline" size="sm">
+							<Link
+								to="/forgot-password"
+								className={buttonVariants({ variant: 'outline', size: 'sm' })}
+							>
 								Cambiar
-							</Button>
+							</Link>
 						</div>
 					</CardContent>
 				</Card>

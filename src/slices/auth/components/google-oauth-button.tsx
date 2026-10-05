@@ -33,14 +33,14 @@ export function GoogleOAuthButton() {
 				className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-input bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 			>
 				<GoogleIcon className="h-4 w-4" />
-				Continue with Google
+				Continuar con Google
 			</a>
 			<div className="relative">
 				<div className="absolute inset-0 flex items-center">
 					<div className="w-full border-t border-border" />
 				</div>
 				<div className="relative flex justify-center text-xs">
-					<span className="bg-card px-2 text-muted-foreground">or</span>
+					<span className="bg-card px-2 text-muted-foreground">o</span>
 				</div>
 			</div>
 		</div>

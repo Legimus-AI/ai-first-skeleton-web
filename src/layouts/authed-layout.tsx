@@ -2,7 +2,9 @@ import { Link, useMatches, useRouterState } from '@tanstack/react-router'
 import { ChevronRight, Menu, Moon, Sun } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { DEFAULT_LIST_PARAMS } from '@/hooks/use-query-params'
 import { useTheme } from '@/providers/theme-provider'
+import { Badge } from '@/ui/badge'
 import { Button } from '@/ui/button'
 import {
 	Sidebar,
@@ -50,6 +52,11 @@ function SidebarNavItem({
 			{!isCollapsed && (
 				<div className="flex flex-1 items-center justify-between overflow-hidden whitespace-nowrap">
 					<span className="truncate">{item.label}</span>
+					{item.demo && (
+						<Badge variant="secondary" className="ml-auto px-1.5 py-0 text-[10px]">
+							Ejemplo
+						</Badge>
+					)}
 					{hasChildren && (
 						<ChevronRight
 							className={cn(
@@ -236,7 +243,7 @@ function SidebarLogo() {
 		<SidebarHeader>
 			<Link
 				to="/todos"
-				search={{ search: '', page: 1, limit: 20, sort: 'updatedAt', order: 'desc' as const }}
+				search={DEFAULT_LIST_PARAMS}
 				className={cn(
 					'flex items-center text-base font-semibold tracking-tight text-foreground transition-colors duration-150 hover:text-primary',
 					isCollapsed ? 'justify-center' : 'gap-2.5',
@@ -265,7 +272,7 @@ function TopHeader() {
 				size="icon"
 				className="h-8 w-8 md:hidden"
 				onClick={() => setOpen(true)}
-				aria-label="Abrir menu"
+				aria-label="Abrir menú"
 			>
 				<Menu className="h-5 w-5" />
 			</Button>
@@ -308,7 +315,7 @@ export function AuthedLayout({ children, variant }: AuthedLayoutProps) {
 
 	return (
 		<SidebarProvider>
-			<div className={cn('flex', isBleed ? 'h-screen overflow-hidden' : 'min-h-screen')}>
+			<div className={cn('flex', isBleed ? 'h-dvh overflow-hidden' : 'min-h-screen')}>
 				<Sidebar>
 					<SidebarLogo />
 					<SidebarNav />

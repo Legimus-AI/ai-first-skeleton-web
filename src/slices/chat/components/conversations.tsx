@@ -20,20 +20,20 @@ export function Conversations({ conversations, activeId, onSelect }: Conversatio
 	if (conversations.length === 0) {
 		return (
 			<div className="flex h-full items-center justify-center p-6 text-center text-sm text-muted-foreground">
-				No conversations yet. Start one from the composer.
+				Aún no hay conversaciones.
 			</div>
 		)
 	}
 
 	return (
-		<ul className="flex flex-col gap-0.5 p-2" aria-label="Conversations">
+		<ul className="flex flex-col gap-0.5 p-2" aria-label="Conversaciones">
 			{conversations.map((conversation) => (
 				<li key={conversation.id}>
 					<button
 						type="button"
 						onClick={() => onSelect(conversation.id)}
 						className={cn(
-							'w-full rounded-lg px-3 py-2.5 text-left transition-colors duration-150',
+							'w-full rounded-lg px-3 py-2.5 text-left transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
 							conversation.id === activeId
 								? 'bg-accent/10 text-foreground'
 								: 'text-muted-foreground hover:bg-muted/50 hover:text-foreground',

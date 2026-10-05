@@ -7,9 +7,9 @@ import { useMemo, useState } from 'react'
 // useMutation with optimistic updates (see hooks/use-optimistic-mutation.ts).
 
 export const COLUMNS = [
-	{ id: 'todo', title: 'To Do' },
-	{ id: 'in-progress', title: 'In Progress' },
-	{ id: 'done', title: 'Done' },
+	{ id: 'todo', title: 'Por hacer' },
+	{ id: 'in-progress', title: 'En curso' },
+	{ id: 'done', title: 'Hecho' },
 ] as const
 
 export type ColumnId = (typeof COLUMNS)[number]['id']
@@ -26,26 +26,26 @@ const COLUMN_ORDER: ColumnId[] = COLUMNS.map((column) => column.id)
 const seedCards: BoardCard[] = [
 	{
 		id: 'card-1',
-		title: 'Draft the launch announcement',
-		description: 'Outline the key points for the v2 release post.',
+		title: 'Redactar el anuncio de lanzamiento',
+		description: 'Resumir los puntos clave del post de la versión 2.',
 		columnId: 'todo',
 	},
 	{
 		id: 'card-2',
-		title: 'Design empty states',
-		description: 'Cover boards with zero cards and a single column.',
+		title: 'Diseñar los estados vacíos',
+		description: 'Cubrir tableros sin tarjetas y con una sola columna.',
 		columnId: 'todo',
 	},
 	{
 		id: 'card-3',
-		title: 'Wire drag-and-drop',
-		description: 'Native HTML5 DnD with a button fallback for touch.',
+		title: 'Conectar arrastrar y soltar',
+		description: 'Drag and drop nativo de HTML5 con botones como alternativa táctil.',
 		columnId: 'in-progress',
 	},
 	{
 		id: 'card-4',
-		title: 'Set up the project',
-		description: 'Scaffold the board slice and route.',
+		title: 'Preparar el proyecto',
+		description: 'Crear el slice del tablero y su ruta.',
 		columnId: 'done',
 	},
 ]

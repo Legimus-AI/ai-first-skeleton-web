@@ -7,15 +7,15 @@ afterEach(cleanup)
 describe('BoardPage (custom-archetype reference)', () => {
 	it('renders the three columns', () => {
 		render(<BoardPage />)
-		expect(screen.getByText('To Do')).toBeTruthy()
-		expect(screen.getByText('In Progress')).toBeTruthy()
-		expect(screen.getByText('Done')).toBeTruthy()
+		expect(screen.getByText('Por hacer')).toBeTruthy()
+		expect(screen.getByText('En curso')).toBeTruthy()
+		expect(screen.getByText('Hecho')).toBeTruthy()
 	})
 
 	it('renders seeded cards across the columns', () => {
 		render(<BoardPage />)
-		expect(screen.getByText('Draft the launch announcement')).toBeTruthy()
-		expect(screen.getByText('Wire drag-and-drop')).toBeTruthy()
-		expect(screen.getByText('Set up the project')).toBeTruthy()
+		expect(screen.getByText('Redactar el anuncio de lanzamiento')).toBeTruthy()
+		expect(screen.getByText('Conectar arrastrar y soltar')).toBeTruthy()
+		expect(screen.getByText('Preparar el proyecto')).toBeTruthy()
 	})
 })

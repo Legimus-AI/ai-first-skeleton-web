@@ -7,19 +7,15 @@ afterEach(cleanup)
 describe('EditorPage (focused-tool reference)', () => {
 	it('shows a live word count of the body', () => {
 		render(<EditorPage />)
-		expect(screen.getByText(/\d+ words/)).toBeTruthy()
+		expect(screen.getByText(/\d+ palabras/)).toBeTruthy()
 	})
 
-	it('marks unsaved on edit, then saved after Save, with an updated count', () => {
+	it('updates the word count as the body changes, and never claims to have saved', () => {
 		render(<EditorPage />)
-		const body = screen.getByLabelText('Document body')
-		fireEvent.change(body, { target: { value: 'one two three' } })
+		const body = screen.getByLabelText('Contenido del documento')
+		fireEvent.change(body, { target: { value: 'uno dos tres' } })
 
-		expect(screen.getByText('Unsaved changes')).toBeTruthy()
-
-		fireEvent.click(screen.getByText('Save'))
-
-		expect(screen.getByText('Saved')).toBeTruthy()
-		expect(screen.getByText('3 words')).toBeTruthy()
+		expect(screen.getByText('3 palabras')).toBeTruthy()
+		expect(screen.queryByText(/guardado|saved/i)).toBeNull()
 	})
 })

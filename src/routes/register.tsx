@@ -1,11 +1,12 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { type Register, registerSchema } from '@repo/shared'
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, Navigate } from '@tanstack/react-router'
 import { useForm } from 'react-hook-form'
 import { PublicLayout } from '@/layouts/public-layout'
+import { setFieldErrors } from '@/services/api-error'
 import { AuthFormField } from '@/slices/auth/components/auth-form-field'
 import { GoogleOAuthButton } from '@/slices/auth/components/google-oauth-button'
-import { useRegister } from '@/slices/auth/hooks/use-auth'
+import { useCurrentUser, useRegister } from '@/slices/auth/hooks/use-auth'
 import { Button } from '@/ui/button'
 
 export const Route = createFileRoute('/register')({
@@ -13,32 +14,39 @@ export const Route = createFileRoute('/register')({
 })
 
 function RegisterPage() {
+	const { data: user } = useCurrentUser()
 	const registerMutation = useRegister()
 	const {
 		register,
 		handleSubmit,
+		setError,
 		formState: { errors },
 	} = useForm<Register>({
 		resolver: zodResolver(registerSchema),
 	})
 
-	const onSubmit = (data: Register) => registerMutation.mutate(data)
+	if (user) return <Navigate to="/dashboard" replace />
+
+	const onSubmit = (data: Register) =>
+		registerMutation.mutate(data, {
+			onError: (error) => setFieldErrors(error, setError),
+		})
 
 	return (
 		<PublicLayout
-			title="Register"
-			description="Create a new account"
+			title="Crea tu cuenta"
+			description="Regístrate para empezar"
 			onSubmit={handleSubmit(onSubmit)}
 			socialLogin={<GoogleOAuthButton />}
 			footer={
 				<>
 					<Button type="submit" className="w-full" loading={registerMutation.isPending}>
-						Create account
+						Crear cuenta
 					</Button>
 					<p className="text-center text-sm text-muted-foreground">
-						Already have an account?{' '}
+						¿Ya tienes cuenta?{' '}
 						<Link to="/login" className="text-primary underline-offset-4 hover:underline">
-							Login
+							Inicia sesión
 						</Link>
 					</p>
 				</>
@@ -46,9 +54,9 @@ function RegisterPage() {
 		>
 			<AuthFormField
 				id="name"
-				label="Name"
+				label="Nombre"
 				type="text"
-				placeholder="Your full name"
+				placeholder="Tu nombre completo"
 				registration={register('name')}
 				hasError={!!errors.name}
 				errorMessage={errors.name?.message}
@@ -58,7 +66,7 @@ function RegisterPage() {
 				id="email"
 				label="Email"
 				type="email"
-				placeholder="user@example.com"
+				placeholder="tu@email.com"
 				registration={register('email')}
 				hasError={!!errors.email}
 				errorMessage={errors.email?.message}
@@ -66,9 +74,9 @@ function RegisterPage() {
 			/>
 			<AuthFormField
 				id="password"
-				label="Password"
+				label="Contraseña"
 				type="password"
-				placeholder="Min 8 characters"
+				placeholder={`Mínimo ${registerSchema.shape.password.minLength} caracteres`}
 				registration={register('password')}
 				hasError={!!errors.password}
 				errorMessage={errors.password?.message}

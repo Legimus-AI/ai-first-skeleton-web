@@ -3,7 +3,7 @@ import { z } from 'zod'
 
 const envSchema = z.object({
 	VITE_API_URL: z.url().optional(),
-	VITE_LOCALE: z.string().default('en-US'),
+	VITE_LOCALE: z.string().default('es-PE'),
 	VITE_GOOGLE_AUTH: z
 		.string()
 		.transform((v) => v === 'true')

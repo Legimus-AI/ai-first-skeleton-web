@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { DemoNotice } from '@/ui/demo-notice'
 import { SplitPane } from '@/ui/split-pane'
 import type { ChatMessage } from './chat-view'
 import { ChatView } from './chat-view'
@@ -17,8 +18,8 @@ import { Conversations } from './conversations'
 const seedConversations: Conversation[] = [
 	{
 		id: 'welcome',
-		title: 'Welcome thread',
-		lastMessage: 'Try sending a message below.',
+		title: 'Bienvenida',
+		lastMessage: 'Prueba enviar un mensaje abajo.',
 	},
 ]
 
@@ -27,7 +28,7 @@ const seedMessages: Record<string, ChatMessage[]> = {
 		{
 			id: 'welcome-1',
 			author: 'agent',
-			text: 'This is the conversational reference slice. Messages append optimistically to local state.',
+			text: 'Este es el ejemplo conversacional. Los mensajes aparecen al instante en el estado local.',
 		},
 	],
 }
@@ -56,24 +57,27 @@ export function ChatPage() {
 	}
 
 	return (
-		<SplitPane
-			listWidth="md"
-			list={
-				<Conversations conversations={conversations} activeId={activeId} onSelect={setActiveId} />
-			}
-			detail={
-				activeConversation ? (
-					<ChatView
-						title={activeConversation.title}
-						messages={activeMessages}
-						onSend={sendMessage}
-					/>
-				) : (
-					<div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-						Select a conversation to start.
-					</div>
-				)
-			}
-		/>
+		<>
+			<DemoNotice className="m-3 mb-0" />
+			<SplitPane
+				listWidth="md"
+				list={
+					<Conversations conversations={conversations} activeId={activeId} onSelect={setActiveId} />
+				}
+				detail={
+					activeConversation ? (
+						<ChatView
+							title={activeConversation.title}
+							messages={activeMessages}
+							onSend={sendMessage}
+						/>
+					) : (
+						<div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+							Elige una conversación para empezar.
+						</div>
+					)
+				}
+			/>
+		</>
 	)
 }

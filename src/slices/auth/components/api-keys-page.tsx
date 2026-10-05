@@ -1,9 +1,15 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { type CreateApiKey, createApiKeySchema } from '@repo/shared'
+import {
+	type CreateApiKey,
+	createApiKeySchema,
+	grantsPermission,
+	rolePermissions,
+} from '@repo/shared'
 import { KeyRound, Plus } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { toast } from 'sonner'
+import { setFieldErrors } from '@/services/api-error'
+import { copyToClipboard } from '@/services/clipboard-service'
 import { Button } from '@/ui/button'
 import { ConfirmDelete } from '@/ui/confirm-delete'
 import { CrudPageHeader } from '@/ui/crud-page-header'
@@ -19,21 +25,34 @@ import {
 import { FadeIn } from '@/ui/fade-in'
 import { InlineError } from '@/ui/inline-error'
 import { Input } from '@/ui/input'
-import { useApiKeys, useCreateApiKey, useDeleteApiKey } from '../hooks/use-api-keys'
+import {
+	API_KEY_SCOPE_PRESETS,
+	type ApiKeyScopePresetId,
+	useApiKeys,
+	useCreateApiKey,
+	useDeleteApiKey,
+} from '../hooks/use-api-keys'
+import { useCurrentUser } from '../hooks/use-auth'
 import { buildApiKeyColumns } from './api-key-columns'
 
 export function ApiKeysPage() {
-	const { data: keys, isLoading, error } = useApiKeys()
+	const { data: keys, isLoading, error, refetch } = useApiKeys()
+	const { data: user } = useCurrentUser()
 	const createApiKey = useCreateApiKey()
 	const deleteApiKey = useDeleteApiKey()
 	const [deleteId, setDeleteId] = useState<string | null>(null)
 	const [showCreate, setShowCreate] = useState(false)
 	const [newRawKey, setNewRawKey] = useState<string | null>(null)
+	const [scopePreset, setScopePreset] = useState<ApiKeyScopePresetId>('read')
+	// A key can never exceed its creator: "Acceso total" is offered only to roles holding `full`.
+	const canGrantFull = user ? grantsPermission(rolePermissions(user.role), 'full') : false
+	const scopePresets = API_KEY_SCOPE_PRESETS.filter((p) => p.id !== 'full' || canGrantFull)
 
 	const {
 		register,
 		handleSubmit,
 		reset,
+		setError,
 		formState: { errors: formErrors },
 	} = useForm<CreateApiKey>({
 		resolver: zodResolver(createApiKeySchema),
@@ -42,22 +61,23 @@ export function ApiKeysPage() {
 	const columns = useMemo(() => buildApiKeyColumns(setDeleteId), [])
 
 	const onSubmit = (input: CreateApiKey) => {
-		createApiKey.mutate(input, {
-			onSuccess: (data) => {
-				setNewRawKey(data.rawKey)
-				setShowCreate(false)
-				reset()
+		const scopes = API_KEY_SCOPE_PRESETS.find((p) => p.id === scopePreset)?.scopes ?? []
+		createApiKey.mutate(
+			{ ...input, scopes: [...scopes] },
+			{
+				onSuccess: (data) => {
+					setNewRawKey(data.rawKey)
+					setShowCreate(false)
+					setScopePreset('read')
+					reset()
+				},
+				onError: (mutationError) => setFieldErrors(mutationError, setError),
 			},
-		})
-	}
-
-	const copyToClipboard = async (text: string) => {
-		await navigator.clipboard.writeText(text)
-		toast.success('Copiado al portapapeles')
+		)
 	}
 
 	if (error) {
-		return <InlineError message={error.message} onRetry={() => globalThis.location.reload()} />
+		return <InlineError error={error} onRetry={() => void refetch()} />
 	}
 
 	return (
@@ -132,10 +152,10 @@ export function ApiKeysPage() {
 						<DialogHeader>
 							<DialogTitle>Nueva clave API</DialogTitle>
 							<DialogDescription>
-								La clave usa los mismos permisos que tu cuenta actual.
+								Elige qué podrá hacer. Nunca podrá hacer más que tu cuenta.
 							</DialogDescription>
 						</DialogHeader>
-						<div className="py-6">
+						<div className="space-y-5 py-6">
 							<div className="space-y-2">
 								<label htmlFor="key-name" className="text-sm font-medium text-foreground">
 									Nombre descriptivo
@@ -150,6 +170,31 @@ export function ApiKeysPage() {
 									<p className="text-xs text-destructive">{formErrors.name.message}</p>
 								)}
 							</div>
+							<fieldset className="space-y-2">
+								<legend className="mb-2 text-sm font-medium text-foreground">Permisos</legend>
+								{scopePresets.map((preset) => (
+									<label
+										key={preset.id}
+										className="flex cursor-pointer items-start gap-3 rounded-lg border border-border/50 p-3 has-[:checked]:border-primary has-[:checked]:bg-primary/5"
+									>
+										<input
+											type="radio"
+											name="scope-preset"
+											checked={scopePreset === preset.id}
+											onChange={() => setScopePreset(preset.id)}
+											className="mt-0.5 accent-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+										/>
+										<span className="min-w-0">
+											<span className="block text-sm font-medium text-foreground">
+												{preset.label}
+											</span>
+											<span className="block text-xs text-muted-foreground">
+												{preset.description}
+											</span>
+										</span>
+									</label>
+								))}
+							</fieldset>
 						</div>
 						<DialogFooter>
 							<Button
@@ -173,12 +218,13 @@ export function ApiKeysPage() {
 				open={deleteId !== null}
 				onOpenChange={() => setDeleteId(null)}
 				onConfirm={() => {
-					if (deleteId) {
-						deleteApiKey.mutate(deleteId)
-						setDeleteId(null)
-					}
+					if (deleteId)
+						deleteApiKey.mutate(deleteId, {
+							onSettled: () => setDeleteId(null),
+						})
 				}}
 				title="¿Revocar clave API?"
+				confirmLabel="Revocar"
 				description="Esta acción no se puede deshacer. Las aplicaciones que usen esta clave perderán acceso inmediatamente."
 				isPending={deleteApiKey.isPending}
 			/>

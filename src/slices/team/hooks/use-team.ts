@@ -16,15 +16,15 @@ import {
 import { toast } from 'sonner'
 import { useBulkDelete } from '@/hooks/use-bulk-delete'
 import { api } from '@/services/api-client'
-import { safeParseResponse, throwIfNotOk } from '@/services/api-error'
+import { safeParseResponse, throwIfNotOk, toUserMessage } from '@/services/api-error'
 
 export const TEAM_KEY = ['team'] as const
 
 export const teamQueryOptions = (params?: Partial<ListQuery>) =>
 	queryOptions({
 		queryKey: [...TEAM_KEY, params],
-		queryFn: async () => {
-			const res = await api.get('/api/v1/team', params)
+		queryFn: async ({ signal }) => {
+			const res = await api.get('/api/v1/team', params, signal)
 			await throwIfNotOk(res)
 			const json = await res.json()
 			return safeParseResponse(teamListResponseSchema, json)
@@ -47,11 +47,11 @@ export function useInviteMember() {
 		},
 		onSuccess: (_data, variables) => {
 			queryClient.invalidateQueries({ queryKey: TEAM_KEY })
-			toast.success('Member invited', {
-				description: `${variables.email} has been added to the team.`,
+			toast.success('Invitación enviada', {
+				description: `${variables.email} recibirá un enlace para crear su contraseña.`,
 			})
 		},
-		onError: (error: Error) => toast.error(error.message || 'Failed to invite member'),
+		onError: (error) => toast.error('No se pudo invitar', { description: toUserMessage(error) }),
 	})
 }
 
@@ -66,9 +66,12 @@ export function useUpdateMemberRole() {
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: TEAM_KEY })
-			toast.success('Role updated')
+			toast.success('Rol actualizado')
 		},
-		onError: (error: Error) => toast.error(error.message || 'Failed to update role'),
+		onError: (error) =>
+			toast.error('No se pudo cambiar el rol', {
+				description: toUserMessage(error),
+			}),
 	})
 }
 
@@ -83,9 +86,12 @@ export function useRemoveMember() {
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: TEAM_KEY })
-			toast.success('Member removed')
+			toast.success('Miembro quitado del equipo')
 		},
-		onError: (error: Error) => toast.error(error.message || 'Failed to remove member'),
+		onError: (error) =>
+			toast.error('No se pudo quitar al miembro', {
+				description: toUserMessage(error),
+			}),
 	})
 }
 

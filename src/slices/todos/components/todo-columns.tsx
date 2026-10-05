@@ -3,16 +3,7 @@ import { ArrowDown, ArrowRight, ArrowUp, CheckCircle2, Circle, Pencil, Trash2 } 
 import { Button } from '@/ui/button'
 import type { Column } from '@/ui/data-table'
 import { cn } from '@/utils/cn'
-
-function formatDate(date: string): string {
-	const d = new Date(date)
-	const day = d.getDate().toString().padStart(2, '0')
-	const month = (d.getMonth() + 1).toString().padStart(2, '0')
-	const year = d.getFullYear()
-	const hours = d.getHours().toString().padStart(2, '0')
-	const minutes = d.getMinutes().toString().padStart(2, '0')
-	return `${day}/${month}/${year} ${hours}:${minutes}`
-}
+import { formatDateTime } from '@/utils/format-date'
 
 interface TodoColumnsOptions {
 	onToggle: (item: Todo) => void
@@ -37,7 +28,7 @@ export function buildTodoColumns({
 						e.stopPropagation()
 						onToggle(item)
 					}}
-					className="transition-colors duration-150"
+					className="rounded-full transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 					aria-label={`Marcar "${item.title}" como ${item.completed ? 'pendiente' : 'completada'}`}
 				>
 					{item.completed ? (
@@ -53,17 +44,19 @@ export function buildTodoColumns({
 			label: 'Título',
 			sortable: true,
 			render: (item) => (
-				<div className="flex flex-col gap-0.5 py-1">
+				<div className="flex min-w-0 flex-col gap-0.5 py-1">
 					<span
 						className={cn(
-							'text-sm font-medium tracking-tight',
+							'text-sm font-medium tracking-tight wrap-anywhere',
 							item.completed && 'text-muted-foreground/60 line-through',
 						)}
 					>
 						{item.title}
 					</span>
 					{item.description && (
-						<span className="line-clamp-1 text-xs text-muted-foreground">{item.description}</span>
+						<span className="line-clamp-1 text-xs text-muted-foreground wrap-anywhere">
+							{item.description}
+						</span>
 					)}
 				</div>
 			),
@@ -102,7 +95,7 @@ export function buildTodoColumns({
 			className: 'hidden w-36 lg:table-cell',
 			render: (item) => (
 				<span className="font-mono text-[11px] tabular-nums text-muted-foreground">
-					{formatDate(item.updatedAt)}
+					{formatDateTime(item.updatedAt)}
 				</span>
 			),
 		},
@@ -111,7 +104,7 @@ export function buildTodoColumns({
 			label: '',
 			className: 'w-20 text-right',
 			render: (item) => (
-				<div className="flex justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100 sm:opacity-100 sm:group-hover:opacity-100">
+				<div className="flex justify-end gap-1">
 					<Button
 						variant="ghost"
 						size="icon"

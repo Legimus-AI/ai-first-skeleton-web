@@ -36,7 +36,7 @@ AGENTS.md "Layout Reasoning" for how to pick or design a layout per product arch
 8. **No `useEffect` for data fetching.** Use TanStack Query hooks.
 9. **No local state for server data.** Use TanStack Query for all server state.
 10. **CRUD hooks must export a `queryOptions` factory.** *(PATTERN: CRUD)* Every list query must be extractable via `queryOptions()` from `@tanstack/react-query`. The hook wraps it: `useX = (params) => useQuery(xQueryOptions(params))`. This enables route loaders and prefetching outside React.
-11. **CRUD list routes must have a `loader`.** *(PATTERN: CRUD)* Every route with a list view must call `context.queryClient.ensureQueryData(xQueryOptions())` in its `loader`. This guarantees data is cached before the component renders.
+11. **CRUD list routes must have a `loader`.** *(PATTERN: CRUD)* Every route with a list view must call `context.queryClient.ensureQueryData({ ...xQueryOptions(deps), revalidateIfStale: true })` in its `loader`, with `loaderDeps` taken from the search params, so the loader fetches exactly what the page renders (one request) and data is cached before the component renders.
 
 ## Styling
 

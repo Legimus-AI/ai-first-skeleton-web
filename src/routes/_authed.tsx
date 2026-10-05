@@ -1,16 +1,29 @@
-import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
+import {
+	createFileRoute,
+	type ErrorComponentProps,
+	Navigate,
+	Outlet,
+	redirect,
+	useRouterState,
+} from '@tanstack/react-router'
+import { RouteError } from '@/components/route-error'
 import { AuthedLayout } from '@/layouts/authed-layout'
-import { authQueryOptions } from '@/slices/auth/hooks/use-auth'
+import { authQueryOptions, useCurrentUser } from '@/slices/auth/hooks/use-auth'
 import { Skeleton } from '@/ui/skeleton'
 
 export const Route = createFileRoute('/_authed')({
-	beforeLoad: async ({ context }) => {
-		const user = await context.queryClient.ensureQueryData(authQueryOptions)
-		if (!user) throw redirect({ to: '/login' })
+	beforeLoad: async ({ context, location }) => {
+		// A stale user is re-checked in the background; AuthedPage redirects if it comes back null.
+		const user = await context.queryClient.ensureQueryData({
+			...authQueryOptions,
+			revalidateIfStale: true,
+		})
+		if (!user) throw redirect({ to: '/login', search: { redirect: location.href } })
 	},
 	pendingMs: 200,
 	pendingMinMs: 500,
 	pendingComponent: AuthedPending,
+	errorComponent: AuthedError,
 	component: AuthedPage,
 })
 
@@ -25,7 +38,20 @@ function AuthedPending() {
 	)
 }
 
+/** The session check itself failed (e.g. API down on first load): keep the menu around the error. */
+function AuthedError(props: ErrorComponentProps) {
+	return (
+		<AuthedLayout>
+			<RouteError {...props} />
+		</AuthedLayout>
+	)
+}
+
 function AuthedPage() {
+	const { data: user } = useCurrentUser()
+	const href = useRouterState({ select: (s) => s.location.href })
+	// A background check (window focus) found the session gone.
+	if (user === null) return <Navigate to="/login" search={{ redirect: href }} replace />
 	return (
 		<AuthedLayout>
 			<Outlet />

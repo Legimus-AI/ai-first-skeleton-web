@@ -27,7 +27,7 @@ export function FormDialog({
 	description,
 	onSubmit,
 	isPending,
-	submitLabel = 'Save',
+	submitLabel = 'Guardar',
 	children,
 }: FormDialogProps) {
 	return (
@@ -41,7 +41,7 @@ export function FormDialog({
 					{children}
 					<DialogFooter>
 						<Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-							Cancel
+							Cancelar
 						</Button>
 						<Button type="submit" loading={isPending ?? false}>
 							{submitLabel}

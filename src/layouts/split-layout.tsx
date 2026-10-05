@@ -43,7 +43,7 @@ interface SplitLayoutProps {
 
 export function AuthedLayout({ children }: SplitLayoutProps) {
 	return (
-		<div className="flex h-screen flex-col bg-background">
+		<div className="flex h-dvh flex-col bg-background">
 			<header className="z-30 border-b border-border bg-background/95 backdrop-blur-sm">
 				<div className="flex h-12 items-center gap-4 px-4">
 					<AppLogo size="sm" />

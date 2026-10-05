@@ -1,5 +1,6 @@
 import { type QueryKey, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
+import { toUserMessage } from '@/services/api-error'
 
 /** Options for the optimistic mutation hook. */
 interface OptimisticMutationOptions<TData, TVariables> {
@@ -9,9 +10,9 @@ interface OptimisticMutationOptions<TData, TVariables> {
 	mutationFn: (variables: TVariables) => Promise<unknown>
 	/** Produces the optimistic state from the current cache + mutation variables. */
 	optimisticUpdate: (current: TData, variables: TVariables) => TData
-	/** Toast message on success. Defaults to "Saved". */
+	/** Toast message on success. Defaults to "Guardado". */
 	successMessage?: string
-	/** Toast message on error. Defaults to the error message. */
+	/** Toast message on error. Defaults to `toUserMessage(error)`. */
 	errorMessage?: string
 }
 
@@ -35,7 +36,7 @@ export function useOptimisticMutation<TData, TVariables>({
 	queryKey,
 	mutationFn,
 	optimisticUpdate,
-	successMessage = 'Saved',
+	successMessage = 'Guardado',
 	errorMessage,
 }: OptimisticMutationOptions<TData, TVariables>) {
 	const queryClient = useQueryClient()
@@ -58,9 +59,7 @@ export function useOptimisticMutation<TData, TVariables>({
 			if (context?.previous !== undefined) {
 				queryClient.setQueryData(queryKey, context.previous)
 			}
-			const message =
-				errorMessage ?? (_error instanceof Error ? _error.message : 'Operation failed')
-			toast.error(message)
+			toast.error(errorMessage ?? toUserMessage(_error))
 		},
 		onSuccess: () => {
 			toast.success(successMessage)

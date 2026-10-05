@@ -1,5 +1,6 @@
 // Backend-agnostic API client — works with any backend that follows the AI-First API contract.
 // Types come from @repo/shared (Zod schemas), not from the backend framework.
+import { ApiError } from '@/services/api-error'
 
 declare global {
 	interface Response {
@@ -7,7 +8,12 @@ declare global {
 	}
 }
 
-function buildUrl(path: string, params?: Record<string, string | number | undefined>): string {
+// WHY: a hung API must end in an error the user can retry, never in an endless skeleton.
+const REQUEST_TIMEOUT_MS = 15_000
+
+type QueryParams = Record<string, string | number | undefined>
+
+function buildUrl(path: string, params?: QueryParams): string {
 	const url = new URL(path, globalThis.location.origin)
 	if (params) {
 		for (const [key, value] of Object.entries(params)) {
@@ -18,16 +24,35 @@ function buildUrl(path: string, params?: Record<string, string | number | undefi
 }
 
 async function request(path: string, options?: RequestInit): Promise<Response> {
-	const { headers: customHeaders, body, ...rest } = options ?? {}
-	const res = await fetch(path, {
-		credentials: 'include',
-		...rest,
-		...(body != null && { body }),
-		headers: {
-			...(body != null && { 'Content-Type': 'application/json' }),
-			...customHeaders,
-		},
-	})
+	const { headers: customHeaders, body, signal, ...rest } = options ?? {}
+	// WHY: one controller instead of AbortSignal.any, which Safari only has since 17.4.
+	const controller = new AbortController()
+	setTimeout(
+		() => controller.abort(new DOMException('Request timed out', 'TimeoutError')),
+		REQUEST_TIMEOUT_MS,
+	)
+	if (signal?.aborted) controller.abort(signal.reason)
+	signal?.addEventListener('abort', () => controller.abort(signal.reason), { once: true })
+	let res: Response
+	try {
+		res = await fetch(path, {
+			credentials: 'include',
+			...rest,
+			signal: controller.signal,
+			...(body != null && { body }),
+			headers: {
+				...(body != null && { 'Content-Type': 'application/json' }),
+				...customHeaders,
+			},
+		})
+	} catch (error) {
+		// A caller's cancellation (e.g. TanStack Query unmounting) is not a failure.
+		if (signal?.aborted) throw error
+		throw new ApiError(`Network request failed: ${String(error)}`, 'INTERNAL_ERROR', {
+			status: 0,
+			path: new URL(path, globalThis.location.origin).pathname,
+		})
+	}
 	// Attach requestId for observability tools (Sentry breadcrumbs, OTEL spans, etc.)
 	const requestId = res.headers.get('X-Request-Id')
 	if (requestId) {
@@ -37,8 +62,9 @@ async function request(path: string, options?: RequestInit): Promise<Response> {
 }
 
 export const api = {
-	get: (path: string, params?: Record<string, string | number | undefined>) =>
-		request(buildUrl(path, params)),
+	/** Pass the TanStack Query `signal` so leaving a page cancels its requests. */
+	get: (path: string, params?: QueryParams, signal?: AbortSignal) =>
+		request(buildUrl(path, params), signal ? { signal } : undefined),
 
 	post: (path: string, body: unknown) =>
 		request(path, { method: 'POST', body: JSON.stringify(body) }),
