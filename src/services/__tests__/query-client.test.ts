@@ -1,6 +1,11 @@
 import { describe, expect, it, vi } from 'vitest'
 import { ApiError } from '@/services/api-error'
-import { createQueryClient, isSessionLost, shouldRetry } from '@/services/query-client'
+import {
+	createQueryClient,
+	ignoreCancelled,
+	isSessionLost,
+	shouldRetry,
+} from '@/services/query-client'
 
 const unauthorized = (path: string) =>
 	new ApiError('Authentication required', 'UNAUTHORIZED', {
@@ -75,5 +80,20 @@ describe('retry policy', () => {
 		}
 		expect(shouldRetry(0, new ApiError('schema mismatch', 'INTERNAL_ERROR'))).toBe(false)
 		expect(shouldRetry(0, new TypeError('bug'))).toBe(false)
+	})
+})
+
+describe('loader prefetch', () => {
+	it('lets a cancelled prefetch go and rethrows any other failure', async () => {
+		const queryClient = createQueryClient(() => {})
+		const prefetch = queryClient.fetchQuery({
+			queryKey: ['todos'],
+			queryFn: () => new Promise(() => {}),
+		})
+		await queryClient.cancelQueries({ queryKey: ['todos'] })
+		await expect(prefetch.catch(ignoreCancelled)).resolves.toBeUndefined()
+
+		const serverDown = new ApiError('down', 'INTERNAL_ERROR', { status: 503 })
+		expect(() => ignoreCancelled(serverDown)).toThrow(serverDown)
 	})
 })

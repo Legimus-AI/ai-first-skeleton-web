@@ -1,4 +1,4 @@
-import { isCancelledError, MutationCache, QueryCache, QueryClient } from '@tanstack/react-query'
+import { CancelledError, MutationCache, QueryCache, QueryClient } from '@tanstack/react-query'
 import { ApiError } from '@/services/api-error'
 
 // A 401 here means "not signed in" (auth/me) or "wrong password" (login), not "session lost".
@@ -20,7 +20,7 @@ export function isSessionLost(error: unknown): boolean {
  * hidden mid-load (a cached page shown while `beforeLoad` suspends); the page refetches on mount.
  */
 export function ignoreCancelled(error: unknown): void {
-	if (!isCancelledError(error)) throw error
+	if (!(error instanceof CancelledError)) throw error
 }
 
 /** Retry once, and only what a retry can fix: no response, or a 5xx. Never a 4xx. */

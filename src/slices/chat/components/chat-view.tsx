@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Button } from '@/ui/button'
 import { SendHorizontal } from '@/ui/icons'
 import { Input } from '@/ui/input'
@@ -19,6 +19,13 @@ interface ChatViewProps {
 
 export function ChatView({ messages, onSend, title }: ChatViewProps) {
 	const [draft, setDraft] = useState('')
+	const messageListRef = useRef<HTMLDivElement>(null)
+
+	// Keeps the newest message in view, as chat apps do.
+	useEffect(() => {
+		const messageList = messageListRef.current
+		if (messageList && messages.length > 0) messageList.scrollTop = messageList.scrollHeight
+	}, [messages])
 
 	function submit() {
 		const text = draft.trim()
@@ -33,7 +40,7 @@ export function ChatView({ messages, onSend, title }: ChatViewProps) {
 				<h1 className="text-sm font-semibold tracking-tight text-foreground">{title}</h1>
 			</header>
 
-			<div className="flex-1 space-y-3 overflow-y-auto p-4" aria-live="polite">
+			<div ref={messageListRef} className="flex-1 space-y-3 overflow-y-auto p-4" aria-live="polite">
 				{messages.length === 0 ? (
 					<div className="flex h-full items-center justify-center text-center text-sm text-muted-foreground">
 						Envía un mensaje para empezar la conversación.

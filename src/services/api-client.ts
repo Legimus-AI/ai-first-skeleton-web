@@ -27,7 +27,7 @@ async function request(path: string, options?: RequestInit): Promise<Response> {
 	const { headers: customHeaders, body, signal, ...rest } = options ?? {}
 	// WHY: one controller instead of AbortSignal.any, which Safari only has since 17.4.
 	const controller = new AbortController()
-	setTimeout(
+	const timeout = setTimeout(
 		() => controller.abort(new DOMException('Request timed out', 'TimeoutError')),
 		REQUEST_TIMEOUT_MS,
 	)
@@ -52,6 +52,9 @@ async function request(path: string, options?: RequestInit): Promise<Response> {
 			status: 0,
 			path: new URL(path, globalThis.location.origin).pathname,
 		})
+	} finally {
+		// WHY: the limit covers waiting for an answer; aborting later breaks the caller's body read.
+		clearTimeout(timeout)
 	}
 	// Attach requestId for observability tools (Sentry breadcrumbs, OTEL spans, etc.)
 	const requestId = res.headers.get('X-Request-Id')
