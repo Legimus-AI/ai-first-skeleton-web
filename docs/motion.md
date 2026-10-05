@@ -14,18 +14,19 @@ Lightweight animation primitives for page transitions, list reveals, and compone
 
 ## Timing
 
-There is no timing module: durations are Tailwind classes (`duration-150`, `duration-200`, `duration-300`). The scale and the signature easing curve are defined in [`DESIGN_SYSTEM.md`](../DESIGN_SYSTEM.md) section 6:
+There is no timing module: durations are Tailwind classes and the curve is the `ease-standard` utility (`--motion-ease` in the IDENTITY block of `src/styles.css`). The scale is defined in [`DESIGN_SYSTEM.md`](../DESIGN_SYSTEM.md) section 7:
 
 | Speed | Duration | Use for |
 |-------|----------|---------|
-| Quick | 100ms | Color changes on hover, focus rings |
-| Normal | 150ms | Micro-interactions (hover, toggle, button state) |
-| Entrance | 200ms | Component enter/exit (fade-in, modals, dropdowns) |
-| Layout | 300ms | Page-level layout changes (sidebar collapse, panel resize) |
+| Press | 120ms | Button press scale, toggles |
+| Normal | 150–200ms | Hover fills, focus, menus and dialogs entering |
+| Layout | 300–320ms | Sidebar collapse, accordion height, sliding indicators |
 
 ## Rules
 
-- **Max 200ms** for micro-interactions, **max 300ms** for page transitions
+- **Max 200ms** for micro-interactions, **max 320ms** for layout changes
+- **Interruptible:** prefer CSS transitions over keyframes for anything a user can trigger twice quickly
+- **One curve:** `ease-standard` everywhere; never a per-component `cubic-bezier`
 - **`motion-safe:`** prefix for ALL Tailwind CSS animations
 - **Never animate SVGs** directly — wrap in `<span>`, animate the wrapper
 - **Lazy load** heavy motion components with `React.lazy` + `<Suspense>`

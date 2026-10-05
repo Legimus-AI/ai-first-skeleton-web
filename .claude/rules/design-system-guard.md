@@ -1,27 +1,35 @@
 ---
-paths: ["**/src/ui/*.tsx", "**/src/styles.css", "**/src/layouts/*.tsx"]
+paths: ["**/src/ui/*.tsx", "**/src/ui/*.ts", "**/src/styles.css", "**/src/layouts/*.tsx", "**/src/slices/**/*.tsx", "**/src/routes/**/*.tsx"]
 ---
 
-# Aether Design System Rules (auto-activated)
+# Design System Rules (auto-activated)
 
-You are editing a UI primitive or layout. Read `DESIGN_SYSTEM.md` for the full spec.
+You are editing UI. Read `DESIGN_SYSTEM.md` for the full spec. The look comes from tokens; the current identity is **Suave** (IDENTITY block in `src/styles.css` + `src/ui/icons.ts`).
 
-## Color Rules
-- **ONLY semantic tokens** — `bg-background`, `text-foreground`, `border-border`, etc.
-- **NEVER** `bg-white`, `text-gray-500`, `border-[#hex]`, or any Tailwind color scale with numbers
-- **OKLCH color space** — all tokens defined in `src/styles.css` under `@theme inline`
+## Tokens only
+- **Colors:** semantic utilities only — `bg-card`, `text-muted-foreground`, `border-border`, `bg-success/10`…
+- **NEVER** hex, `rgba()`, Tailwind color scales (`text-gray-500`), or `dark:` color overrides. If dark mode needs a different value, it belongs in the `.dark` block of the identity, not in the component.
+- **Shape and depth:** `rounded-control`, `rounded-button`, `rounded-overlay`, `rounded-surface`, `shadow-control|surface|overlay`. No arbitrary radii or shadows.
+- **Density:** heights and paddings that should tighten in compact mode use `h-(--control-height)`, `py-(--row-padding-y)`, `p-(--surface-padding)`.
+- **Motion:** `ease-standard`, 120ms press / 150–200ms enter / 300–320ms layout, `motion-safe:` on animations.
 
-## Interaction Rules
-- **Every interactive element** needs `transition-colors duration-150`
-- **Button squish** — `active:scale-[0.96]` on clickable elements
-- **`motion-safe:` prefix** on all animations — respect reduced motion
-- **Glassmorphism** only on sidebar — `backdrop-filter: blur(10px)`
+## Icons
+- Import ONLY from `@/ui/icons`. Never from `@phosphor-icons/react`, `lucide-react` or another set.
+- Missing icon? Add an export to `src/ui/icons.ts` with a set-agnostic name.
 
 ## Typography
-- **Geist Sans** — tight letter-spacing (-0.03em headlines, -0.01em body)
-- **Font sizes** via Tailwind scale — never arbitrary `text-[14px]`
+- Sentence case; never uppercase labels with tracking.
+- Scale: `text-2xs`, `text-xs`, `text-sm`, `text-lg`, `text-2xl`. Never arbitrary `text-[13px]`.
+- Numbers in data: `tabular-nums`, never `font-mono`.
+
+## Anti-generic (banned unless the brief asks for it)
+- Icon inside a tinted circle/square above a KPI or as card decoration
+- Four identical KPI cards as the opening of a screen
+- `→` appended to links/buttons, emoji as icons
+- Gradients, glows, glassmorphism as decoration
+- Colored left-border accent cards
+- Every element must carry data or a function; if removing it loses nothing, remove it
 
 ## Layout
-- Dark-first: true black background (`#000000`), obsidian card surfaces
-- Hairline borders at 8% white opacity
-- Responsive: mobile-first (`p-4 md:p-8`, `grid-cols-1 md:grid-cols-2`)
+- Shell comes from the archetype (`DESIGN_BRIEF.md` Layer 0, `docs/layouts.md`).
+- Responsive and mobile-first: `p-4 md:p-8`, `grid-cols-1 md:grid-cols-2`, no horizontal page scroll at 375px.
