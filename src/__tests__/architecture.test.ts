@@ -6,7 +6,7 @@
  * Runs in < 1 second.
  */
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
-import { join, relative } from 'node:path'
+import { join, relative, sep } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 const SRC_DIR = join(__dirname, '..')
@@ -1221,6 +1221,48 @@ describe('Design System artifacts', () => {
 		if (missingTokens.length > 0) {
 			expect.fail(
 				`styles.css is missing required semantic tokens:\n${missingTokens.map((t) => `  - ${t}`).join('\n')}\n\nFix: Add theme tokens. See DESIGN_SYSTEM.md Section 2 for the required palette.`,
+			)
+		}
+	})
+
+	// --- INVARIANT #203: the look lives in the identity block, not in components ---
+
+	it('No rgba/hsl colors or dark: color overrides in components (INV-203)', () => {
+		const lookPatterns = [
+			/\brgba?\(/,
+			/\bhsla?\(/,
+			/\bdark:(?:[\w[\]&_-]+:)?(?:bg|text|border|ring|shadow|from|via|to|fill|stroke|outline|divide|placeholder)-/,
+		]
+		const violations: string[] = []
+		for (const file of collectFiles(SRC_DIR, ['.tsx'])) {
+			if (file.includes('__tests__')) continue
+			const lines = readFileSync(file, 'utf-8').split('\n')
+			lines.forEach((line, index) => {
+				if (lookPatterns.some((pattern) => pattern.test(line))) {
+					violations.push(`${relative(SRC_DIR, file)}:${index + 1}`)
+				}
+			})
+		}
+		if (violations.length > 0) {
+			expect.fail(
+				`Color values or dark: overrides inside components (INV-203):\n${violations.map((v) => `  - ${v}`).join('\n')}\n\nFix: put the value in the IDENTITY block of src/styles.css (:root and .dark) and use its token.`,
+			)
+		}
+	})
+
+	// --- INVARIANT #204: one entry point for icons ---
+
+	it('Icon libraries are imported only by src/ui/icons.ts (INV-204)', () => {
+		const iconEntryPoints = new Set(['ui/icons.ts', 'providers/icon-provider.tsx'])
+		const iconLibraryImport =
+			/from ['"](?:@phosphor-icons\/react|lucide-react|react-icons|@heroicons\/react|@tabler\/icons-react|@radix-ui\/react-icons)/
+		const violations = collectFiles(SRC_DIR, ['.ts', '.tsx'])
+			.map((file) => relative(SRC_DIR, file).split(sep).join('/'))
+			.filter((relPath) => !iconEntryPoints.has(relPath))
+			.filter((relPath) => iconLibraryImport.test(readFileSync(join(SRC_DIR, relPath), 'utf-8')))
+		if (violations.length > 0) {
+			expect.fail(
+				`Icon library imported outside @/ui/icons (INV-204):\n${violations.map((v) => `  - ${v}`).join('\n')}\n\nFix: import the icon from '@/ui/icons' (add the export there if it is missing).`,
 			)
 		}
 	})
