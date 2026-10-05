@@ -14,6 +14,7 @@ import { useNavigate } from '@tanstack/react-router'
 import { toast } from 'sonner'
 import { api } from '@/services/api-client'
 import { ApiError, safeParseResponse, throwIfNotOk, toUserMessage } from '@/services/api-error'
+import { safeRedirectPath } from '@/utils/safe-redirect'
 
 // WHY: the session can end server-side at any moment (logout in another tab, revocation, another
 // localhost app replacing the cookie), so the cached user must be re-checked, not trusted forever.
@@ -56,7 +57,8 @@ export function useLogin(redirectTo: string) {
 			// Data cached under a previous account must never show under this one.
 			queryClient.clear()
 			queryClient.setQueryData(authQueryOptions.queryKey, data.data)
-			void navigate({ href: redirectTo })
+			// Checked again where it is used: only a path on this site, never another host.
+			void navigate({ href: safeRedirectPath(redirectTo) ?? '/dashboard' })
 		},
 		onError: (error) => {
 			toast.error('No pudimos iniciar sesión', {
