@@ -1,11 +1,11 @@
 import { Link } from '@tanstack/react-router'
-import { Mail, Shield, User } from 'lucide-react'
 import { useCurrentUser } from '@/slices/auth/hooks/use-auth'
 import { Avatar } from '@/ui/avatar'
 import { buttonVariants } from '@/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/ui/card'
 import { CrudPageHeader } from '@/ui/crud-page-header'
 import { FadeIn } from '@/ui/fade-in'
+import { Mail, Shield, User } from '@/ui/icons'
 import { Skeleton } from '@/ui/skeleton'
 import { ProfileForm } from './profile-form'
 

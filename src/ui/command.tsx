@@ -1,8 +1,8 @@
 import { Command as CommandPrimitive } from 'cmdk'
-import { Search } from 'lucide-react'
 import type { ComponentPropsWithoutRef, ElementRef } from 'react'
 import { forwardRef } from 'react'
 import { Dialog, DialogContent } from '@/ui/dialog'
+import { Search } from '@/ui/icons'
 import { cn } from '@/utils/cn'
 
 export const Command = forwardRef<

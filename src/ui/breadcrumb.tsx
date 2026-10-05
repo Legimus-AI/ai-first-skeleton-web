@@ -1,4 +1,4 @@
-import { ChevronRight } from 'lucide-react'
+import { ChevronRight } from '@/ui/icons'
 import { cn } from '@/utils/cn'
 
 interface BreadcrumbItem {

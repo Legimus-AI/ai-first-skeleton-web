@@ -1,9 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { CheckCircle2, Clock, ListTodo } from 'lucide-react'
 import { useCompletedTodosCount, useTodos } from '@/slices/todos/hooks/use-todos'
 import { Card, CardContent, CardHeader, CardTitle } from '@/ui/card'
 import { CrudPageHeader } from '@/ui/crud-page-header'
 import { FadeIn } from '@/ui/fade-in'
+import { CheckCircle, Clock, ListTodo } from '@/ui/icons'
 import { InlineError } from '@/ui/inline-error'
 import { Skeleton } from '@/ui/skeleton'
 import { cn } from '@/utils/cn'
@@ -32,7 +32,7 @@ function DashboardPage() {
 
 	const stats = [
 		{ label: 'Tareas totales', value: latest.data?.meta.total, icon: ListTodo },
-		{ label: 'Completadas', value: completed.data, icon: CheckCircle2 },
+		{ label: 'Completadas', value: completed.data, icon: CheckCircle },
 	]
 
 	return (
@@ -93,7 +93,7 @@ function DashboardPage() {
 								>
 									<div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border/50 bg-background shadow-sm">
 										{todo.completed ? (
-											<CheckCircle2 className="h-4 w-4 text-primary" />
+											<CheckCircle className="h-4 w-4 text-primary" />
 										) : (
 											<Clock className="h-4 w-4 text-muted-foreground/50" />
 										)}

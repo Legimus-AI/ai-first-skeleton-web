@@ -1,8 +1,8 @@
 import * as DialogPrimitive from '@radix-ui/react-dialog'
-import { X } from 'lucide-react'
 import type { ComponentPropsWithoutRef, ElementRef, HTMLAttributes } from 'react'
 import { forwardRef } from 'react'
 import { isFloatingListboxEventTarget } from '@/ui/floating-listbox'
+import { X } from '@/ui/icons'
 import { cn } from '@/utils/cn'
 
 const Dialog = DialogPrimitive.Root

@@ -1,5 +1,5 @@
-import { ChevronLeft, ChevronRight, GripVertical } from 'lucide-react'
 import { Button } from '@/ui/button'
+import { ChevronLeft, ChevronRight, GripVertical } from '@/ui/icons'
 import { cn } from '@/utils/cn'
 import type { BoardCard as BoardCardData } from '../hooks/use-board'
 

@@ -1,6 +1,5 @@
 import { grantsPermission, rolePermissions, type UpdateMemberRole } from '@repo/shared'
 import { useNavigate, useSearch } from '@tanstack/react-router'
-import { Plus, Trash2, Users } from 'lucide-react'
 import { useCallback, useMemo, useState } from 'react'
 import { usePageInRange } from '@/hooks/use-page-in-range'
 import type { ListParams } from '@/hooks/use-query-params'
@@ -12,6 +11,7 @@ import { ConfirmDelete } from '@/ui/confirm-delete'
 import { CrudPageHeader } from '@/ui/crud-page-header'
 import { DataTable } from '@/ui/data-table'
 import { FadeIn } from '@/ui/fade-in'
+import { Plus, Trash, Users } from '@/ui/icons'
 import { InlineError } from '@/ui/inline-error'
 import { Pagination } from '@/ui/pagination'
 import { SearchInput } from '@/ui/search-input'
@@ -200,7 +200,7 @@ export function TeamList() {
 							onClick={() => setShowBulkDelete(true)}
 							className="h-7 sm:h-8 rounded-full px-2 sm:px-3 text-xs sm:text-sm"
 						>
-							<Trash2 className="mr-1.5 h-3 w-3 sm:h-3.5 sm:w-3.5" />
+							<Trash className="mr-1.5 h-3 w-3 sm:h-3.5 sm:w-3.5" />
 							Quitar
 						</Button>
 					</div>

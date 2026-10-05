@@ -5,7 +5,6 @@ import {
 	grantsPermission,
 	rolePermissions,
 } from '@repo/shared'
-import { KeyRound, Plus } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { setFieldErrors } from '@/services/api-error'
@@ -23,6 +22,7 @@ import {
 	DialogTitle,
 } from '@/ui/dialog'
 import { FadeIn } from '@/ui/fade-in'
+import { Key, Plus } from '@/ui/icons'
 import { InlineError } from '@/ui/inline-error'
 import { Input } from '@/ui/input'
 import {
@@ -135,7 +135,7 @@ export function ApiKeysPage() {
 					getId={(key) => key.id}
 					isLoading={isLoading}
 					emptyMessage="Sin claves API. Crea una para comenzar."
-					emptyIcon={<KeyRound className="h-6 w-6 text-muted-foreground" />}
+					emptyIcon={<Key className="h-6 w-6 text-muted-foreground" />}
 					emptyAction={
 						<Button size="sm" onClick={() => setShowCreate(true)}>
 							<Plus className="mr-1.5 h-4 w-4" />

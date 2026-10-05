@@ -1,7 +1,7 @@
 import type { Todo } from '@repo/shared'
-import { ArrowDown, ArrowRight, ArrowUp, CheckCircle2, Circle, Pencil, Trash2 } from 'lucide-react'
 import { Button } from '@/ui/button'
 import type { Column } from '@/ui/data-table'
+import { ArrowDown, ArrowRight, ArrowUp, CheckCircle, Circle, Pencil, Trash } from '@/ui/icons'
 import { cn } from '@/utils/cn'
 import { formatDateTime } from '@/utils/format-date'
 
@@ -32,7 +32,7 @@ export function buildTodoColumns({
 					aria-label={`Marcar "${item.title}" como ${item.completed ? 'pendiente' : 'completada'}`}
 				>
 					{item.completed ? (
-						<CheckCircle2 className="h-4.5 w-4.5 text-primary" />
+						<CheckCircle className="h-4.5 w-4.5 text-primary" />
 					) : (
 						<Circle className="h-4.5 w-4.5 text-muted-foreground/30 hover:text-muted-foreground/60 transition-colors" />
 					)}
@@ -129,7 +129,7 @@ export function buildTodoColumns({
 						}}
 						aria-label={`Eliminar "${item.title}"`}
 					>
-						<Trash2 className="h-4 w-4" />
+						<Trash className="h-4 w-4" />
 					</Button>
 				</div>
 			),

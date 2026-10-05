@@ -1,6 +1,6 @@
-import { LayoutGrid } from 'lucide-react'
 import { useState } from 'react'
 import { DemoNotice } from '@/ui/demo-notice'
+import { LayoutGrid } from '@/ui/icons'
 import { COLUMNS, type ColumnId, useBoard } from '../hooks/use-board'
 import { BoardColumn } from './board-column'
 import { CreateCardDialog } from './create-card-dialog'

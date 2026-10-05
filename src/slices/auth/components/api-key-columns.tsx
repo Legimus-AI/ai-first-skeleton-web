@@ -1,7 +1,7 @@
 import type { ApiKey } from '@repo/shared'
-import { Trash2 } from 'lucide-react'
 import { Button } from '@/ui/button'
 import type { Column } from '@/ui/data-table'
+import { Trash } from '@/ui/icons'
 import { formatDate, formatRelative } from '@/utils/format-date'
 import { describeScopes } from '../hooks/use-api-keys'
 
@@ -69,7 +69,7 @@ export function buildApiKeyColumns(onDelete: (id: string) => void): Column<ApiKe
 					}}
 					aria-label={`Revocar "${key.name}"`}
 				>
-					<Trash2 className="h-4 w-4" />
+					<Trash className="h-4 w-4" />
 				</Button>
 			),
 		},

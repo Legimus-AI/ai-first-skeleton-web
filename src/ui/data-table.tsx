@@ -7,9 +7,9 @@ import {
 	type SortingState,
 	useReactTable,
 } from '@tanstack/react-table'
-import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useMemo } from 'react'
+import { ArrowDown, ArrowUp, ArrowUpDown } from '@/ui/icons'
 import { Skeleton } from '@/ui/skeleton'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/ui/table'
 import { cn } from '@/utils/cn'

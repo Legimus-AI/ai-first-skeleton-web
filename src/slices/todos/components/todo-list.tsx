@@ -1,6 +1,5 @@
 import type { Todo } from '@repo/shared'
 import { useNavigate, useSearch } from '@tanstack/react-router'
-import { CheckCircle2, Plus, Trash2 } from 'lucide-react'
 import { useCallback, useMemo, useState } from 'react'
 import { usePageInRange } from '@/hooks/use-page-in-range'
 import type { ListParams } from '@/hooks/use-query-params'
@@ -11,6 +10,7 @@ import { ConfirmDelete } from '@/ui/confirm-delete'
 import { CrudPageHeader } from '@/ui/crud-page-header'
 import { DataTable } from '@/ui/data-table'
 import { FadeIn } from '@/ui/fade-in'
+import { CheckCircle, Plus, Trash } from '@/ui/icons'
 import { InlineError } from '@/ui/inline-error'
 import { Pagination } from '@/ui/pagination'
 import { SearchInput } from '@/ui/search-input'
@@ -111,7 +111,7 @@ export function TodoList() {
 							? `Sin resultados para "${params.search}"`
 							: 'Sin tareas aún. ¡Crea la primera!'
 					}
-					emptyIcon={<CheckCircle2 className="h-6 w-6 text-muted-foreground" />}
+					emptyIcon={<CheckCircle className="h-6 w-6 text-muted-foreground" />}
 					emptyAction={
 						params.search ? (
 							<Button
@@ -232,7 +232,7 @@ export function TodoList() {
 							onClick={() => setShowBulkDelete(true)}
 							className="h-7 sm:h-8 rounded-full px-2 sm:px-3 text-xs sm:text-sm"
 						>
-							<Trash2 className="mr-1.5 h-3 w-3 sm:h-3.5 sm:w-3.5" />
+							<Trash className="mr-1.5 h-3 w-3 sm:h-3.5 sm:w-3.5" />
 							Eliminar
 						</Button>
 					</div>

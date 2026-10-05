@@ -1,6 +1,6 @@
-import { SendHorizontal } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '@/ui/button'
+import { SendHorizontal } from '@/ui/icons'
 import { Input } from '@/ui/input'
 import { cn } from '@/utils/cn'
 

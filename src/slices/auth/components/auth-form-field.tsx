@@ -1,7 +1,7 @@
-import { Eye, EyeOff } from 'lucide-react'
 import { useState } from 'react'
 import type { UseFormRegisterReturn } from 'react-hook-form'
 import { Button } from '@/ui/button'
+import { Eye, EyeOff } from '@/ui/icons'
 import { Input } from '@/ui/input'
 import { cn } from '@/utils/cn'
 

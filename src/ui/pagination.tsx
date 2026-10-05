@@ -1,6 +1,6 @@
-import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { PER_PAGE_OPTIONS } from '@/hooks/use-query-params'
 import { Button } from '@/ui/button'
+import { ChevronLeft, ChevronRight } from '@/ui/icons'
 import { cn } from '@/utils/cn'
 
 interface PaginationMeta {

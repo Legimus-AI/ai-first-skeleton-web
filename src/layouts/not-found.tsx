@@ -1,6 +1,6 @@
 import { useNavigate } from '@tanstack/react-router'
-import { ArrowLeft, Home } from 'lucide-react'
 import { Button } from '@/ui/button'
+import { ArrowLeft, Home } from '@/ui/icons'
 
 export function NotFound() {
 	const navigate = useNavigate()

@@ -1,13 +1,13 @@
-import { CircleAlert, CircleCheck, Info, Loader2, TriangleAlert } from 'lucide-react'
 import { Toaster as SonnerToaster, type ToasterProps } from 'sonner'
 import { useTheme } from '@/providers/theme-provider'
+import { AlertCircle, AlertTriangle, CheckCircle, Info, Spinner } from '@/ui/icons'
 
 const icons = {
-	success: <CircleCheck className="h-4 w-4 text-success" />,
-	error: <CircleAlert className="h-4 w-4 text-destructive" />,
-	warning: <TriangleAlert className="h-4 w-4 text-warning" />,
+	success: <CheckCircle className="h-4 w-4 text-success" />,
+	error: <AlertCircle className="h-4 w-4 text-destructive" />,
+	warning: <AlertTriangle className="h-4 w-4 text-warning" />,
 	info: <Info className="h-4 w-4 text-info" />,
-	loading: <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />,
+	loading: <Spinner className="h-4 w-4 animate-spin text-muted-foreground" />,
 }
 
 export function Toaster(props: ToasterProps) {

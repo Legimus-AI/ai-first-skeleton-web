@@ -1,5 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { Bell, BellOff, Send, Volume2, VolumeX } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { usePushNotifications } from '@/hooks/use-push-notifications'
@@ -7,6 +6,7 @@ import { Badge } from '@/ui/badge'
 import { Button } from '@/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/ui/card'
 import { Hint } from '@/ui/hint'
+import { Bell, BellOff, Send, Volume, VolumeOff } from '@/ui/icons'
 import { InfoTooltip } from '@/ui/info-tooltip'
 import { isMac } from '@/utils/platform'
 
@@ -201,7 +201,7 @@ function SettingsNotificationsPage() {
 					<div className="flex items-center justify-between">
 						<div className="space-y-1">
 							<CardTitle className="flex items-center gap-2">
-								{sound.enabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+								{sound.enabled ? <Volume className="h-4 w-4" /> : <VolumeOff className="h-4 w-4" />}
 								Sonido
 								<InfoTooltip content="Reproduce un sonido dentro de la app cuando llega un aviso nuevo. No afecta a las notificaciones push." />
 							</CardTitle>
@@ -234,12 +234,12 @@ function SettingsNotificationsPage() {
 						>
 							{sound.enabled ? (
 								<>
-									<VolumeX className="mr-1.5 h-3.5 w-3.5" />
+									<VolumeOff className="mr-1.5 h-3.5 w-3.5" />
 									Silenciar
 								</>
 							) : (
 								<>
-									<Volume2 className="mr-1.5 h-3.5 w-3.5" />
+									<Volume className="mr-1.5 h-3.5 w-3.5" />
 									Activar sonido
 								</>
 							)}
@@ -248,7 +248,7 @@ function SettingsNotificationsPage() {
 
 					<div className="flex items-center gap-3 rounded-lg border border-border/50 bg-muted/30 px-4 py-3">
 						<Button variant="ghost" size="sm" onClick={playTestSound} disabled={testPlayed}>
-							<Volume2 className="mr-1.5 h-3.5 w-3.5" />
+							<Volume className="mr-1.5 h-3.5 w-3.5" />
 							{testPlayed ? '¡Listo!' : 'Probar sonido'}
 						</Button>
 						<span className="text-xs text-muted-foreground">Escucha cómo suena el aviso.</span>

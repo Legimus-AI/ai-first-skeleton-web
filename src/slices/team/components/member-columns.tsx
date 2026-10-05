@@ -1,8 +1,8 @@
 import type { MemberRole, TeamMember, UpdateMemberRole } from '@repo/shared'
-import { Shield, Trash2 } from 'lucide-react'
 import { Badge } from '@/ui/badge'
 import { Button } from '@/ui/button'
 import type { Column } from '@/ui/data-table'
+import { Shield, Trash } from '@/ui/icons'
 import { Select } from '@/ui/select'
 import { formatDate } from '@/utils/format-date'
 
@@ -113,7 +113,7 @@ export function buildMemberColumns({
 						}}
 						aria-label={`Quitar a ${member.name}`}
 					>
-						<Trash2 className="h-4 w-4" />
+						<Trash className="h-4 w-4" />
 					</Button>
 				)
 			},

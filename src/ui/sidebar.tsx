@@ -1,5 +1,5 @@
-import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { createContext, type ReactNode, use, useEffect, useState } from 'react'
+import { ChevronLeft, ChevronRight } from '@/ui/icons'
 import { Tooltip } from '@/ui/tooltip'
 import { cn } from '@/utils/cn'
 

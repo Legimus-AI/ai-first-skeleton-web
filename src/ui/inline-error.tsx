@@ -1,7 +1,7 @@
-import { AlertCircle, Copy, RefreshCw, WifiOff } from 'lucide-react'
 import { ApiError, isServerUnreachable, toUserMessage } from '@/services/api-error'
 import { copyToClipboard } from '@/services/clipboard-service'
 import { Button } from '@/ui/button'
+import { AlertCircle, Copy, RefreshCw, WifiOff } from '@/ui/icons'
 
 interface InlineErrorProps {
 	error: unknown

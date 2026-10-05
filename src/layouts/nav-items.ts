@@ -1,14 +1,14 @@
-import type { LucideIcon } from 'lucide-react'
+import type { ListParams } from '@/hooks/use-query-params'
+import { DEFAULT_LIST_PARAMS } from '@/hooks/use-query-params'
+import type { AppIcon } from '@/ui/icons'
 import {
-	CheckCircle2,
+	CheckCircle,
 	FileText,
 	LayoutDashboard,
 	LayoutGrid,
 	MessageSquare,
 	Settings,
-} from 'lucide-react'
-import type { ListParams } from '@/hooks/use-query-params'
-import { DEFAULT_LIST_PARAMS } from '@/hooks/use-query-params'
+} from '@/ui/icons'
 
 // ─── Navigation Config ───────────────────────────────────────────────────────
 // Main app navigation shown in the sidebar / navbar.
@@ -18,7 +18,7 @@ import { DEFAULT_LIST_PARAMS } from '@/hooks/use-query-params'
 export interface NavItem {
 	label: string
 	to: string
-	icon: LucideIcon
+	icon: AppIcon
 	group: string
 	/** Search params for list routes. Omit for non-list routes. */
 	search?: ListParams
@@ -42,7 +42,7 @@ export const navItems: NavItem[] = [
 	{
 		label: 'Tareas',
 		to: '/todos',
-		icon: CheckCircle2,
+		icon: CheckCircle,
 		group: 'Menú',
 		search: DEFAULT_LIST_PARAMS,
 	},

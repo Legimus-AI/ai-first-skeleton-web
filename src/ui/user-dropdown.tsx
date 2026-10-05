@@ -1,5 +1,4 @@
 import { useNavigate } from '@tanstack/react-router'
-import { ChevronDown, LogOut, Settings, UserCog } from 'lucide-react'
 import { useCurrentUser, useLogout } from '@/slices/auth/hooks/use-auth'
 import { Avatar } from '@/ui/avatar'
 import {
@@ -10,6 +9,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '@/ui/dropdown-menu'
+import { ChevronDown, LogOut, Settings, UserCog } from '@/ui/icons'
 
 export function UserDropdown() {
 	const { data: user } = useCurrentUser()

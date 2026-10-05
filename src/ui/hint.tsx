@@ -1,10 +1,10 @@
-import { AlertCircle, Info, Lightbulb, type LucideIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
+import { AlertCircle, type AppIcon, Info, Lightbulb } from '@/ui/icons'
 import { cn } from '@/utils/cn'
 
 type HintVariant = 'info' | 'warning' | 'tip'
 
-const variants: Record<HintVariant, { icon: LucideIcon; classes: string }> = {
+const variants: Record<HintVariant, { icon: AppIcon; classes: string }> = {
 	info: {
 		icon: Info,
 		classes: 'border-border/50 bg-muted/30 text-muted-foreground',

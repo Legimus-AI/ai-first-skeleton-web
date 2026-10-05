@@ -1,6 +1,6 @@
 import { cva, type VariantProps } from 'class-variance-authority'
-import { Loader2 } from 'lucide-react'
 import type { ButtonHTMLAttributes } from 'react'
+import { Spinner } from '@/ui/icons'
 import { cn } from '@/utils/cn'
 
 export const buttonVariants = cva(
@@ -48,7 +48,7 @@ export function Button({
 			disabled={disabled || loading}
 			{...props}
 		>
-			{loading && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />}
+			{loading && <Spinner className="mr-1.5 h-4 w-4 animate-spin" />}
 			{children}
 		</button>
 	)

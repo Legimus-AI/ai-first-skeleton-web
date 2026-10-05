@@ -1,11 +1,11 @@
 import { Link, useMatches, useRouterState } from '@tanstack/react-router'
-import { ChevronRight, Menu, Moon, Sun } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { DEFAULT_LIST_PARAMS } from '@/hooks/use-query-params'
 import { useTheme } from '@/providers/theme-provider'
 import { Badge } from '@/ui/badge'
 import { Button } from '@/ui/button'
+import { ChevronRight, Menu, Moon, Sun } from '@/ui/icons'
 import {
 	Sidebar,
 	SidebarContent,
