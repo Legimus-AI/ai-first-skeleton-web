@@ -5,7 +5,7 @@ import { DEFAULT_LIST_PARAMS } from '@/hooks/use-query-params'
 import { useTheme } from '@/providers/theme-provider'
 import { Badge } from '@/ui/badge'
 import { Button } from '@/ui/button'
-import { ChevronRight, Menu, Moon, Sun } from '@/ui/icons'
+import { ACTIVE_ICON_WEIGHT, ChevronRight, Menu, Moon, Sun } from '@/ui/icons'
 import {
 	Sidebar,
 	SidebarContent,
@@ -44,6 +44,7 @@ function SidebarNavItem({
 	const content = (
 		<SidebarItem active={isActive && !hasChildren} label={item.label}>
 			<item.icon
+				{...(isActive && { weight: ACTIVE_ICON_WEIGHT })}
 				className={cn(
 					'h-4 w-4 shrink-0 transition-colors duration-200',
 					isActive ? 'text-foreground' : 'text-muted-foreground',
@@ -53,7 +54,7 @@ function SidebarNavItem({
 				<div className="flex flex-1 items-center justify-between overflow-hidden whitespace-nowrap">
 					<span className="truncate">{item.label}</span>
 					{item.demo && (
-						<Badge variant="secondary" className="ml-auto px-1.5 py-0 text-[10px]">
+						<Badge variant="secondary" className="ml-auto px-1.5 py-0 text-2xs">
 							Ejemplo
 						</Badge>
 					)}
@@ -99,10 +100,10 @@ function SidebarNavItem({
 								role="presentation"
 							/>
 							<div
-								className="fixed z-[999] min-w-[180px] animate-in fade-in slide-in-from-left-2 duration-150 rounded-xl border border-border/50 bg-popover/95 p-1.5 shadow-xl backdrop-blur-sm"
+								className="fixed z-[999] min-w-[180px] animate-in fade-in slide-in-from-left-2 duration-150 rounded-overlay bg-popover p-1.5 shadow-overlay"
 								style={{ top: popoverPos.top, left: popoverPos.left }}
 							>
-								<p className="mb-1 px-2.5 pt-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+								<p className="mb-1 px-2.5 pt-1 text-2xs font-medium text-muted-foreground">
 									{item.label}
 								</p>
 								{item.children?.map((child) => {
@@ -118,10 +119,10 @@ function SidebarNavItem({
 										>
 											<div
 												className={cn(
-													'flex items-center rounded-md px-2.5 py-1.5 text-[13px] transition-colors duration-150',
+													'flex items-center rounded-full px-2.5 py-1.5 text-sm transition-colors duration-150',
 													isChildActive
 														? 'bg-accent text-foreground font-medium'
-														: 'text-muted-foreground hover:bg-muted/50 hover:text-foreground',
+														: 'text-muted-foreground hover:bg-accent/60 hover:text-foreground',
 												)}
 											>
 												{child.label}
@@ -162,10 +163,10 @@ function SidebarNavItem({
 									>
 										<div
 											className={cn(
-												'flex w-full items-center gap-3 rounded-md px-3 py-1.5 text-sm transition-colors duration-200',
+												'flex w-full items-center gap-3 rounded-full px-3 py-1.5 text-sm transition-colors duration-150',
 												isChildActive
 													? 'text-foreground font-medium'
-													: 'text-muted-foreground hover:text-foreground hover:bg-muted/50',
+													: 'text-muted-foreground hover:text-foreground hover:bg-accent/60',
 											)}
 										>
 											<span className="truncate">{child.label}</span>
@@ -249,7 +250,7 @@ function SidebarLogo() {
 					isCollapsed ? 'justify-center' : 'gap-2.5',
 				)}
 			>
-				<div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary text-xs font-bold text-primary-foreground">
+				<div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
 					A
 				</div>
 				{!isCollapsed && <span className="whitespace-nowrap">App</span>}
@@ -265,7 +266,7 @@ function TopHeader() {
 	const { resolvedTheme, setTheme } = useTheme()
 
 	return (
-		<header className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-3 border-b border-border bg-background/95 px-4 backdrop-blur-sm dark:bg-background/80 dark:backdrop-blur-md md:px-6">
+		<header className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-3 bg-background px-4 md:px-6">
 			{/* Boton hamburguesa movil */}
 			<Button
 				variant="ghost"
@@ -315,7 +316,12 @@ export function AuthedLayout({ children, variant }: AuthedLayoutProps) {
 
 	return (
 		<SidebarProvider>
-			<div className={cn('flex', isBleed ? 'h-dvh overflow-hidden' : 'min-h-screen')}>
+			<div
+				className={cn(
+					'flex bg-background md:gap-3 md:p-3',
+					isBleed ? 'h-dvh overflow-hidden' : 'min-h-screen',
+				)}
+			>
 				<Sidebar>
 					<SidebarLogo />
 					<SidebarNav />
