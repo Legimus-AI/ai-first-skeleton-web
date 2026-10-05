@@ -49,7 +49,9 @@ function AuthedError(props: ErrorComponentProps) {
 
 function AuthedPage() {
 	const { data: user } = useCurrentUser()
-	const href = useRouterState({ select: (s) => s.location.href })
+	// WHY: the page on screen, not a navigation in flight; while the login redirect is pending,
+	// `location` already points at /login and each re-render would nest it into `redirect` again.
+	const href = useRouterState({ select: (s) => (s.resolvedLocation ?? s.location).href })
 	// A background check (window focus) found the session gone.
 	if (user === null) return <Navigate to="/login" search={{ redirect: href }} replace />
 	return (

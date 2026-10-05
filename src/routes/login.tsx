@@ -11,25 +11,24 @@ import { safeRedirectPath } from '@/utils/safe-redirect'
 
 export interface LoginSearch {
 	/** Page to return to after signing in. */
-	redirect?: string
+	redirect?: string | undefined
 	/** Set by the backend when the Google sign-in failed. */
 	error?: 'oauth'
 }
 
 export const Route = createFileRoute('/login')({
-	validateSearch: (search: Record<string, unknown>): LoginSearch => {
-		const redirect = safeRedirectPath(search.redirect)
-		return {
-			...(redirect ? { redirect } : {}),
-			...(search.error === 'oauth' ? { error: 'oauth' as const } : {}),
-		}
-	},
+	// WHY: the router merges the raw query with this result, so an unsafe redirect must be
+	// overwritten with undefined; leaving the key out lets the raw value through.
+	validateSearch: (search: Record<string, unknown>): LoginSearch => ({
+		redirect: safeRedirectPath(search.redirect),
+		...(search.error === 'oauth' ? { error: 'oauth' as const } : {}),
+	}),
 	component: LoginPage,
 })
 
 function LoginPage() {
 	const search = Route.useSearch()
-	const redirectTo = search.redirect ?? '/dashboard'
+	const redirectTo = safeRedirectPath(search.redirect) ?? '/dashboard'
 	const { data: user } = useCurrentUser()
 	const login = useLogin(redirectTo)
 	const {

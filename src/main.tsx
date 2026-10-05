@@ -5,6 +5,7 @@ import { createRoot } from 'react-dom/client'
 import { z } from 'zod'
 import { createQueryClient } from '@/services/query-client'
 import { TooltipProvider } from '@/ui/tooltip'
+import { safeRedirectPath } from '@/utils/safe-redirect'
 import { router } from './router'
 import './styles.css'
 
@@ -39,8 +40,9 @@ z.config({
 const queryClient = createQueryClient(() => {
 	queryClient.clear()
 	const { pathname, href } = router.state.location
+	// Already on (or heading to) the login: wrapping it again would nest the redirect.
 	if (pathname === '/login') return
-	void router.navigate({ to: '/login', search: { redirect: href } })
+	void router.navigate({ to: '/login', search: { redirect: safeRedirectPath(href) } })
 })
 
 const root = document.getElementById('root')
