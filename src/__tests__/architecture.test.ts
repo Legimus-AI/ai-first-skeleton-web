@@ -913,13 +913,13 @@ describe('Architecture rules (INVARIANTS.md)', () => {
 		}
 	})
 
-	// --- INV-112: No local redefinitions of lib/ exports ---
+	// --- INV-112: No local redefinitions of utils/ exports ---
 
-	it('Slices do not redefine functions exported by lib/ (INV-112)', () => {
-		const LIB_DIR = join(SRC_DIR, 'lib')
+	it('Slices do not redefine functions exported by utils/ (INV-112)', () => {
+		const LIB_DIR = join(SRC_DIR, 'utils')
 		const libFiles = collectFiles(LIB_DIR, ['.ts', '.tsx'], ['node_modules', '__tests__'])
 
-		// Collect all exported function/const names from lib/ (skip comments)
+		// Collect all exported function/const names from utils/ (skip comments)
 		const libExports = new Set<string>()
 		for (const file of libFiles) {
 			const content = readFileSync(file, 'utf-8')
@@ -962,7 +962,7 @@ describe('Architecture rules (INVARIANTS.md)', () => {
 							new RegExp(`export\\s+const\\s+${name}\\b`).test(c)
 						)
 					})
-					const libName = libFile ? relative(SRC_DIR, libFile) : 'lib/'
+					const libName = libFile ? relative(SRC_DIR, libFile) : 'utils/'
 					violations.push(
 						`${relPath}:${i + 1} defines ${name}() but ${libName} already exports it. Import from @/${libName.replace(/\.tsx?$/, '')} instead.`,
 					)
@@ -972,7 +972,7 @@ describe('Architecture rules (INVARIANTS.md)', () => {
 
 		if (violations.length > 0) {
 			expect.fail(
-				`Local redefinitions of lib/ exports (INV-112):\n${violations.map((v) => `  - ${v}`).join('\n')}\n\nFix: Import the function from lib/ instead of redefining it locally.`,
+				`Local redefinitions of utils/ exports (INV-112):\n${violations.map((v) => `  - ${v}`).join('\n')}\n\nFix: Import the function from utils/ instead of redefining it locally.`,
 			)
 		}
 	})

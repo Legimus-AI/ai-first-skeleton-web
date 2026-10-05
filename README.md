@@ -35,11 +35,11 @@ Any backend that follows the AI-First API contract works: `/api/v1/<slice>` path
 | | Capability | What you get | Guide |
 |---|---|---|---|
 | 🔐 | Auth flows | Login, register, optional Google button, an `_authed` route guard with a pending skeleton, profile and settings pages | [Auth and API keys](docs/auth-and-api-keys.md) |
-| 🔑 | API key page | Create (token shown once, with copy) and revoke keys at `/settings/api-keys`; keys made here are read-only (`*:read`) because the form sends no scopes yet | [Auth and API keys](docs/auth-and-api-keys.md#what-a-key-created-here-can-do) |
+| 🔑 | API key page | Create (token shown once, with copy) and revoke keys at `/settings/api-keys`, with scope presets (read only, read and write, full access for owner/admin) shown in the table | [Auth and API keys](docs/auth-and-api-keys.md#what-a-key-created-here-can-do) |
 | 🧭 | Layout archetypes | Four shell presets (sidebar, navbar, focused, split) picked by the product archetype in `DESIGN_BRIEF.md`, plus a governed `custom` escape hatch | [Layouts](docs/layouts.md) |
 | 🗂️ | Reference slices | `todos` (admin CRUD), `chat` (conversational), `editor` (focused tool), `board` (custom, full-bleed kanban), `team` | [AGENTS.md](AGENTS.md) |
 | 📋 | CRUD view contract | DataTable with server pagination, search, sort, bulk delete, `FormDialog` create/edit, `ConfirmDelete`, skeleton and empty states | [INVARIANTS.md](INVARIANTS.md) |
-| 🔌 | API client | Backend-agnostic fetch wrapper with typed errors and Zod response validation | [API client](docs/api-client.md) |
+| 🔌 | API client | Backend-agnostic fetch wrapper with timeout, typed errors, Zod response validation, one session policy (401 → login and back) and Spanish user messages | [API client](docs/api-client.md) |
 | ⚡ | Optimistic mutations | `useOptimisticMutation` for toggles and inline edits | [Optimistic mutations](docs/optimistic-mutations.md) |
 | 📄 | URL-driven lists | `page`, `search`, `sort`, `order` live in the URL; route loaders prefetch with `queryOptions` | [Pagination](docs/pagination.md) |
 | 🎨 | Design system | Aether theme: OKLCH tokens, dark mode, owned shadcn/ui-style primitives | [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md) |
@@ -54,7 +54,7 @@ Any backend that follows the AI-First API contract works: `/api/v1/<slice>` path
 
 **Coding agents** read [`AGENTS.md`](AGENTS.md); `CLAUDE.md` is an adapter that only imports `AGENTS.md`, `INVARIANTS.md` and `DESIGN_SYSTEM.md`. Claude Code also gets a stop hook (architecture test before it finishes), path-scoped rules and a deny rule for `.env`; they load only when the session starts inside the repo. Details: [docs/agent-guardrails.md](docs/agent-guardrails.md).
 
-**Agents that use the product** do not go through this UI: they call the backend with an API key, through its CLI or its MCP endpoint (TypeScript backend: [agent surface guide](https://github.com/Legimus-AI/ai-first-skeleton-typescript/blob/main/docs/agent-surface.md)). A key created on the API key page is read-only; for write scopes, use the backend's `pnpm agent login --scopes ...` or the API.
+**Agents that use the product** do not go through this UI: they call the backend with an API key, through its CLI or its MCP endpoint (TypeScript backend: [agent surface guide](https://github.com/Legimus-AI/ai-first-skeleton-typescript/blob/main/docs/agent-surface.md)). The API key page offers read-only, read-and-write and (for owner/admin) full-access keys; for other scopes, use the backend's `pnpm agent login --scopes ...` or the API.
 
 ## ⌨️ Commands
 
@@ -119,4 +119,4 @@ Start at [docs/README.md](docs/README.md): it lists every guide, grouped by task
 
 ## 📝 Changelog
 
-This repo keeps no changelog file. The history lives in the commits on `main`, design decisions in [docs/DECISIONS.ndjson](docs/DECISIONS.ndjson), and versioned architecture changes in the [spec changelog](https://github.com/Legimus-AI/ai-first-architecture/blob/main/CHANGELOG.md). The latest round, on 2026-10-04, changed no UI: it made the agent guardrails fire, kept `CLAUDE.md` as an import-only adapter, and dropped the unused `.agent` session trail; these docs now also cover the guardrails and the skeleton stamp.
+This repo keeps no changelog file. The history lives in the commits on `main`, design decisions in [docs/DECISIONS.ndjson](docs/DECISIONS.ndjson), and versioned architecture changes in the [spec changelog](https://github.com/Legimus-AI/ai-first-architecture/blob/main/CHANGELOG.md). The latest round, on 2026-10-04 (WEB-RESILIENCE-261007), made the app say what happened instead of breaking: a lost session goes to login and back, errors render inside the layout with a working retry, Spanish copy and validation everywhere, lists that clamp bad URLs and never show a false empty page, honest dashboard and demos, team actions by permission, password reset and email verification pages, mobile cards and no dark-mode flash.

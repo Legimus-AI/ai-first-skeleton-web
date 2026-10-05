@@ -12,7 +12,7 @@ Every guide in `docs/`, one line each. New here? Read [AGENTS.md](../AGENTS.md) 
 | [optimistic-mutations.md](optimistic-mutations.md) | `useOptimisticMutation` for toggles and inline edits, and when not to use it |
 | [motion.md](motion.md) | CSS-only motion primitives, timing and reduced-motion rules |
 | [i18n.md](i18n.md) | Locale-aware date and number formatting with `Intl` |
-| [auth-and-api-keys.md](auth-and-api-keys.md) | Sign-in routes, the `_authed` guard, the API key page and why its keys are read-only |
+| [auth-and-api-keys.md](auth-and-api-keys.md) | Sign-in, password reset and email verification routes, the `_authed` guard, the session policy and API key scopes |
 
 ## 🤖 Agents
 

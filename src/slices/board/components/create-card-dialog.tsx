@@ -36,31 +36,31 @@ export function CreateCardDialog({
 		<FormDialog
 			open={open}
 			onOpenChange={onOpenChange}
-			title="New card"
-			description={`This card will be added to "${columnTitle}".`}
+			title="Nueva tarjeta"
+			description={`Se agregará a "${columnTitle}".`}
 			onSubmit={handleSubmit}
-			submitLabel="Add card"
+			submitLabel="Agregar tarjeta"
 		>
 			<div className="space-y-1.5">
 				<label htmlFor="card-title" className="text-sm font-medium text-foreground">
-					Title
+					Título
 				</label>
 				<Input
 					id="card-title"
 					value={title}
 					onChange={(event) => setTitle(event.target.value)}
-					placeholder="e.g. Review the pull request"
+					placeholder="p. ej. Revisar el pull request"
 				/>
 			</div>
 			<div className="space-y-1.5">
 				<label htmlFor="card-description" className="text-sm font-medium text-foreground">
-					Description
+					Descripción <span className="font-normal text-muted-foreground">(opcional)</span>
 				</label>
 				<Textarea
 					id="card-description"
 					value={description}
 					onChange={(event) => setDescription(event.target.value)}
-					placeholder="Add a short note (optional)"
+					placeholder="Una nota corta"
 					rows={3}
 				/>
 			</div>

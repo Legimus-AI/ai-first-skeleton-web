@@ -60,7 +60,7 @@ export function UserDropdown() {
 						className="gap-2.5 px-3 py-2"
 					>
 						<Settings className="h-4 w-4 text-muted-foreground" />
-						Configuracion
+						Configuración
 					</DropdownMenuItem>
 				</DropdownMenuGroup>
 				<DropdownMenuSeparator />
@@ -71,7 +71,7 @@ export function UserDropdown() {
 					className="gap-2.5 px-3 py-2 text-destructive focus:text-destructive"
 				>
 					<LogOut className="h-4 w-4" />
-					Cerrar sesion
+					Cerrar sesión
 				</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>

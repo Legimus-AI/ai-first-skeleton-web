@@ -56,7 +56,7 @@ export function SearchInput({
 					type="button"
 					onClick={() => handleChange('')}
 					className="absolute right-2 top-1/2 -translate-y-1/2 rounded-sm p-0.5 text-muted-foreground transition-colors duration-150 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-					aria-label="Clear search"
+					aria-label="Borrar búsqueda"
 				>
 					<X className="h-3.5 w-3.5" />
 				</button>

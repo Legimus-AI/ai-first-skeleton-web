@@ -63,8 +63,8 @@ export function AuthFormField({
 						size="icon"
 						className="absolute right-0 top-0 h-10 w-10 text-muted-foreground hover:text-foreground"
 						onClick={() => setShowPassword((v) => !v)}
-						aria-label={showPassword ? 'Hide password' : 'Show password'}
-						tabIndex={-1}
+						aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+						aria-pressed={showPassword}
 					>
 						{showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
 					</Button>

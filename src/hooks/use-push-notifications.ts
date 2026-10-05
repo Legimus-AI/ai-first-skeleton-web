@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { api } from '@/services/api-client'
-import { throwIfNotOk } from '@/services/api-error'
+import { throwIfNotOk, toUserMessage } from '@/services/api-error'
 
 type PushPermission = NotificationPermission | 'unsupported'
 
@@ -95,13 +95,14 @@ export function usePushNotifications(): UsePushNotifications {
 		onSettled: () => setPermission(Notification.permission),
 		onSuccess: () => {
 			queryClient.setQueryData(SUBSCRIPTION_KEY, true)
-			toast.success('Notifications enabled', {
-				description: "You'll receive alerts on this device.",
+			toast.success('Notificaciones activadas', {
+				description: 'Recibirás avisos en este dispositivo.',
 			})
 		},
 		onError: (err) => {
-			const message = err instanceof Error ? err.message : 'Failed to enable notifications'
-			toast.error('Could not enable notifications', { description: message })
+			toast.error('No pudimos activar las notificaciones', {
+				description: toUserMessage(err),
+			})
 		},
 	})
 
@@ -119,10 +120,12 @@ export function usePushNotifications(): UsePushNotifications {
 		},
 		onSuccess: () => {
 			queryClient.setQueryData(SUBSCRIPTION_KEY, false)
-			toast.success('Notifications disabled')
+			toast.success('Notificaciones desactivadas')
 		},
-		onError: () => {
-			toast.error('Failed to disable notifications')
+		onError: (err) => {
+			toast.error('No pudimos desactivar las notificaciones', {
+				description: toUserMessage(err),
+			})
 		},
 	})
 

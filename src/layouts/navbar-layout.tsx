@@ -112,7 +112,7 @@ export function AuthedLayout({ children, variant }: NavbarLayoutProps) {
 						size="icon"
 						className="h-9 w-9 md:hidden"
 						onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-						aria-label={mobileMenuOpen ? 'Cerrar menu' : 'Abrir menu'}
+						aria-label={mobileMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
 					>
 						{mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
 					</Button>

@@ -44,11 +44,13 @@ export function BoardCard({
 					aria-hidden="true"
 				/>
 				<div className="min-w-0 flex-1">
-					<h3 className="text-sm font-medium leading-snug tracking-tight text-foreground">
+					<h3 className="text-sm font-medium leading-snug tracking-tight text-foreground break-words">
 						{card.title}
 					</h3>
 					{card.description && (
-						<p className="mt-1 text-xs leading-relaxed text-muted-foreground">{card.description}</p>
+						<p className="mt-1 text-xs leading-relaxed text-muted-foreground break-words">
+							{card.description}
+						</p>
 					)}
 				</div>
 			</div>
@@ -60,7 +62,7 @@ export function BoardCard({
 					className="h-7 w-7"
 					disabled={!canMoveLeft}
 					onClick={() => onShift(card.id, -1)}
-					aria-label={`Move "${card.title}" to the previous column`}
+					aria-label={`Mover "${card.title}" a la columna anterior`}
 				>
 					<ChevronLeft className="h-4 w-4" />
 				</Button>
@@ -70,7 +72,7 @@ export function BoardCard({
 					className="h-7 w-7"
 					disabled={!canMoveRight}
 					onClick={() => onShift(card.id, 1)}
-					aria-label={`Move "${card.title}" to the next column`}
+					aria-label={`Mover "${card.title}" a la columna siguiente`}
 				>
 					<ChevronRight className="h-4 w-4" />
 				</Button>

@@ -1,4 +1,4 @@
-import { createRootRouteWithContext, Outlet } from '@tanstack/react-router'
+import { createRootRouteWithContext, Outlet, useRouterState } from '@tanstack/react-router'
 import { ErrorBoundary } from '@/components/error-boundary'
 import { NotFound } from '@/layouts/not-found'
 import { ThemeProvider } from '@/providers/theme-provider'
@@ -11,12 +11,15 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 })
 
 function RootLayout() {
+	const href = useRouterState({ select: (s) => s.location.href })
 	return (
 		<ThemeProvider>
-			<ErrorBoundary>
+			{/* Navigating away (menu, Back) clears a crashed screen. */}
+			<ErrorBoundary resetKeys={[href]}>
 				<Outlet />
-				<Toaster />
 			</ErrorBoundary>
+			{/* Outside the boundary so toasts survive a crash. */}
+			<Toaster />
 		</ThemeProvider>
 	)
 }

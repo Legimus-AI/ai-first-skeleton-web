@@ -1,7 +1,9 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { QueryClientProvider } from '@tanstack/react-query'
 import { RouterProvider } from '@tanstack/react-router'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { z } from 'zod'
+import { createQueryClient } from '@/services/query-client'
 import { TooltipProvider } from '@/ui/tooltip'
 import { router } from './router'
 import './styles.css'
@@ -10,10 +12,35 @@ import './styles.css'
 // import './lib/sentry'    // Sentry error tracking + performance
 // import './lib/clarity'   // Microsoft Clarity session replay
 
-const queryClient = new QueryClient({
-	defaultOptions: {
-		queries: { retry: 1, staleTime: 5_000 },
+// Form validation in Spanish: plain copy for the common cases, Zod's Spanish locale for the rest.
+z.config({
+	...z.locales.es(),
+	customError: (issue) => {
+		if (issue.code === 'too_small' && issue.origin === 'string') {
+			return issue.minimum === 1
+				? 'Este campo es obligatorio.'
+				: `Usa al menos ${issue.minimum} caracteres.`
+		}
+		if (issue.code === 'too_big' && issue.origin === 'string') {
+			return `Usa como máximo ${issue.maximum} caracteres.`
+		}
+		if (issue.code === 'invalid_format' && issue.format === 'email') {
+			return 'Ingresa un email válido.'
+		}
+		if (issue.code === 'invalid_type' && issue.input === undefined) {
+			return 'Este campo es obligatorio.'
+		}
+		return undefined
 	},
+})
+
+// Session lost mid-use (expired, revoked, replaced): drop every cached answer and sign in again,
+// coming back to the same page afterwards.
+const queryClient = createQueryClient(() => {
+	queryClient.clear()
+	const { pathname, href } = router.state.location
+	if (pathname === '/login') return
+	void router.navigate({ to: '/login', search: { redirect: href } })
 })
 
 const root = document.getElementById('root')

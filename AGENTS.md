@@ -197,7 +197,7 @@ Cross-slice data: hooks may cross slices (data), components never cross slices (
 
 ### Route Loaders & queryOptions
 
-Every CRUD list route must have a `loader` that calls `ensureQueryData` with a `queryOptions` factory:
+Every CRUD list route must have a `loader` that calls `ensureQueryData` with a `queryOptions` factory, keyed by the same search params the page renders (`loaderDeps`):
 
 ```ts
 // In hook file: extract queryOptions factory
@@ -207,10 +207,14 @@ export const todosQueryOptions = (params?: Partial<ListQuery>) =>
 export function useTodos(params?: Partial<ListQuery>) { return useQuery(todosQueryOptions(params)) }
 
 // In route file: wire loader
-loader: ({ context }) => context.queryClient.ensureQueryData(todosQueryOptions()),
+loaderDeps: ({ search }) => search,
+loader: ({ context, deps }) =>
+  context.queryClient
+    .ensureQueryData({ ...todosQueryOptions(deps), revalidateIfStale: true }) // stale → background refetch
+    .catch(ignoreCancelled), // from @/services/query-client
 ```
 
-This guarantees data is in cache before the component renders. Combined with hover preloading, navigation feels instant.
+This guarantees data is in cache before the component renders, with a single request per visit. Combined with hover preloading, navigation feels instant. Errors and the session policy are global: see [`docs/api-client.md`](docs/api-client.md).
 
 ## Theming
 

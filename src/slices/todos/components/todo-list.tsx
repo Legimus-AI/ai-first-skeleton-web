@@ -2,7 +2,10 @@ import type { Todo } from '@repo/shared'
 import { useNavigate, useSearch } from '@tanstack/react-router'
 import { CheckCircle2, Plus, Trash2 } from 'lucide-react'
 import { useCallback, useMemo, useState } from 'react'
+import { usePageInRange } from '@/hooks/use-page-in-range'
 import type { ListParams } from '@/hooks/use-query-params'
+import { useRowSelection } from '@/hooks/use-row-selection'
+import { setFieldErrors } from '@/services/api-error'
 import { Button } from '@/ui/button'
 import { ConfirmDelete } from '@/ui/confirm-delete'
 import { CrudPageHeader } from '@/ui/crud-page-header'
@@ -38,9 +41,9 @@ export function TodoList() {
 	const [editTarget, setEditTarget] = useState<Todo | null>(null)
 	const [deleteId, setDeleteId] = useState<string | null>(null)
 	const [showBulkDelete, setShowBulkDelete] = useState(false)
-	const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+	const [selectedIds, setSelectedIds] = useRowSelection(JSON.stringify(params))
 
-	const { data, isLoading, isFetching, error } = useTodos(params)
+	const { data, isLoading, isFetching, error, refetch } = useTodos(params)
 	const createTodo = useCreateTodo()
 	const updateTodo = useUpdateTodo(params)
 	const deleteTodo = useDeleteTodo()
@@ -55,17 +58,17 @@ export function TodoList() {
 			}),
 		[updateTodo],
 	)
+	const setPage = useCallback((page: number) => setParams({ page }), [setParams])
+	const movingToLastPage = usePageInRange(data?.meta, setPage)
 
 	if (error) {
-		return <InlineError message={error.message} onRetry={() => globalThis.location.reload()} />
+		return <InlineError error={error} onRetry={() => void refetch()} />
 	}
 
 	const handleBulkDelete = () => {
 		bulkDelete.mutate([...selectedIds], {
-			onSuccess: () => {
-				setSelectedIds(new Set())
-				setShowBulkDelete(false)
-			},
+			onSuccess: () => setSelectedIds(new Set()),
+			onSettled: () => setShowBulkDelete(false),
 		})
 	}
 
@@ -96,7 +99,8 @@ export function TodoList() {
 					data={data?.data ?? []}
 					columns={columns}
 					getId={(todo) => todo.id}
-					isLoading={isLoading}
+					getRowLabel={(todo) => todo.title}
+					isLoading={isLoading || movingToLastPage}
 					selectedIds={selectedIds}
 					onSelectionChange={setSelectedIds}
 					sort={params.sort}
@@ -133,7 +137,6 @@ export function TodoList() {
 					meta={data.meta}
 					onPageChange={(p) => setParams({ page: p })}
 					onPerPageChange={(l) => setParams({ limit: l, page: 1 })}
-					perPageOptions={[10, 15, 25, 50]}
 				/>
 			)}
 
@@ -143,10 +146,13 @@ export function TodoList() {
 				title="Nueva tarea"
 				submitLabel="Crear"
 				defaultValues={undefined}
-				onSubmit={(input) => {
+				onSubmit={(input, setError) => {
 					createTodo.mutate(
 						{ ...input, priority: input.priority ?? 'medium' },
-						{ onSuccess: () => setShowCreate(false) },
+						{
+							onSuccess: () => setShowCreate(false),
+							onError: (error) => setFieldErrors(error, setError),
+						},
 					)
 				}}
 				isPending={createTodo.isPending}
@@ -166,11 +172,18 @@ export function TodoList() {
 							}
 						: undefined
 				}
-				onSubmit={(input) => {
+				onSubmit={(input, setError) => {
 					if (!editTarget) return
 					updateTodo.mutate(
-						{ id: editTarget.id, ...input, priority: input.priority ?? 'medium' },
-						{ onSuccess: () => setEditTarget(null) },
+						{
+							id: editTarget.id,
+							...input,
+							priority: input.priority ?? 'medium',
+						},
+						{
+							onSuccess: () => setEditTarget(null),
+							onError: (error) => setFieldErrors(error, setError),
+						},
 					)
 				}}
 				isPending={updateTodo.isPending}
@@ -180,10 +193,7 @@ export function TodoList() {
 				open={deleteId !== null}
 				onOpenChange={() => setDeleteId(null)}
 				onConfirm={() => {
-					if (deleteId) {
-						deleteTodo.mutate(deleteId)
-						setDeleteId(null)
-					}
+					if (deleteId) deleteTodo.mutate(deleteId, { onSettled: () => setDeleteId(null) })
 				}}
 				title="¿Eliminar tarea?"
 				isPending={deleteTodo.isPending}
