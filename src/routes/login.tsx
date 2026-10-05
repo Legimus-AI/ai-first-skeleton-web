@@ -53,7 +53,7 @@ function LoginPage() {
 			socialLogin={<GoogleOAuthButton />}
 			footer={
 				<>
-					<Button type="submit" className="w-full aether-squish" loading={login.isPending}>
+					<Button type="submit" className="w-full" loading={login.isPending}>
 						Iniciar sesión
 					</Button>
 					<p className="text-center text-sm text-muted-foreground">

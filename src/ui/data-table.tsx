@@ -246,11 +246,7 @@ export function DataTable<T>({
 	if (data.length === 0) {
 		return (
 			<div className="flex flex-col items-center justify-center py-12 md:py-16 text-center">
-				{emptyIcon && (
-					<div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
-						{emptyIcon}
-					</div>
-				)}
+				{emptyIcon}
 				<p className="mt-4 text-sm font-medium">{emptyMessage}</p>
 				{emptyAction && <div className="mt-4">{emptyAction}</div>}
 			</div>

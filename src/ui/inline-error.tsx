@@ -30,9 +30,7 @@ export function InlineError({ error, onRetry }: InlineErrorProps) {
 	const Icon = isServerUnreachable(error) ? WifiOff : AlertCircle
 	return (
 		<div role="alert" className="flex flex-col items-center justify-center py-16 text-center">
-			<div className="flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
-				<Icon className="h-6 w-6 text-destructive" />
-			</div>
+			<Icon className="h-8 w-8 text-destructive" aria-hidden="true" />
 			<p className="mt-4 max-w-md text-sm font-medium">{toUserMessage(error)}</p>
 			<div className="mt-4 flex flex-wrap items-center justify-center gap-2">
 				<Button

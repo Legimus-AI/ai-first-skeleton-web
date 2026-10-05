@@ -5,8 +5,8 @@ import { cn } from '@/utils/cn'
 // they stop hardcoding — and drifting on — the badge scale. `size` covers the
 // two scales the shells used: sm (compact headers) and md (primary navbar).
 const sizeClasses = {
-	sm: { badge: 'h-6 w-6 rounded-md text-[10px]', text: 'text-sm' },
-	md: { badge: 'h-7 w-7 rounded-lg text-xs', text: 'text-base' },
+	sm: { badge: 'h-6 w-6 rounded-full text-2xs', text: 'text-sm' },
+	md: { badge: 'h-7 w-7 rounded-full text-xs', text: 'text-base' },
 } as const
 
 export function AppLogo({ size = 'sm' }: { size?: keyof typeof sizeClasses }) {

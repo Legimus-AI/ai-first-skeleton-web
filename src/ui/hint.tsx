@@ -11,7 +11,7 @@ const variants: Record<HintVariant, { icon: AppIcon; classes: string }> = {
 	},
 	warning: {
 		icon: AlertCircle,
-		classes: 'border-warning/20 bg-warning/5 text-warning-foreground',
+		classes: 'border-warning/20 bg-warning/10 text-warning',
 	},
 	tip: {
 		icon: Lightbulb,
@@ -29,7 +29,9 @@ interface HintProps {
 export function Hint({ children, variant = 'info', className }: HintProps) {
 	const { icon: Icon, classes } = variants[variant]
 	return (
-		<div className={cn('flex gap-2.5 rounded-lg border px-4 py-3 text-xs', classes, className)}>
+		<div
+			className={cn('flex gap-2.5 rounded-control border px-4 py-3 text-xs', classes, className)}
+		>
 			<Icon className="mt-0.5 h-3.5 w-3.5 shrink-0" />
 			<div>{children}</div>
 		</div>

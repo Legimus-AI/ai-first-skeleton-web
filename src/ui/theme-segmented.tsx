@@ -14,7 +14,7 @@ interface ThemeSegmentedProps {
 
 export function ThemeSegmented({ value, onChange }: ThemeSegmentedProps) {
 	return (
-		<div className="flex items-center gap-0.5 rounded-lg bg-muted p-1">
+		<div className="flex items-center gap-0.5 rounded-button bg-muted p-1">
 			{options.map((opt) => (
 				<button
 					key={opt.value}
@@ -27,9 +27,9 @@ export function ThemeSegmented({ value, onChange }: ThemeSegmentedProps) {
 						onChange(opt.value)
 					}}
 					className={cn(
-						'flex flex-1 items-center justify-center rounded-md p-1.5 transition-all duration-150',
+						'flex flex-1 items-center justify-center rounded-button p-1.5 transition-[background-color,color,box-shadow] duration-150 ease-standard',
 						value === opt.value
-							? 'bg-background text-foreground shadow-sm'
+							? 'bg-card text-foreground shadow-control'
 							: 'text-muted-foreground hover:text-foreground',
 					)}
 				>

@@ -86,7 +86,7 @@ export function ApiKeysPage() {
 				title="Claves API"
 				description="Crea y gestiona claves para acceso programático a la plataforma."
 				action={
-					<Button onClick={() => setShowCreate(true)} className="w-full sm:w-auto aether-squish">
+					<Button onClick={() => setShowCreate(true)} className="w-full sm:w-auto">
 						<Plus className="mr-1.5 h-4 w-4" />
 						Crear clave
 					</Button>
@@ -95,7 +95,7 @@ export function ApiKeysPage() {
 
 			{/* Newly created key banner */}
 			{newRawKey && (
-				<div className="animate-in fade-in slide-in-from-top-2 space-y-3 rounded-xl border border-primary/20 bg-primary/5 p-6 shadow-sm">
+				<div className="animate-in fade-in slide-in-from-top-2 space-y-3 rounded-surface border border-primary/20 bg-primary/5 p-(--surface-padding)">
 					<div className="space-y-1">
 						<p className="text-sm font-medium text-foreground">Tu nueva clave API está lista</p>
 						<p className="text-xs text-muted-foreground">
@@ -103,7 +103,7 @@ export function ApiKeysPage() {
 						</p>
 					</div>
 					<div className="flex items-center gap-2">
-						<code className="flex-1 break-all rounded-md border border-border bg-background p-3 font-mono text-sm text-foreground">
+						<code className="flex-1 break-all rounded-control border border-border bg-background p-3 font-mono text-sm text-foreground">
 							{newRawKey}
 						</code>
 						<Button
@@ -128,7 +128,7 @@ export function ApiKeysPage() {
 				</div>
 			)}
 
-			<div className="rounded-xl border border-border/50 bg-card shadow-sm">
+			<div className="rounded-surface bg-card shadow-surface">
 				<DataTable
 					data={keys ?? []}
 					columns={columns}

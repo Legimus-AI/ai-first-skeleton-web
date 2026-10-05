@@ -23,7 +23,7 @@ export function UserDropdown() {
 			<DropdownMenuTrigger asChild>
 				<button
 					type="button"
-					className="flex items-center gap-2 rounded-full py-1 pl-1 pr-2.5 transition-colors duration-150 hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+					className="flex items-center gap-2 rounded-full py-1 pl-1 pr-2.5 transition-colors duration-150 hover:bg-accent/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 				>
 					<Avatar size="sm" name={user.name ?? user.email} />
 					<span className="hidden max-w-[120px] truncate text-sm font-medium text-foreground sm:inline">

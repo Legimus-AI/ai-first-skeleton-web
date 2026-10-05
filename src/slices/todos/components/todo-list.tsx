@@ -87,14 +87,14 @@ export function TodoList() {
 					/>
 				}
 				action={
-					<Button onClick={() => setShowCreate(true)} className="w-full sm:w-auto aether-squish">
+					<Button onClick={() => setShowCreate(true)} className="w-full sm:w-auto">
 						<Plus className="mr-1.5 h-4 w-4" />
 						Nueva tarea
 					</Button>
 				}
 			/>
 
-			<div className="overflow-hidden rounded-xl border border-border/50 bg-card shadow-sm">
+			<div className="overflow-hidden rounded-surface bg-card shadow-surface">
 				<DataTable
 					data={data?.data ?? []}
 					columns={columns}
@@ -118,12 +118,11 @@ export function TodoList() {
 								size="sm"
 								variant="outline"
 								onClick={() => setParams({ search: '', page: 1 })}
-								className="aether-squish"
 							>
 								Limpiar búsqueda
 							</Button>
 						) : (
-							<Button size="sm" onClick={() => setShowCreate(true)} className="aether-squish">
+							<Button size="sm" onClick={() => setShowCreate(true)}>
 								<Plus className="mr-1.5 h-4 w-4" />
 								Nueva tarea
 							</Button>
@@ -211,8 +210,8 @@ export function TodoList() {
 			{/* Floating Bulk Actions Bar */}
 			{selectedIds.size > 0 && (
 				<div className="fixed bottom-8 left-1/2 z-50 -translate-x-1/2 animate-in fade-in slide-in-from-bottom-8 duration-300">
-					<div className="flex items-center gap-2 sm:gap-3 rounded-full border border-border/50 bg-background/95 px-3 sm:px-4 py-2 shadow-2xl ring-1 ring-black/5 backdrop-blur-xl dark:ring-white/10">
-						<span className="flex h-5 w-5 sm:h-6 sm:w-6 shrink-0 items-center justify-center rounded-full bg-primary text-[10px] sm:text-xs font-medium text-primary-foreground">
+					<div className="flex items-center gap-2 sm:gap-3 rounded-full bg-popover px-3 sm:px-4 py-2 shadow-overlay">
+						<span className="flex h-5 w-5 sm:h-6 sm:w-6 shrink-0 items-center justify-center rounded-full bg-primary text-2xs sm:text-xs font-medium text-primary-foreground">
 							{selectedIds.size}
 						</span>
 						<span className="hidden sm:block border-r border-border/50 pr-2 text-sm font-medium text-foreground">

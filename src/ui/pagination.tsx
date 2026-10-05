@@ -97,7 +97,7 @@ export function Pagination({
 					<select
 						value={limit}
 						onChange={(e) => onPerPageChange(Number(e.target.value))}
-						className="ml-2 h-8 rounded-md border border-input bg-background px-2 text-xs text-foreground"
+						className="ml-2 h-8 rounded-control border border-input bg-background px-2 text-xs text-foreground"
 						aria-label="Resultados por página"
 					>
 						{perPageOptions.map((n) => (

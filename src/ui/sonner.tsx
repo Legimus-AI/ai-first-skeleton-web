@@ -20,7 +20,7 @@ export function Toaster(props: ToasterProps) {
 				duration: 4000,
 				classNames: {
 					toast:
-						'group flex w-full items-start gap-3 rounded-lg border border-border bg-popover p-4 text-popover-foreground shadow-lg',
+						'group flex w-full items-start gap-3 rounded-overlay bg-popover p-4 text-popover-foreground shadow-overlay',
 					title: 'text-sm font-semibold',
 					description: 'text-sm text-muted-foreground',
 					actionButton: 'bg-primary text-primary-foreground',

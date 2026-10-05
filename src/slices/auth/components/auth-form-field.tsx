@@ -54,7 +54,7 @@ export function AuthFormField({
 					error={hasError}
 					autoComplete={autoComplete}
 					aria-describedby={hasError && errorMessage ? errorId : undefined}
-					className={cn('aether-input-inset', isPassword && 'pr-10')}
+					className={cn(isPassword && 'pr-10')}
 				/>
 				{isPassword && (
 					<Button
