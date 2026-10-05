@@ -1,6 +1,6 @@
 # API Client
 
-Backend-agnostic fetch wrapper (`src/services/api-client.ts`) — works with any AI-First Skeleton backend. It sends cookies (`credentials: 'include'`), sets the JSON content type when there is a body, exposes the `X-Request-Id` response header as `res.requestId`, ends every request after `REQUEST_TIMEOUT_MS` (15 s), and turns a request with no response (offline, timeout) into `ApiError` with `status: 0`.
+Backend-agnostic fetch wrapper (`src/services/api-client.ts`) — works with any AI-First Skeleton backend. It sends cookies (`credentials: 'include'`), sets the JSON content type when there is a body, exposes the `X-Request-Id` response header as `res.requestId`, ends a request that gets no response within `REQUEST_TIMEOUT_MS` (15 s), and turns a request with no response (offline, timeout) into `ApiError` with `status: 0`.
 
 In a `queryFn`, pass TanStack Query's `signal` so leaving a page cancels its requests: `queryFn: ({ signal }) => api.get('/api/v1/todos', params, signal)`. The one exception is the session check (`authQueryOptions`): the `_authed` guard awaits that same fetch, so a component unmounting must not cancel it.
 

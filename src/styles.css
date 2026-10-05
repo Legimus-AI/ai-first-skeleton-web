@@ -42,6 +42,8 @@
 	--motion-ease: cubic-bezier(0.16, 1, 0.3, 1);
 
 	/* ── Surfaces (warm neutral, hue 80) ─────────────────────── */
+	/* Native controls (checkboxes, scrollbars, date pickers) follow the theme. */
+	color-scheme: light;
 	--background: oklch(0.972 0.004 80);
 	--foreground: oklch(0.25 0.008 60);
 	--card: oklch(0.995 0.002 80);
@@ -85,6 +87,7 @@
 }
 
 .dark {
+	color-scheme: dark;
 	/* Dark elevation comes from surface tone; shadows only add a faint edge. */
 	--background: oklch(0.19 0.005 60);
 	--foreground: oklch(0.95 0.004 80);
