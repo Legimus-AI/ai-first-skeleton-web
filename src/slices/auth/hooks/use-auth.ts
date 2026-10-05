@@ -21,8 +21,10 @@ const AUTH_STALE_TIME_MS = 60_000
 
 export const authQueryOptions = queryOptions({
 	queryKey: ['auth', 'me'],
-	queryFn: async ({ signal }): Promise<User | null> => {
-		const res = await api.get('/api/v1/auth/me', undefined, signal)
+	// WHY: the _authed beforeLoad awaits this same fetch. With a `signal` (or a fetch paused offline),
+	// a pending screen that unmounts mid-request cancels it and the guard fails with CancelledError.
+	queryFn: async (): Promise<User | null> => {
+		const res = await api.get('/api/v1/auth/me')
 		if (res.status === 401) return null
 		await throwIfNotOk(res)
 		const json: unknown = await res.json()
@@ -30,6 +32,7 @@ export const authQueryOptions = queryOptions({
 		return parsed.data
 	},
 	retry: false,
+	networkMode: 'always',
 	staleTime: AUTH_STALE_TIME_MS,
 	refetchOnWindowFocus: true,
 })
