@@ -1,7 +1,7 @@
 import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu'
-import { Check, ChevronRight, Circle } from 'lucide-react'
 import type { ComponentPropsWithoutRef, ElementRef, HTMLAttributes } from 'react'
 import { forwardRef } from 'react'
+import { Check, ChevronRight, Circle } from '@/ui/icons'
 import { cn } from '@/utils/cn'
 
 const DropdownMenu = DropdownMenuPrimitive.Root
@@ -44,7 +44,7 @@ const DropdownMenuSubContent = forwardRef<
 	<DropdownMenuPrimitive.SubContent
 		ref={ref}
 		className={cn(
-			'z-50 min-w-[8rem] overflow-hidden rounded-xl border border-border/50 bg-popover p-1 text-popover-foreground shadow-lg aether-glass',
+			'z-50 min-w-[8rem] overflow-hidden rounded-overlay bg-popover p-1.5 text-popover-foreground shadow-overlay',
 			'data-[state=open]:animate-in data-[state=closed]:animate-out',
 			'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
 			'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
@@ -66,7 +66,7 @@ const DropdownMenuContent = forwardRef<
 			ref={ref}
 			sideOffset={sideOffset}
 			className={cn(
-				'z-50 min-w-[8rem] overflow-hidden rounded-xl border border-border/50 bg-popover p-1 text-popover-foreground shadow-md aether-glass',
+				'z-50 min-w-[8rem] overflow-hidden rounded-overlay bg-popover p-1.5 text-popover-foreground shadow-overlay',
 				'data-[state=open]:animate-in data-[state=closed]:animate-out',
 				'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
 				'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
@@ -134,7 +134,7 @@ const DropdownMenuRadioItem = forwardRef<
 	>
 		<span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
 			<DropdownMenuPrimitive.ItemIndicator>
-				<Circle className="h-2 w-2 fill-current" />
+				<Circle weight="fill" className="h-2 w-2" />
 			</DropdownMenuPrimitive.ItemIndicator>
 		</span>
 		{children}
@@ -162,7 +162,7 @@ const DropdownMenuSeparator = forwardRef<
 >(({ className, ...props }, ref) => (
 	<DropdownMenuPrimitive.Separator
 		ref={ref}
-		className={cn('-mx-1 my-1 h-px bg-muted dark:bg-[rgba(255,255,255,0.08)]', className)}
+		className={cn('-mx-1.5 my-1.5 h-px bg-border', className)}
 		{...props}
 	/>
 ))

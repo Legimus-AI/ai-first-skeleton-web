@@ -1,6 +1,5 @@
 import type { Todo } from '@repo/shared'
 import { useNavigate, useSearch } from '@tanstack/react-router'
-import { CheckCircle2, Plus, Trash2 } from 'lucide-react'
 import { useCallback, useMemo, useState } from 'react'
 import { usePageInRange } from '@/hooks/use-page-in-range'
 import type { ListParams } from '@/hooks/use-query-params'
@@ -11,6 +10,7 @@ import { ConfirmDelete } from '@/ui/confirm-delete'
 import { CrudPageHeader } from '@/ui/crud-page-header'
 import { DataTable } from '@/ui/data-table'
 import { FadeIn } from '@/ui/fade-in'
+import { CheckCircle, Plus, Trash } from '@/ui/icons'
 import { InlineError } from '@/ui/inline-error'
 import { Pagination } from '@/ui/pagination'
 import { SearchInput } from '@/ui/search-input'
@@ -87,14 +87,14 @@ export function TodoList() {
 					/>
 				}
 				action={
-					<Button onClick={() => setShowCreate(true)} className="w-full sm:w-auto aether-squish">
+					<Button onClick={() => setShowCreate(true)} className="w-full sm:w-auto">
 						<Plus className="mr-1.5 h-4 w-4" />
 						Nueva tarea
 					</Button>
 				}
 			/>
 
-			<div className="overflow-hidden rounded-xl border border-border/50 bg-card shadow-sm">
+			<div className="overflow-hidden rounded-surface bg-card shadow-surface">
 				<DataTable
 					data={data?.data ?? []}
 					columns={columns}
@@ -111,19 +111,18 @@ export function TodoList() {
 							? `Sin resultados para "${params.search}"`
 							: 'Sin tareas aún. ¡Crea la primera!'
 					}
-					emptyIcon={<CheckCircle2 className="h-6 w-6 text-muted-foreground" />}
+					emptyIcon={<CheckCircle className="h-6 w-6 text-muted-foreground" />}
 					emptyAction={
 						params.search ? (
 							<Button
 								size="sm"
 								variant="outline"
 								onClick={() => setParams({ search: '', page: 1 })}
-								className="aether-squish"
 							>
 								Limpiar búsqueda
 							</Button>
 						) : (
-							<Button size="sm" onClick={() => setShowCreate(true)} className="aether-squish">
+							<Button size="sm" onClick={() => setShowCreate(true)}>
 								<Plus className="mr-1.5 h-4 w-4" />
 								Nueva tarea
 							</Button>
@@ -211,8 +210,8 @@ export function TodoList() {
 			{/* Floating Bulk Actions Bar */}
 			{selectedIds.size > 0 && (
 				<div className="fixed bottom-8 left-1/2 z-50 -translate-x-1/2 animate-in fade-in slide-in-from-bottom-8 duration-300">
-					<div className="flex items-center gap-2 sm:gap-3 rounded-full border border-border/50 bg-background/95 px-3 sm:px-4 py-2 shadow-2xl ring-1 ring-black/5 backdrop-blur-xl dark:ring-white/10">
-						<span className="flex h-5 w-5 sm:h-6 sm:w-6 shrink-0 items-center justify-center rounded-full bg-primary text-[10px] sm:text-xs font-medium text-primary-foreground">
+					<div className="flex items-center gap-2 sm:gap-3 rounded-full bg-popover px-3 sm:px-4 py-2 shadow-overlay">
+						<span className="flex h-5 w-5 sm:h-6 sm:w-6 shrink-0 items-center justify-center rounded-full bg-primary text-2xs sm:text-xs font-medium text-primary-foreground">
 							{selectedIds.size}
 						</span>
 						<span className="hidden sm:block border-r border-border/50 pr-2 text-sm font-medium text-foreground">
@@ -232,7 +231,7 @@ export function TodoList() {
 							onClick={() => setShowBulkDelete(true)}
 							className="h-7 sm:h-8 rounded-full px-2 sm:px-3 text-xs sm:text-sm"
 						>
-							<Trash2 className="mr-1.5 h-3 w-3 sm:h-3.5 sm:w-3.5" />
+							<Trash className="mr-1.5 h-3 w-3 sm:h-3.5 sm:w-3.5" />
 							Eliminar
 						</Button>
 					</div>

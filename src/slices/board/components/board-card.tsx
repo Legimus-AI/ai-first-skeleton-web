@@ -1,5 +1,5 @@
-import { ChevronLeft, ChevronRight, GripVertical } from 'lucide-react'
 import { Button } from '@/ui/button'
+import { ChevronLeft, ChevronRight, GripVertical } from '@/ui/icons'
 import { cn } from '@/utils/cn'
 import type { BoardCard as BoardCardData } from '../hooks/use-board'
 
@@ -32,8 +32,8 @@ export function BoardCard({
 			}}
 			onDragEnd={onDragEnd}
 			className={cn(
-				'group cursor-grab rounded-lg border border-border/60 bg-card p-3 shadow-sm transition-all',
-				'hover:-translate-y-0.5 hover:border-border hover:shadow-md active:cursor-grabbing',
+				'group cursor-grab rounded-control bg-card p-3 shadow-control transition-[transform,box-shadow] duration-150 ease-standard',
+				'hover:-translate-y-0.5 hover:shadow-surface active:cursor-grabbing',
 				'focus-within:ring-2 focus-within:ring-ring/40',
 				isDragging && 'rotate-1 opacity-50',
 			)}

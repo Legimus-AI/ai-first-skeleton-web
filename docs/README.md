@@ -51,4 +51,4 @@ Every guide in `docs/`, one line each. New here? Read [AGENTS.md](../AGENTS.md) 
 
 ## 📌 At the repo root
 
-[README.md](../README.md) (overview and commands), [AGENTS.md](../AGENTS.md) (agent instructions), [INVARIANTS.md](../INVARIANTS.md) (rules the architecture test enforces), [DESIGN_SYSTEM.md](../DESIGN_SYSTEM.md) (the Aether design spec), [DESIGN_BRIEF.md](../DESIGN_BRIEF.md) (who the product is for; Layer 0 picks the archetype).
+[README.md](../README.md) (overview and commands), [AGENTS.md](../AGENTS.md) (agent instructions), [INVARIANTS.md](../INVARIANTS.md) (rules the architecture test enforces), [DESIGN_SYSTEM.md](../DESIGN_SYSTEM.md) (the design spec and the Suave identity), [DESIGN_BRIEF.md](../DESIGN_BRIEF.md) (who the product is for; Layer 0 picks the archetype).

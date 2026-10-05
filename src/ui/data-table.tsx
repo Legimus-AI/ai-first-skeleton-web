@@ -7,9 +7,9 @@ import {
 	type SortingState,
 	useReactTable,
 } from '@tanstack/react-table'
-import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useMemo } from 'react'
+import { ArrowDown, ArrowUp, ArrowUpDown } from '@/ui/icons'
 import { Skeleton } from '@/ui/skeleton'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/ui/table'
 import { cn } from '@/utils/cn'
@@ -246,11 +246,7 @@ export function DataTable<T>({
 	if (data.length === 0) {
 		return (
 			<div className="flex flex-col items-center justify-center py-12 md:py-16 text-center">
-				{emptyIcon && (
-					<div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
-						{emptyIcon}
-					</div>
-				)}
+				{emptyIcon}
 				<p className="mt-4 text-sm font-medium">{emptyMessage}</p>
 				{emptyAction && <div className="mt-4">{emptyAction}</div>}
 			</div>

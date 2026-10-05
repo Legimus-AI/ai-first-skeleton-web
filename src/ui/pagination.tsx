@@ -1,6 +1,6 @@
-import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { PER_PAGE_OPTIONS } from '@/hooks/use-query-params'
 import { Button } from '@/ui/button'
+import { ChevronLeft, ChevronRight } from '@/ui/icons'
 import { cn } from '@/utils/cn'
 
 interface PaginationMeta {
@@ -97,7 +97,7 @@ export function Pagination({
 					<select
 						value={limit}
 						onChange={(e) => onPerPageChange(Number(e.target.value))}
-						className="ml-2 h-8 rounded-md border border-input bg-background px-2 text-xs text-foreground"
+						className="ml-2 h-8 rounded-control border border-input bg-background px-2 text-xs text-foreground"
 						aria-label="Resultados por página"
 					>
 						{perPageOptions.map((n) => (

@@ -60,7 +60,6 @@ export function TodoForm({
 						id="todo-title"
 						{...form.register('title')}
 						placeholder="¿Qué hay que hacer?"
-						className="aether-input-inset"
 						autoFocus
 					/>
 					{form.formState.errors.title && (
@@ -76,7 +75,7 @@ export function TodoForm({
 						id="todo-description"
 						{...form.register('description')}
 						placeholder="Detalles adicionales..."
-						className="aether-input-inset min-h-[100px]"
+						className="min-h-[100px]"
 					/>
 					{form.formState.errors.description && (
 						<p className="mt-1 text-xs text-destructive">
@@ -89,7 +88,7 @@ export function TodoForm({
 					<label htmlFor="todo-priority" className="text-sm font-medium text-foreground">
 						Prioridad
 					</label>
-					<Select id="todo-priority" {...form.register('priority')} className="aether-input-inset">
+					<Select id="todo-priority" {...form.register('priority')}>
 						<option value="low">Baja</option>
 						<option value="medium">Media</option>
 						<option value="high">Alta</option>

@@ -104,6 +104,8 @@ AGENTS.md "Layout Reasoning" for how to pick or design a layout per product arch
 200. **DESIGN_SYSTEM.md must exist and be complete.** Must contain all required sections: Design Principles, Color Tokens, Typography, Spacing, Component Patterns, Motion System, Responsive Strategy, Screen-Type Patterns, Quality Checklist. Enforced by architecture test.
 201. **DESIGN_BRIEF.md must exist and be filled.** The brief defines WHO uses this product and WHY. An empty template is a violation — answers must be present. Without a brief, design decisions are arbitrary. Run `/design-audit` to fill it.
 202. **styles.css must define semantic tokens.** Required tokens: `--background`, `--foreground`, `--card`, `--primary`, `--border`, `--muted`. No project ships without a themed palette.
+203. **The look lives in the identity, not in components.** No `rgba()`/`hsl()` color literals and no `dark:` color overrides (`dark:bg-*`, `dark:text-*`, `dark:border-*`…) in `.tsx`. A value that differs in dark mode belongs in the `.dark` part of the IDENTITY block in `src/styles.css`. This is what lets one block re-skin the app. Enforced by architecture test.
+204. **Icons come from `@/ui/icons` only.** Only `src/ui/icons.ts` (and the `IconProvider`) import an icon library; switching the set is a one-file change. Enforced by architecture test.
 
 ## Testing
 

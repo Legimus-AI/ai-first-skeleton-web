@@ -1,4 +1,3 @@
-import { Loader2 } from 'lucide-react'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -9,6 +8,7 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from '@/ui/alert-dialog'
+import { Spinner } from '@/ui/icons'
 
 interface ConfirmDeleteProps {
 	open: boolean
@@ -47,7 +47,7 @@ export function ConfirmDelete({
 						disabled={isPending}
 						className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
 					>
-						{isPending && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />}
+						{isPending && <Spinner className="mr-1.5 h-4 w-4 animate-spin" />}
 						{confirmLabel}
 					</AlertDialogAction>
 				</AlertDialogFooter>

@@ -1,109 +1,132 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "@fontsource-variable/onest";
 
 @source "../src/**/*.{ts,tsx}";
 
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Design tokens — OKLCH colors (Tailwind v4 native).
- * See DESIGN_SYSTEM.md for full guidelines.
+ * Design tokens — OKLCH colors (Tailwind v4 native). Full spec: DESIGN_SYSTEM.md.
  *
- * Theme: "Aether" — deep dark mode SaaS dashboard.
- * Font: Geist Sans (loaded via Google Fonts in index.html).
- * Palette: monochrome + single accent (blue) + semantic colors.
- * Surface layers: background -> card -> popover (each progressively lighter/darker).
- * Dark mode: true black (#000000) base with obsidian surfaces.
- * Border system: 1px hairline using white at low opacity (no solid grey).
+ * The IDENTITY block below is the only part that changes between products.
+ * Components read tokens only, so replacing that block (or pasting a tweakcn /
+ * shadcn-create export over the color part) re-skins the whole app.
+ * The icon set and weight are the other half of the identity: src/ui/icons.ts.
+ */
+
+/* ═══ IDENTITY: Suave ════════════════════════════════════════════════════════
+ * Soft, warm-neutral and airy: floating surfaces, pill buttons, soft shadows,
+ * Onest type. Color appears only in states (success, warning, destructive, info).
  */
 
 :root {
-	--radius: 0.5rem;
+	/* ── Type ────────────────────────────────────────────────── */
+	--font-body: "Onest Variable", ui-sans-serif, system-ui, -apple-system, sans-serif;
+	--font-display: "Onest Variable", ui-sans-serif, system-ui, -apple-system, sans-serif;
+	--tracking-body: -0.005em;
+	--tracking-display: -0.025em;
 
-	/* ── Surfaces ─────────────────────────────────────────────── */
-	--background: oklch(0.985 0 0);
-	--foreground: oklch(0.145 0 0);
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
+	/* ── Shape ───────────────────────────────────────────────── */
+	--radius: 0.75rem; /* inputs, selects, menu items */
+	--radius-button-value: 9999px; /* pill buttons */
+	--radius-surface-value: 1.25rem; /* cards, sidebar, panels */
+	--radius-overlay-value: 1rem; /* dialogs, dropdowns, popovers */
 
-	/* ── Primary (neutral black/white) ───────────────────────── */
-	--primary: oklch(0.145 0 0);
-	--primary-foreground: oklch(0.985 0 0);
+	/* ── Density (overridden by [data-density="compact"]) ───── */
+	--control-height: 2.5rem;
+	--row-padding-y: 0.75rem;
+	--surface-padding: 1.5rem;
+
+	/* ── Motion ──────────────────────────────────────────────── */
+	--motion-ease: cubic-bezier(0.16, 1, 0.3, 1);
+
+	/* ── Surfaces (warm neutral, hue 80) ─────────────────────── */
+	--background: oklch(0.972 0.004 80);
+	--foreground: oklch(0.25 0.008 60);
+	--card: oklch(0.995 0.002 80);
+	--card-foreground: oklch(0.25 0.008 60);
+	--popover: oklch(0.995 0.002 80);
+	--popover-foreground: oklch(0.25 0.008 60);
+
+	/* ── Primary (neutral ink, never a hue) ──────────────────── */
+	--primary: oklch(0.25 0.008 60);
+	--primary-foreground: oklch(0.98 0.003 80);
 
 	/* ── Neutral fills ───────────────────────────────────────── */
-	--secondary: oklch(0.965 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.965 0 0);
-	--muted-foreground: oklch(0.556 0 0);
-	--accent: oklch(0.965 0.005 260);
-	--accent-foreground: oklch(0.205 0 0);
+	--secondary: oklch(0.935 0.005 80);
+	--secondary-foreground: oklch(0.25 0.008 60);
+	--muted: oklch(0.935 0.005 80);
+	--muted-foreground: oklch(0.5 0.008 60);
+	--accent: oklch(0.935 0.005 80);
+	--accent-foreground: oklch(0.25 0.008 60);
 
-	/* ── Semantic colors ─────────────────────────────────────── */
-	--destructive: oklch(0.577 0.245 27.325);
-	--destructive-foreground: oklch(0.985 0 0);
-	--success: oklch(0.62 0.17 145);
-	--success-foreground: oklch(0.985 0 0);
-	--warning: oklch(0.75 0.15 75);
-	--warning-foreground: oklch(0.25 0 0);
-	--info: oklch(0.7 0.12 230);
-	--info-foreground: oklch(0.985 0 0);
+	/* ── States: readable as text on surfaces (≥4.5:1) ──────── */
+	--destructive: oklch(0.5 0.19 27);
+	--destructive-foreground: oklch(0.98 0.003 80);
+	--success: oklch(0.5 0.13 150);
+	--success-foreground: oklch(0.98 0.003 80);
+	--warning: oklch(0.5 0.12 65);
+	--warning-foreground: oklch(0.98 0.003 80);
+	--info: oklch(0.5 0.1 240);
+	--info-foreground: oklch(0.98 0.003 80);
 
-	/* ── Borders & rings ─────────────────────────────────────── */
-	--border: oklch(0.915 0 0);
-	--input: oklch(0.885 0 0);
-	--ring: oklch(0.145 0 0);
+	/* ── Lines & focus ───────────────────────────────────────── */
+	--border: oklch(0.915 0.005 80);
+	--input: oklch(0.885 0.006 80);
+	--ring: oklch(0.5 0.008 60);
 
-	/* ── Aether-specific tokens ──────────────────────────────── */
-	--sidebar-glass-bg: oklch(1 0 0 / 80%);
-	--sidebar-glass-blur: 10px;
-	--glow-color: oklch(0.145 0 0 / 20%);
-	--input-inset-bg: oklch(0.96 0 0);
+	/* ── Elevation (soft, warm-tinted shadows) ───────────────── */
+	--elevation-control: 0 1px 3px oklch(0.3 0.01 60 / 0.12);
+	--elevation-surface:
+		0 1px 2px oklch(0.3 0.01 60 / 0.05), 0 12px 32px -8px oklch(0.3 0.01 60 / 0.1);
+	--elevation-overlay:
+		0 2px 6px oklch(0.3 0.01 60 / 0.08), 0 24px 48px -12px oklch(0.3 0.01 60 / 0.22);
 }
 
 .dark {
-	/* ── Surfaces (Aether deep dark) ─────────────────────────── */
-	--background: oklch(0 0 0);
-	--foreground: oklch(0.93 0 0);
-	--card: oklch(0.04 0 0);
-	--card-foreground: oklch(0.93 0 0);
-	/* Popover/dialog: one step above card so modals read clearly on true-black background */
-	--popover: oklch(0.14 0 0);
-	--popover-foreground: oklch(0.93 0 0);
+	/* Dark elevation comes from surface tone; shadows only add a faint edge. */
+	--background: oklch(0.19 0.005 60);
+	--foreground: oklch(0.95 0.004 80);
+	--card: oklch(0.235 0.006 60);
+	--card-foreground: oklch(0.95 0.004 80);
+	--popover: oklch(0.27 0.006 60);
+	--popover-foreground: oklch(0.95 0.004 80);
 
-	/* ── Primary (flexible neutral/accent) ───────────────────── */
-	--primary: oklch(0.98 0 0);
-	--primary-foreground: oklch(0 0 0);
+	--primary: oklch(0.95 0.004 80);
+	--primary-foreground: oklch(0.2 0.005 60);
 
-	/* ── Neutral fills ───────────────────────────────────────── */
-	--secondary: oklch(0.1 0 0);
-	--secondary-foreground: oklch(0.53 0 0);
-	--muted: oklch(0.1 0 0);
-	--muted-foreground: oklch(0.53 0 0);
-	--accent: oklch(0.15 0 0);
-	--accent-foreground: oklch(0.93 0 0);
+	--secondary: oklch(0.29 0.006 60);
+	--secondary-foreground: oklch(0.95 0.004 80);
+	--muted: oklch(0.29 0.006 60);
+	--muted-foreground: oklch(0.72 0.006 80);
+	--accent: oklch(0.29 0.006 60);
+	--accent-foreground: oklch(0.95 0.004 80);
 
-	/* ── Semantic colors ─────────────────────────────────────── */
-	--destructive: oklch(0.65 0.2 25);
-	--destructive-foreground: oklch(0.985 0 0);
-	--success: oklch(0.65 0.17 145);
-	--success-foreground: oklch(0 0 0);
-	--warning: oklch(0.75 0.15 75);
-	--warning-foreground: oklch(0 0 0);
-	--info: oklch(0.7 0.12 230);
-	--info-foreground: oklch(0 0 0);
+	--destructive: oklch(0.72 0.15 27);
+	--destructive-foreground: oklch(0.2 0.005 60);
+	--success: oklch(0.78 0.13 150);
+	--success-foreground: oklch(0.2 0.005 60);
+	--warning: oklch(0.8 0.13 75);
+	--warning-foreground: oklch(0.2 0.005 60);
+	--info: oklch(0.78 0.09 240);
+	--info-foreground: oklch(0.2 0.005 60);
 
-	/* ── Borders & rings (hairline white at 8%) ──────────────── */
-	--border: rgba(255, 255, 255, 0.08);
-	--input: rgba(255, 255, 255, 0.08);
-	--ring: oklch(0.98 0 0);
+	--border: oklch(0.31 0.007 60);
+	--input: oklch(0.36 0.007 60);
+	--ring: oklch(0.72 0.006 80);
 
-	/* ── Aether-specific tokens ──────────────────────────────── */
-	--sidebar-glass-bg: rgba(0, 0, 0, 0.7);
-	--sidebar-glass-blur: 10px;
-	--glow-color: oklch(0.98 0 0 / 20%);
-	--input-inset-bg: #0d0d0d;
+	--elevation-control: 0 1px 2px oklch(0 0 0 / 0.4);
+	--elevation-surface: inset 0 1px 0 oklch(1 0 0 / 0.04), 0 12px 32px -12px oklch(0 0 0 / 0.5);
+	--elevation-overlay: inset 0 1px 0 oklch(1 0 0 / 0.06), 0 24px 48px -12px oklch(0 0 0 / 0.6);
+}
+
+/* ═══ END IDENTITY ══════════════════════════════════════════════════════════ */
+
+[data-density="compact"] {
+	--control-height: 2.25rem;
+	--row-padding-y: 0.5rem;
+	--surface-padding: 1rem;
 }
 
 @theme inline {
@@ -132,10 +155,30 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
-	--radius-sm: calc(var(--radius) - 2px);
-	--radius-md: var(--radius);
-	--radius-lg: calc(var(--radius) + 4px);
-	--radius-xl: calc(var(--radius) + 8px);
+
+	--font-sans: var(--font-body);
+	--font-heading: var(--font-display);
+
+	--radius-sm: calc(var(--radius) * 0.5);
+	--radius-md: calc(var(--radius) * 0.75);
+	--radius-lg: var(--radius);
+	--radius-xl: var(--radius-overlay-value);
+	--radius-control: var(--radius);
+	--radius-button: var(--radius-button-value);
+	--radius-surface: var(--radius-surface-value);
+	--radius-overlay: var(--radius-overlay-value);
+
+	--shadow-control: var(--elevation-control);
+	--shadow-surface: var(--elevation-surface);
+	--shadow-overlay: var(--elevation-overlay);
+
+	--ease-standard: var(--motion-ease);
+}
+
+@theme {
+	/* WHY: 11px for dense metadata (avatars, counters) without arbitrary text-[11px]. */
+	--text-2xs: 0.6875rem;
+	--text-2xs--line-height: 1rem;
 }
 
 @layer base {
@@ -144,15 +187,15 @@
 	}
 	body {
 		@apply bg-background text-foreground antialiased;
-		font-family: "Geist", ui-sans-serif, system-ui, -apple-system, sans-serif;
-		letter-spacing: -0.01em;
+		font-family: var(--font-body);
+		letter-spacing: var(--tracking-body);
 	}
 
-	/* Aether headline tracking */
 	h1,
 	h2,
 	h3 {
-		letter-spacing: -0.03em;
+		font-family: var(--font-display);
+		letter-spacing: var(--tracking-display);
 	}
 }
 
@@ -178,56 +221,7 @@
 	}
 }
 
-@keyframes glow-pulse {
-	0%,
-	100% {
-		box-shadow: 0 0 8px 2px var(--glow-color);
-	}
-	50% {
-		box-shadow: 0 0 16px 4px var(--glow-color);
-	}
-}
-
-@keyframes subtle-glow {
-	0%,
-	100% {
-		opacity: 0.6;
-	}
-	50% {
-		opacity: 1;
-	}
-}
-
 @theme inline {
 	--animate-shimmer: shimmer 0.8s ease-in-out infinite;
-	--animate-fade-in: fade-in 200ms cubic-bezier(0.16, 1, 0.3, 1);
-	--animate-glow-pulse: glow-pulse 3s ease-in-out infinite;
-	--animate-subtle-glow: subtle-glow 3s ease-in-out infinite;
-}
-
-/* ── Aether Utilities ────────────────────────────────────────── */
-
-/* Glassmorphism utility class for sidebar and dropdowns */
-.aether-glass {
-	background: var(--sidebar-glass-bg);
-	backdrop-filter: blur(var(--sidebar-glass-blur));
-	-webkit-backdrop-filter: blur(var(--sidebar-glass-blur));
-}
-
-/* Active sidebar glow indicator */
-.aether-active-glow {
-	box-shadow: 0 0 12px 2px var(--glow-color);
-}
-
-/* Button squish on click */
-.aether-squish {
-	transition: transform 100ms ease;
-}
-.aether-squish:active {
-	transform: scale(0.96);
-}
-
-/* Dark inset input styling */
-.aether-input-inset {
-	background-color: var(--input-inset-bg);
+	--animate-fade-in: fade-in 200ms var(--motion-ease);
 }

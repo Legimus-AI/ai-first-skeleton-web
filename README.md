@@ -42,7 +42,7 @@ Any backend that follows the AI-First API contract works: `/api/v1/<slice>` path
 | 🔌 | API client | Backend-agnostic fetch wrapper with timeout, typed errors, Zod response validation, one session policy (401 → login and back) and Spanish user messages | [API client](docs/api-client.md) |
 | ⚡ | Optimistic mutations | `useOptimisticMutation` for toggles and inline edits | [Optimistic mutations](docs/optimistic-mutations.md) |
 | 📄 | URL-driven lists | `page`, `search`, `sort`, `order` live in the URL; route loaders prefetch with `queryOptions` | [Pagination](docs/pagination.md) |
-| 🎨 | Design system | Aether theme: OKLCH tokens, dark mode, owned shadcn/ui-style primitives | [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md) |
+| 🎨 | Design system | Suave identity in one swappable token block (OKLCH colors, Onest, radii, elevation, density, motion), Phosphor icons behind `@/ui/icons`, owned shadcn/ui-style primitives | [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md) |
 | ✨ | Motion | CSS-only fade, page and list primitives that respect reduced motion | [Motion](docs/motion.md) |
 | 🌍 | Locale formatting | `Intl` formatting from `VITE_LOCALE` | [i18n](docs/i18n.md) |
 | 📈 | Integration recipes | Sentry, Microsoft Clarity and OpenTelemetry for observability; browser push notifications (`use-push-notifications`) | [Recipes](docs/recipes/) |
@@ -111,6 +111,7 @@ wheel/touch input works inside Radix dialogs.
 | Styles | Tailwind CSS v4 + CVA |
 | Forms | React Hook Form + Zod |
 | UI Components | shadcn/ui pattern (copy-paste owned) on Radix primitives |
+| Icons and font | Phosphor (through `@/ui/icons`), Onest Variable self-hosted |
 | Lint/Format | Biome |
 
 ## 📚 Documentation
@@ -119,4 +120,4 @@ Start at [docs/README.md](docs/README.md): it lists every guide, grouped by task
 
 ## 📝 Changelog
 
-This repo keeps no changelog file. The history lives in the commits on `main`, design decisions in [docs/DECISIONS.ndjson](docs/DECISIONS.ndjson), and versioned architecture changes in the [spec changelog](https://github.com/Legimus-AI/ai-first-architecture/blob/main/CHANGELOG.md). The latest round, on 2026-10-04 (WEB-RESILIENCE-261007), made the app say what happened instead of breaking: a lost session goes to login and back, errors render inside the layout with a working retry, Spanish copy and validation everywhere, lists that clamp bad URLs and never show a false empty page, honest dashboard and demos, team actions by permission, password reset and email verification pages, mobile cards and no dark-mode flash.
+This repo keeps no changelog file. The history lives in the commits on `main`, design decisions in [docs/DECISIONS.ndjson](docs/DECISIONS.ndjson), and versioned architecture changes in the [spec changelog](https://github.com/Legimus-AI/ai-first-architecture/blob/main/CHANGELOG.md). The latest round, on 2026-10-04 (WEB-RESILIENCE-261007), made the app say what happened instead of breaking: a lost session goes to login and back, errors render inside the layout with a working retry, Spanish copy and validation everywhere, lists that clamp bad URLs and never show a false empty page, honest dashboard and demos, team actions by permission, password reset and email verification pages, mobile cards and no dark-mode flash. The same day (SUAVE-IDENTITY) the default look became the Suave identity: one token block re-skins the app, components carry no `dark:` or rgba values, icons go through `@/ui/icons`, and the design guard bans the generic template tells.

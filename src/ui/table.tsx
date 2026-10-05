@@ -10,16 +10,7 @@ export function Table({ className, ...props }: ComponentPropsWithoutRef<'table'>
 }
 
 export function TableHeader({ className, ...props }: HTMLAttributes<HTMLTableSectionElement>) {
-	return (
-		<thead
-			className={cn(
-				'[&_tr]:border-b [&_tr]:border-border',
-				'dark:[&_tr]:border-[rgba(255,255,255,0.08)]',
-				className,
-			)}
-			{...props}
-		/>
-	)
+	return <thead className={cn('[&_tr]:border-b [&_tr]:border-border', className)} {...props} />
 }
 
 export function TableBody({ className, ...props }: HTMLAttributes<HTMLTableSectionElement>) {
@@ -30,7 +21,7 @@ export function TableRow({ className, ...props }: HTMLAttributes<HTMLTableRowEle
 	return (
 		<tr
 			className={cn(
-				'group/row border-b border-border/50 transition-colors duration-150 hover:bg-muted/50 data-[selected=true]:bg-muted/50',
+				'group/row border-b border-border transition-colors duration-150 ease-standard hover:bg-accent/60 data-[selected=true]:bg-accent',
 				className,
 			)}
 			{...props}
@@ -42,7 +33,7 @@ export function TableHead({ className, ...props }: ComponentPropsWithoutRef<'th'
 	return (
 		<th
 			className={cn(
-				'px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground [&:has([role=checkbox])]:w-12',
+				'px-4 py-(--row-padding-y) text-left text-xs font-medium text-muted-foreground [&:has([role=checkbox])]:w-12',
 				className,
 			)}
 			{...props}
@@ -51,5 +42,10 @@ export function TableHead({ className, ...props }: ComponentPropsWithoutRef<'th'
 }
 
 export function TableCell({ className, ...props }: ComponentPropsWithoutRef<'td'>) {
-	return <td className={cn('px-4 py-3 [&:has([role=checkbox])]:w-12', className)} {...props} />
+	return (
+		<td
+			className={cn('px-4 py-(--row-padding-y) [&:has([role=checkbox])]:w-12', className)}
+			{...props}
+		/>
+	)
 }

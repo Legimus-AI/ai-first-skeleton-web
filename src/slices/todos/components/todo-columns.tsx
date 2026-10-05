@@ -1,7 +1,7 @@
 import type { Todo } from '@repo/shared'
-import { ArrowDown, ArrowRight, ArrowUp, CheckCircle2, Circle, Pencil, Trash2 } from 'lucide-react'
 import { Button } from '@/ui/button'
 import type { Column } from '@/ui/data-table'
+import { ArrowDown, ArrowRight, ArrowUp, CheckCircle, Circle, Pencil, Trash } from '@/ui/icons'
 import { cn } from '@/utils/cn'
 import { formatDateTime } from '@/utils/format-date'
 
@@ -32,7 +32,7 @@ export function buildTodoColumns({
 					aria-label={`Marcar "${item.title}" como ${item.completed ? 'pendiente' : 'completada'}`}
 				>
 					{item.completed ? (
-						<CheckCircle2 className="h-4.5 w-4.5 text-primary" />
+						<CheckCircle weight="fill" className="h-4.5 w-4.5 text-primary" />
 					) : (
 						<Circle className="h-4.5 w-4.5 text-muted-foreground/30 hover:text-muted-foreground/60 transition-colors" />
 					)}
@@ -69,20 +69,20 @@ export function buildTodoColumns({
 			render: (item) => {
 				if (item.priority === 'high') {
 					return (
-						<div className="inline-flex items-center rounded-full border border-border/50 bg-muted/50 px-2 py-0.5 text-[11px] font-medium text-foreground">
+						<div className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-2xs font-medium text-foreground">
 							<ArrowUp className="mr-1 h-3 w-3" /> Alta
 						</div>
 					)
 				}
 				if (item.priority === 'medium') {
 					return (
-						<div className="inline-flex items-center rounded-full border border-border/50 bg-muted/50 px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
+						<div className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-2xs font-medium text-muted-foreground">
 							<ArrowRight className="mr-1 h-3 w-3" /> Media
 						</div>
 					)
 				}
 				return (
-					<div className="inline-flex items-center rounded-full border border-border/50 bg-muted/50 px-2 py-0.5 text-[11px] font-medium text-muted-foreground/70">
+					<div className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-2xs font-medium text-muted-foreground/70">
 						<ArrowDown className="mr-1 h-3 w-3" /> Baja
 					</div>
 				)
@@ -94,7 +94,7 @@ export function buildTodoColumns({
 			sortable: true,
 			className: 'hidden w-36 lg:table-cell',
 			render: (item) => (
-				<span className="font-mono text-[11px] tabular-nums text-muted-foreground">
+				<span className="text-2xs tabular-nums text-muted-foreground">
 					{formatDateTime(item.updatedAt)}
 				</span>
 			),
@@ -129,7 +129,7 @@ export function buildTodoColumns({
 						}}
 						aria-label={`Eliminar "${item.title}"`}
 					>
-						<Trash2 className="h-4 w-4" />
+						<Trash className="h-4 w-4" />
 					</Button>
 				</div>
 			),

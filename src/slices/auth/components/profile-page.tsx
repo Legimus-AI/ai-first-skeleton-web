@@ -1,11 +1,11 @@
 import { Link } from '@tanstack/react-router'
-import { Mail, Shield, User } from 'lucide-react'
 import { useCurrentUser } from '@/slices/auth/hooks/use-auth'
 import { Avatar } from '@/ui/avatar'
 import { buttonVariants } from '@/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/ui/card'
 import { CrudPageHeader } from '@/ui/crud-page-header'
 import { FadeIn } from '@/ui/fade-in'
+import { Mail, Shield, User } from '@/ui/icons'
 import { Skeleton } from '@/ui/skeleton'
 import { ProfileForm } from './profile-form'
 
@@ -34,7 +34,7 @@ export function ProfilePage() {
 			/>
 
 			{/* Header Section */}
-			<div className="flex items-center gap-5 rounded-xl border border-border/50 bg-card p-6 shadow-sm">
+			<div className="flex items-center gap-5 rounded-surface bg-card p-(--surface-padding) shadow-surface">
 				<Avatar size="lg" name={user.name ?? user.email} className="h-16 w-16 text-lg" />
 				<div className="min-w-0 space-y-1">
 					<h2 className="text-2xl font-semibold tracking-tight text-foreground break-words">

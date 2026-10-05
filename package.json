@@ -22,7 +22,9 @@
 		"prepare": "lefthook install"
 	},
 	"dependencies": {
+		"@fontsource-variable/onest": "^5.3.1",
 		"@hookform/resolvers": "^5.2.0",
+		"@phosphor-icons/react": "^2.1.10",
 		"@radix-ui/react-alert-dialog": "^1.1.15",
 		"@radix-ui/react-dialog": "^1.1.15",
 		"@radix-ui/react-dropdown-menu": "^2.1.16",
@@ -36,7 +38,6 @@
 		"class-variance-authority": "^0.7.0",
 		"clsx": "^2.1.0",
 		"cmdk": "^1.1.1",
-		"lucide-react": "^0.563.0",
 		"react": "19.2.7",
 		"react-dom": "19.2.7",
 		"react-error-boundary": "^6.1.1",

@@ -1,7 +1,7 @@
-import { Plus } from 'lucide-react'
 import { useState } from 'react'
 import { Badge } from '@/ui/badge'
 import { Button } from '@/ui/button'
+import { Plus } from '@/ui/icons'
 import { cn } from '@/utils/cn'
 import type { BoardCard as BoardCardData, ColumnId } from '../hooks/use-board'
 import { BoardCard } from './board-card'

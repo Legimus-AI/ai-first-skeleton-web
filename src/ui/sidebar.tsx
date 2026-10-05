@@ -1,5 +1,5 @@
-import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { createContext, type ReactNode, use, useEffect, useState } from 'react'
+import { ChevronLeft, ChevronRight } from '@/ui/icons'
 import { Tooltip } from '@/ui/tooltip'
 import { cn } from '@/utils/cn'
 
@@ -63,8 +63,9 @@ export function Sidebar({ children, className }: { children: ReactNode; classNam
 			)}
 			<aside
 				className={cn(
-					'group relative fixed inset-y-0 left-0 z-50 flex flex-col overflow-visible border-r border-border transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]',
-					'aether-glass md:static md:translate-x-0',
+					'group fixed inset-y-0 left-0 z-50 flex flex-col overflow-visible bg-card shadow-overlay transition-[width,transform] duration-300 ease-standard',
+					// Desktop: a floating panel that stays in view while the page scrolls
+					'md:sticky md:top-3 md:h-[calc(100dvh-1.5rem)] md:translate-x-0 md:self-start md:rounded-surface md:shadow-surface',
 					// Mobile: always full 240px drawer
 					'w-[240px]',
 					// Desktop: respect collapse mode
@@ -75,7 +76,7 @@ export function Sidebar({ children, className }: { children: ReactNode; classNam
 			>
 				<div
 					className={cn(
-						'flex h-full flex-col overflow-hidden transition-all duration-300',
+						'flex h-full flex-col overflow-hidden transition-[width] duration-300 ease-standard',
 						'w-[240px]',
 						isCollapsed ? 'md:w-[64px]' : 'md:w-[240px]',
 					)}
@@ -100,7 +101,7 @@ export function SidebarCollapseToggle() {
 		<button
 			type="button"
 			onClick={toggleMode}
-			className="flex h-6 w-6 items-center justify-center rounded-full border border-border bg-background text-muted-foreground shadow-sm transition-all hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+			className="flex h-6 w-6 items-center justify-center rounded-full border border-border bg-card text-muted-foreground shadow-control transition-colors duration-150 ease-standard hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 			aria-label={mode === 'expanded' ? 'Colapsar barra lateral' : 'Expandir barra lateral'}
 		>
 			{mode === 'expanded' ? (
@@ -151,9 +152,7 @@ export function SidebarGroup({
 	return (
 		<div className={cn('mb-6', className)}>
 			{label && mode !== 'collapsed' && (
-				<p className="mb-2 px-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-					{label}
-				</p>
+				<p className="mb-1.5 px-3 text-xs font-medium text-muted-foreground">{label}</p>
 			)}
 			<div className="space-y-1">{children}</div>
 		</div>
@@ -179,11 +178,11 @@ export function SidebarItem({
 	const content = (
 		<div
 			className={cn(
-				'flex w-full items-center rounded-md py-2 text-sm transition-colors duration-200',
+				'flex w-full items-center rounded-full py-2 text-sm transition-colors duration-150 ease-standard',
 				isCollapsed ? 'justify-center px-2' : 'gap-3 px-3',
 				active
 					? 'bg-accent text-accent-foreground font-medium'
-					: 'text-muted-foreground hover:bg-muted/50 hover:text-foreground font-medium',
+					: 'text-muted-foreground hover:bg-accent/60 hover:text-foreground',
 				disabled && 'pointer-events-none opacity-50',
 				className,
 			)}
