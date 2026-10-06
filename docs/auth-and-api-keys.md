@@ -26,6 +26,7 @@ Authenticated users can create and revoke API keys at `/settings/api-keys`. Keys
 - **Create:** Name a key and receive the raw token (shown once, with a copy button; copy it immediately)
 - **Revoke:** Permanently invalidate a key with a confirmation dialog
 - **Usage:** `Authorization: Bearer ak_live_...` header
+- **Connect an agent:** next to the new key, the page shows the MCP server (`<origin>/mcp` with `Authorization: Bearer <key>`) and the CLI setup (`AGENT_API_URL`, `AGENT_API_KEY`, `pnpm agent list`), each with a copy button. `/mcp` is served from the app's origin: nginx proxies it in production and Vite in development.
 
 The page is reachable from the Settings section of the navigation and from the user menu.
 
@@ -46,5 +47,13 @@ For other scope combinations, create the key through the API (`POST /api/v1/auth
 ```bash
 printf %s "$PASSWORD" | pnpm agent login --email you@example.com --scopes todos:read,todos:write
 ```
+
+## Webhooks
+
+Owners and admins manage webhooks at `/settings/webhooks`. The entry is hidden from other roles, and the API answers them 403.
+
+- **Destinations:** create one with a URL and the event types it receives, or `*` for all. The signing secret is shown once, with a copy button. Delete a destination with a confirmation.
+- **Sent events:** newest first (`order=desc`). Each event shows its delivery state (Entregado, Pendiente, Fallido, Sin envíos), its attempts and the error behind that state, with Reenviar and a button for older events. The state comes from the latest send to each destination (`summarizeDeliveries`). While a send is pending, the list refreshes when the next attempt is due (`nextDeliveryRefresh`), never more often than the worker's 5 s poll. A failed send can wait hours for its retry. Deleting a destination deletes its sends, so its events show Sin envíos.
+- **Events off:** the backend needs `EVENTS_ENABLED=true`. Otherwise creating a destination or resending answers 409, and the toast says so.
 
 Scopes, approvals of destructive calls, MCP and the CLI: the backend's [agent surface guide](https://github.com/Legimus-AI/ai-first-skeleton-typescript/blob/main/docs/agent-surface.md).
