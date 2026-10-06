@@ -28,7 +28,7 @@ function VerifyEmailPage() {
 				onSubmit={onSubmit}
 				footer={
 					<Link
-						to="/dashboard"
+						to="/"
 						className="inline-flex h-10 w-full items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 					>
 						Ir a la app

@@ -9,11 +9,11 @@ Session-based auth with login, register, and logout flows. Protected routes redi
 | Route | Description |
 |-------|-------------|
 | `/login` | Email + password sign-in, plus a Google button when `VITE_GOOGLE_AUTH=true`. `?redirect=<path>` returns there after sign-in (only a page on this site other than the auth pages, checked again right before navigating); `?error=oauth` shows "No pudimos iniciar sesión con Google"; a signed-in user is sent on |
-| `/register` | Create a new account (name, email, password); a signed-in user goes to `/dashboard` |
+| `/register` | Create a new account (name, email, password); a signed-in user goes to `HOME_PATH` (`/dashboard` unless the project changed it in `src/constants/routes.ts`) |
 | `/forgot-password` | Asks for an email and sends a reset link (`POST /api/v1/auth/forgot-password`) |
 | `/reset-password?token=` | Sets a new password (`POST /api/v1/auth/reset-password`); `&invited=1` shows "Crea tu contraseña" for invited members |
 | `/verify-email?token=` | One click confirms the email (`POST /api/v1/auth/verify-email`); opening the link alone changes nothing |
-| `/` | Protected; redirects to `/dashboard` (and to `/login` if not authenticated) |
+| `/` | Protected; redirects to `HOME_PATH` (and to `/login` if not authenticated) |
 | `/profile` | Protected; user info and edit form |
 | `/settings/*` | Protected; general, notifications, security, team, API keys |
 

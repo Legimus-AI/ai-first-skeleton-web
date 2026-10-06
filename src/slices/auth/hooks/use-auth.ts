@@ -12,6 +12,7 @@ import {
 import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { toast } from 'sonner'
+import { HOME_PATH } from '@/constants/routes'
 import { api } from '@/services/api-client'
 import { ApiError, safeParseResponse, throwIfNotOk, toUserMessage } from '@/services/api-error'
 import { safeRedirectPath } from '@/utils/safe-redirect'
@@ -58,7 +59,7 @@ export function useLogin(redirectTo: string) {
 			queryClient.clear()
 			queryClient.setQueryData(authQueryOptions.queryKey, data.data)
 			// Checked again where it is used: only a path on this site, never another host.
-			void navigate({ href: safeRedirectPath(redirectTo) ?? '/dashboard' })
+			void navigate({ href: safeRedirectPath(redirectTo) ?? HOME_PATH })
 		},
 		onError: (error) => {
 			toast.error('No pudimos iniciar sesión', {
@@ -89,7 +90,7 @@ export function useRegister() {
 		onSuccess: (data) => {
 			queryClient.clear()
 			queryClient.setQueryData(authQueryOptions.queryKey, data.data)
-			void navigate({ to: '/dashboard' })
+			void navigate({ href: HOME_PATH })
 		},
 		onError: (error) => {
 			toast.error('No pudimos crear tu cuenta', {
