@@ -226,7 +226,7 @@ The look is an identity: the IDENTITY block in `src/styles.css` (OKLCH colors wi
 
 ## UI Primitives
 
-Reusable components in `src/ui/` (shadcn/ui copy-paste pattern — we OWN these): Button, Input, Card, Badge, Skeleton, Separator, Sonner, AlertDialog, Dialog, DropdownMenu. Use `cn()` from `src/utils/cn.ts` (only pure helpers live in utils/) to merge classes.
+Reusable components in `src/ui/` (shadcn/ui copy-paste pattern — we OWN these): Button, Input, Card, Badge, Skeleton, Separator, Sonner, AlertDialog, Dialog, DropdownMenu, Segmented (one choice among 2–5 options; `ThemeSegmented` is built on it). Use `cn()` from `src/utils/cn.ts` (only pure helpers live in utils/) to merge classes.
 
 ## React Performance (non-obvious rules)
 
