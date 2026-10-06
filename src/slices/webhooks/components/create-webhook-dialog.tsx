@@ -4,6 +4,7 @@ import {
 	createWebhookDestinationSchema,
 	WEBHOOK_EVENT_TYPES,
 } from '@repo/shared'
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { setFieldErrors } from '@/services/api-error'
 import { Button } from '@/ui/button'
@@ -17,7 +18,7 @@ import {
 } from '@/ui/dialog'
 import { Input } from '@/ui/input'
 import { eventTypeLabel } from '../event-labels'
-import { useCreateWebhookDestination } from '../hooks/use-webhooks'
+import { useCreateWebhookDestination, webhookErrorMessage } from '../hooks/use-webhooks'
 
 const EVENT_CHOICES = ['*', ...WEBHOOK_EVENT_TYPES]
 
@@ -30,6 +31,7 @@ interface CreateWebhookDialogProps {
 
 export function CreateWebhookDialog({ open, onOpenChange, onCreated }: CreateWebhookDialogProps) {
 	const createDestination = useCreateWebhookDestination()
+	const [submitError, setSubmitError] = useState<string | null>(null)
 	const {
 		register,
 		handleSubmit,
@@ -44,18 +46,27 @@ export function CreateWebhookDialog({ open, onOpenChange, onCreated }: CreateWeb
 	// A closed dialog starts clean next time; it cannot close while the destination is being created.
 	const handleOpenChange = (nextOpen: boolean) => {
 		if (createDestination.isPending) return
-		if (!nextOpen) reset()
+		if (!nextOpen) {
+			reset()
+			setSubmitError(null)
+		}
 		onOpenChange(nextOpen)
 	}
 
 	const onSubmit = (input: CreateWebhookDestination) => {
+		setSubmitError(null)
 		createDestination.mutate(input, {
 			onSuccess: (created) => {
 				onCreated(created.secret)
 				reset()
 				onOpenChange(false)
 			},
-			onError: (mutationError) => setFieldErrors(mutationError, setError),
+			// Field errors go under their input; anything else (e.g. events off) shows above the buttons.
+			onError: (mutationError) => {
+				if (!setFieldErrors(mutationError, setError)) {
+					setSubmitError(webhookErrorMessage(mutationError))
+				}
+			},
 		})
 	}
 
@@ -115,6 +126,11 @@ export function CreateWebhookDialog({ open, onOpenChange, onCreated }: CreateWeb
 							)}
 						</fieldset>
 					</div>
+					{submitError && (
+						<p role="alert" className="mb-4 text-sm text-destructive">
+							{submitError}
+						</p>
+					)}
 					<DialogFooter>
 						<Button
 							type="button"

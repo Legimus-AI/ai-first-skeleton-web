@@ -7,7 +7,7 @@ import { useResendWebhookEvent, useWebhookEvents } from '../hooks/use-webhooks'
 import { buildWebhookEventColumns } from './webhook-event-columns'
 
 /** Sent events, newest first, with their delivery state and a resend per event. */
-export function WebhookEventsPanel() {
+export function WebhookEventsPanel({ resendDisabled }: { resendDisabled: boolean }) {
 	const { data, isLoading, error, refetch, hasNextPage, fetchNextPage, isFetchingNextPage } =
 		useWebhookEvents()
 	const resendEvent = useResendWebhookEvent()
@@ -15,8 +15,13 @@ export function WebhookEventsPanel() {
 
 	const events = useMemo(() => data?.pages.flatMap((page) => page.data) ?? [], [data])
 	const columns = useMemo(
-		() => buildWebhookEventColumns({ onResend: (id) => resendEvent.mutate(id), resendingId }),
-		[resendEvent.mutate, resendingId],
+		() =>
+			buildWebhookEventColumns({
+				onResend: (id) => resendEvent.mutate(id),
+				resendingId,
+				resendDisabled,
+			}),
+		[resendEvent.mutate, resendingId, resendDisabled],
 	)
 
 	return (
