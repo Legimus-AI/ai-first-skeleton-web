@@ -11,7 +11,7 @@ import { toast } from 'sonner'
 import { api } from '@/services/api-client'
 import { safeParseResponse, throwIfNotOk, toUserMessage } from '@/services/api-error'
 
-/** What a new key may do. `*:action` never covers team, API keys, webhooks, audit or approvals. */
+/** What a new key may do. `*:action` never covers team, API keys, webhooks or audit. */
 export const API_KEY_SCOPE_PRESETS = [
 	{
 		id: 'read',
@@ -23,13 +23,14 @@ export const API_KEY_SCOPE_PRESETS = [
 		id: 'read-write',
 		label: 'Lectura y escritura',
 		description:
-			'Puede leer, crear y cambiar datos; para borrar pide tu aprobación. No gestiona el equipo ni otras claves.',
+			'Puede leer, crear, cambiar y borrar datos. No gestiona el equipo ni otras claves.',
 		scopes: ['*:read', '*:write'],
 	},
 	{
 		id: 'full',
 		label: 'Acceso total',
-		description: 'Puede hacer todo lo que tú puedes, incluido gestionar el equipo y las claves.',
+		description:
+			'Puede hacer lo mismo que tú, menos gestionar el equipo, las claves y los webhooks: eso solo se hace desde la web.',
 		scopes: ['full'],
 	},
 ] as const

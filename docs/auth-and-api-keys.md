@@ -40,20 +40,20 @@ The form offers three presets and the table shows each key's permissions:
 | Lectura y escritura | `*:read`, `*:write` | everyone |
 | Acceso total | `full` | roles that hold `full` (owner, admin) |
 
-`*:action` never covers the reserved resources (team, API keys, webhooks, audit, approvals). A key never exceeds its creator's role, and with the TypeScript backend skeleton it reaches only the routes marked for agents (`x-agent`); destructive calls ask for an approval.
+`*:action` never covers the reserved resources (team, API keys, webhooks, audit). A key never exceeds its creator's role, and with the TypeScript backend skeleton it reaches only the routes marked for agents (`x-agent`). A key with `*:write` deletes data in one call, with no approval. A key never changes who has access or where data is sent: inviting, changing roles and removing members, creating and revoking API keys, and creating, changing and deleting webhook destinations are refused to every key, `full` included, and stay in this web app.
 
-For other scope combinations, create the key through the API (`POST /api/v1/auth/api-keys` with `scopes`) or with the backend's agent CLI:
+For other scope combinations, create the key through the API with a session cookie, never another key (`POST /api/v1/auth/api-keys` with `scopes`), or with the backend's agent CLI, whose login you approve in the browser:
 
 ```bash
-printf %s "$PASSWORD" | pnpm agent login --email you@example.com --scopes todos:read,todos:write
+pnpm agent login --scopes todos:read,todos:write   # approve in the browser; no password in the CLI
 ```
 
 ## Webhooks
 
-Owners and admins manage webhooks at `/settings/webhooks`. The entry is hidden from other roles, and the API answers them 403.
+Owners and admins manage webhooks at `/settings/webhooks`. The entry is hidden from other roles, and the API answers them 403. API keys cannot create, change or delete destinations; they can poll events with `webhooks:read`.
 
 - **Destinations:** create one with a URL and the event types it receives, or `*` for all. The signing secret is shown once, with a copy button. Delete a destination with a confirmation.
 - **Sent events:** newest first (`order=desc`). Each event shows its delivery state (Entregado, Pendiente, Fallido, Sin envíos), its attempts and the error behind that state, with Reenviar and a button for older events. The state comes from the latest send to each destination (`summarizeDeliveries`). While a send is pending, the list refreshes when the next attempt is due (`nextDeliveryRefresh`), never more often than the worker's 5 s poll. A failed send can wait hours for its retry. Deleting a destination deletes its sends, so its events show Sin envíos.
 - **Events off:** the backend needs `EVENTS_ENABLED=true`. The destination list reports `eventsEnabled`; while it is false the page says how to turn events on and disables Crear destino and Reenviar. If a create still fails, the error shows inside the dialog.
 
-Scopes, approvals of destructive calls, MCP and the CLI: the backend's [agent surface guide](https://github.com/Legimus-AI/ai-first-skeleton-typescript/blob/main/docs/agent-surface.md).
+Scopes, what a key may delete, MCP and the CLI: the backend's [agent surface guide](https://github.com/Legimus-AI/ai-first-skeleton-typescript/blob/main/docs/agent-surface.md).
