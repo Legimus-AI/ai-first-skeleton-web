@@ -7,6 +7,12 @@ const UNSAFE_REDIRECTS = [
 	'https://evil.example',
 	'//evil.example',
 	'/\\evil.example',
+	// The URL parser strips tabs and newlines, so each of these resolves to //evil.example.
+	'/\t/evil.example',
+	'/\n/evil.example',
+	'/\r/evil.example',
+	// Not a valid URL at all: dropped instead of breaking the login page.
+	'//[evil.example',
 	// The login (or another auth page) as the destination nests the redirect on every pass.
 	'/login?redirect=%2Ftodos',
 	'/register',
@@ -26,7 +32,7 @@ async function loginSearchFor(redirect: string) {
 }
 
 describe('login redirect', () => {
-	it.each(UNSAFE_REDIRECTS)('never sends a sign-in to %s', async (unsafeRedirect) => {
+	it.each(UNSAFE_REDIRECTS)('never sends a sign-in to %j', async (unsafeRedirect) => {
 		expect((await loginSearchFor(unsafeRedirect)).redirect).toBeUndefined()
 	})
 
