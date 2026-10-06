@@ -7,12 +7,20 @@ const AUTH_PAGES = new Set([
 	'/verify-email',
 ])
 
-/** `value` when it is a page on this site (e.g. "/todos?page=2") other than an auth page; otherwise undefined. */
+// WHY: any base works; what matters is whether the value keeps it or moves to another host.
+const SAME_SITE_BASE = 'http://same-site.invalid'
+
+/** `value` as a page on this site (e.g. "/todos?page=2") other than an auth page; otherwise undefined. */
 export function safeRedirectPath(value: unknown): string | undefined {
 	if (typeof value !== 'string' || !value.startsWith('/')) return undefined
-	// "//evil.com" and "/\evil.com" are protocol-relative: browsers send them to another host.
-	if (value.startsWith('//') || value.startsWith('/\\')) return undefined
-	const [pathname = ''] = value.split(/[?#]/)
-	if (AUTH_PAGES.has(pathname)) return undefined
-	return value
+	// The browser's own parsing decides: "//evil.com", "/\evil.com" and "/<tab>/evil.com" all
+	// resolve to another host. The resolved path is returned, so the value checked is the one used.
+	let resolved: URL
+	try {
+		resolved = new URL(value, SAME_SITE_BASE)
+	} catch {
+		return undefined // not a URL at all (e.g. "//[x")
+	}
+	if (resolved.origin !== SAME_SITE_BASE || AUTH_PAGES.has(resolved.pathname)) return undefined
+	return resolved.pathname + resolved.search + resolved.hash
 }
