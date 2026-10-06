@@ -2,6 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { type Register, registerSchema } from '@repo/shared'
 import { createFileRoute, Link, Navigate } from '@tanstack/react-router'
 import { useForm } from 'react-hook-form'
+import { HOME_PATH } from '@/constants/routes'
 import { PublicLayout } from '@/layouts/public-layout'
 import { setFieldErrors } from '@/services/api-error'
 import { AuthFormField } from '@/slices/auth/components/auth-form-field'
@@ -25,7 +26,7 @@ function RegisterPage() {
 		resolver: zodResolver(registerSchema),
 	})
 
-	if (user) return <Navigate to="/dashboard" replace />
+	if (user) return <Navigate to="." href={HOME_PATH} replace />
 
 	const onSubmit = (data: Register) =>
 		registerMutation.mutate(data, {

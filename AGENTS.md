@@ -198,6 +198,7 @@ When a provider, integration, or account needs an API key, token, secret, or acc
 - Router enables `defaultPreload: 'intent'` — hovering a `<Link>` preloads route code + runs loaders.
 - `defaultPreloadStaleTime: 0` ensures preloads always fetch fresh data.
 - `defaultViewTransition: true` enables native cross-fade between routes (View Transitions API).
+- **Home route:** `HOME_PATH` in `src/constants/routes.ts` is where a signed-in user lands: after login (when there is no `?redirect=`) or sign-up, and from `/`. A product whose home is another route (e.g. `/cashflows`) changes only that constant; any route works, a list route included, because the app navigates there by `href` and the route's `validateSearch` fills the defaults. A path that is not a route fails typecheck. Links that mean "go home" point at `/`.
 
 ### Route Loaders & queryOptions
 
@@ -226,7 +227,7 @@ The look is an identity: the IDENTITY block in `src/styles.css` (OKLCH colors wi
 
 ## UI Primitives
 
-Reusable components in `src/ui/` (shadcn/ui copy-paste pattern — we OWN these): Button, Input, Card, Badge, Skeleton, Separator, Sonner, AlertDialog, Dialog, DropdownMenu. Use `cn()` from `src/utils/cn.ts` (only pure helpers live in utils/) to merge classes.
+Reusable components in `src/ui/` (shadcn/ui copy-paste pattern — we OWN these): Button, Input, Card, Badge, Skeleton, Separator, Sonner, AlertDialog, Dialog, DropdownMenu, Segmented (one choice among 2–5 options; `ThemeSegmented` is built on it). Use `cn()` from `src/utils/cn.ts` (only pure helpers live in utils/) to merge classes.
 
 ## React Performance (non-obvious rules)
 

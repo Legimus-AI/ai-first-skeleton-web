@@ -95,7 +95,7 @@ products are never forced into a DataTable. See AGENTS.md "Layout Reasoning" and
 
 The API client is a backend-agnostic fetch wrapper (`src/services/api-client.ts`). Response types come from `@repo/shared` (Zod schemas) and are validated at runtime, so there is no dependency on any backend framework. Examples: [docs/api-client.md](docs/api-client.md).
 
-UI primitives live in `src/ui/` (shadcn/ui pattern: the repo owns them). Body-portaled comboboxes should use `src/ui/floating-listbox.ts` together with
+UI primitives live in `src/ui/` (shadcn/ui pattern: the repo owns them); `Segmented` picks one of a few options and `ThemeSegmented` is built on it. Body-portaled comboboxes should use `src/ui/floating-listbox.ts` together with
 `src/ui/floating-listbox-panel.tsx`. They keep dropdown geometry in viewport coordinates,
 protect dialog outside-interaction handling, and compose a nested scroll lock so native
 wheel/touch input works inside Radix dialogs.

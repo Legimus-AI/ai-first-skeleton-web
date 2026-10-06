@@ -2,6 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { type Login, loginSchema } from '@repo/shared'
 import { createFileRoute, Link, Navigate } from '@tanstack/react-router'
 import { useForm } from 'react-hook-form'
+import { HOME_PATH } from '@/constants/routes'
 import { PublicLayout } from '@/layouts/public-layout'
 import { AuthFormField } from '@/slices/auth/components/auth-form-field'
 import { GoogleOAuthButton } from '@/slices/auth/components/google-oauth-button'
@@ -28,7 +29,7 @@ export const Route = createFileRoute('/login')({
 
 function LoginPage() {
 	const search = Route.useSearch()
-	const redirectTo = safeRedirectPath(search.redirect) ?? '/dashboard'
+	const redirectTo = safeRedirectPath(search.redirect) ?? HOME_PATH
 	const { data: user } = useCurrentUser()
 	const login = useLogin(redirectTo)
 	const {

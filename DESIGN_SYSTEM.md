@@ -166,6 +166,10 @@ Cards have no border in Suave: elevation separates them. Borders stay on inputs,
 
 Pill (`rounded-button`), height `--control-height`. Variants: `primary` (ink), `secondary` (accent fill), `outline` (border, card fill), `ghost`, `destructive`, `link`. The press scale lives in the button itself; never add it per call site.
 
+### Segmented control
+
+`Segmented` (`@/ui/segmented`) for one choice among 2–5 options that applies at once: a pill track (`bg-muted`), the chosen option raised (`bg-card shadow-control`), a legend that names the choice, 44px targets on mobile. Options are text, or icons named by their label (`ThemeSegmented`). More options than that: use a select.
+
 ### Tables
 
 Header in sentence case, `text-xs font-medium text-muted-foreground`. Rows separated by `border-border`, cells padded with `--row-padding-y`. Action buttons are icon-only and inline.

@@ -1,5 +1,7 @@
 # Design Brief
 
+<!-- skeleton-template: blank brief. The architecture test exempts this file only while no question is answered; delete this line when you fill it. -->
+
 > AI agents MUST read this file before generating any view, page, or component with visual/interaction decisions.
 > If Layer 1 is empty, ask the user to fill it first — do not generate final UI without this context.
 
@@ -94,7 +96,7 @@
 
 ## Vertical Quick Reference
 
-If you know your vertical, these are typical defaults (override as needed):
+> If you know your vertical, these are typical defaults (override as needed):
 
 | Vertical | Prioritizes | Typical UI patterns |
 |----------|------------|---------------------|

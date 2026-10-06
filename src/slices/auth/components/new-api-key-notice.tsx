@@ -1,28 +1,9 @@
-import { copyToClipboard } from '@/services/clipboard-service'
 import { Button } from '@/ui/button'
+import { CopyableBlock } from './copyable-block'
 
 interface NewApiKeyNoticeProps {
 	rawKey: string
 	onClose: () => void
-}
-
-function CopyableBlock({ label, text }: { label: string; text: string }) {
-	return (
-		<div className="flex flex-col gap-2 sm:flex-row sm:items-start">
-			<pre className="flex-1 overflow-x-auto whitespace-pre-wrap break-all rounded-control border border-border bg-background p-3 font-mono text-xs text-foreground">
-				{text}
-			</pre>
-			<Button
-				type="button"
-				variant="secondary"
-				className="self-end sm:self-auto"
-				aria-label={`Copiar ${label}`}
-				onClick={() => void copyToClipboard(text)}
-			>
-				Copiar
-			</Button>
-		</div>
-	)
 }
 
 /** A key just created (shown once) and how an agent uses it: MCP server or the project CLI. */

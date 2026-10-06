@@ -62,6 +62,26 @@ function getCrudSliceNames(): string[] {
 	return getSliceNames().filter((name) => !INFRA_SLICES.has(name))
 }
 
+// Only the skeleton's own blank DESIGN_BRIEF.md carries this marker (INV-201, ADR 0014).
+const BLANK_BRIEF_MARKER = '<!-- skeleton-template: blank brief'
+
+/** DESIGN_BRIEF.md lines that answer something: not a heading, quote, comment, rule, table row or the archetype placeholder. */
+function briefAnswerLines(brief: string): string[] {
+	return brief.split('\n').filter((line) => {
+		const trimmed = line.trim()
+		return (
+			trimmed.length > 0 &&
+			!/^(#|>|<!--|\||---)/.test(trimmed) &&
+			!/^\*\*Selected archetype:\*\*\s*_\(/.test(trimmed)
+		)
+	})
+}
+
+/** The untouched template is exempt; one answer, even with the marker left in, makes it a real brief. */
+function isBlankBriefTemplate(brief: string): boolean {
+	return brief.includes(BLANK_BRIEF_MARKER) && briefAnswerLines(brief).length === 0
+}
+
 describe('Architecture rules (INVARIANTS.md)', () => {
 	const allTsxFiles = collectFiles(SRC_DIR, ['.tsx'])
 	const allTsFiles = collectFiles(SRC_DIR, ['.ts', '.tsx'])
@@ -217,28 +237,30 @@ describe('Architecture rules (INVARIANTS.md)', () => {
 		}
 	})
 
-	// --- INVARIANT #13: One component per file ---
+	// --- INV-15: One component per file ---
 
-	it('No multiple component exports in a single .tsx file (slices)', () => {
+	it('No more than one component declared in a single .tsx file (slices)', () => {
 		const sliceTsxFiles = collectFiles(SLICES_DIR, ['.tsx'])
 		const violations: string[] = []
+		// A PascalCase function, or a PascalCase const set to an arrow function, memo() or forwardRef().
+		const componentDeclaration =
+			/^\s*(?:export\s+)?(?:default\s+)?(?:function\s+[A-Z]\w*\s*[(<]|const\s+[A-Z][a-z]\w*\s*(?::[^=]+)?=\s*(?:memo\(|forwardRef\(|(?:async\s*)?(?:\([^)]*\)|\w+)\s*(?::[^=]+)?=>))/gm
 
 		for (const file of sliceTsxFiles) {
-			const content = readFileSync(file, 'utf-8')
-			const relPath = relative(SRC_DIR, file)
-
-			// Count exported function components
-			const exportedComponents = content.match(/export\s+function\s+[A-Z]/g)
-			const count = exportedComponents?.length ?? 0
+			// Comments are dropped so a commented-out example is not counted.
+			const code = readFileSync(file, 'utf-8')
+				.replace(/\/\*[\s\S]*?\*\//g, '')
+				.replace(/^\s*\/\/.*$/gm, '')
+			const count = code.match(componentDeclaration)?.length ?? 0
 
 			if (count > 1) {
-				violations.push(`${relPath} — ${count} exported components (max 1)`)
+				violations.push(`${relative(SRC_DIR, file)} — ${count} components (max 1)`)
 			}
 		}
 
 		if (violations.length > 0) {
 			expect.fail(
-				`Multiple components per file (INVARIANT #13):\n${violations.map((v) => `  - ${v}`).join('\n')}\n\nFix: Split into separate files, one component per file.`,
+				`Multiple components per file (INV-15):\n${violations.map((v) => `  - ${v}`).join('\n')}\n\nFix: Move each component, exported or file-private, to its own file.`,
 			)
 		}
 	})
@@ -1073,25 +1095,8 @@ describe('Design System artifacts', () => {
 		}
 
 		// Also check it's not just a template — must have substantive content.
-		// Answer lines are anything that isn't markdown scaffolding or an HTML comment.
-		const answerLines = content.split('\n').filter((l) => {
-			const trimmed = l.trim()
-			return (
-				trimmed.length > 0 &&
-				!trimmed.startsWith('#') &&
-				!trimmed.startsWith('>') &&
-				!trimmed.startsWith('-') &&
-				!trimmed.startsWith('|') &&
-				!trimmed.startsWith('<!--')
-			)
-		})
-		// Pristine skeleton template is valid: the skeleton ships the questionnaire
-		// (detected by its example markers still being present). A half-filled brief
-		// in a real project replaces those markers with answers and IS enforced.
-		// WHY 5: the pristine template ships 7 markers; a filled brief replaces them.
-		const exampleMarkers = (content.match(/<!-- Example:/g) ?? []).length
-		const isPristineTemplate = exampleMarkers >= 5
-		if (!isPristineTemplate && answerLines.length < 10) {
+		// The skeleton ships the blank questionnaire; any brief with an answer is enforced.
+		if (!isBlankBriefTemplate(content) && briefAnswerLines(content).length < 10) {
 			expect.fail(
 				'DESIGN_BRIEF.md has fields but appears to lack substantive answers (< 10 lines of content).\n\nFix: Run /design-audit to complete the brief with actual answers about your users and product.',
 			)
@@ -1102,8 +1107,8 @@ describe('Design System artifacts', () => {
 	//
 	// The archetype mechanism only beats the admin-sidebar default if it is ENFORCED.
 	// Once a real project fills the brief, Layer 0 must (a) resolve to one archetype and
-	// (b) wire the matching shell in _authed.tsx. The pristine skeleton is exempt (same
-	// isPristineTemplate signal as the brief test) so the shipped skeleton stays green.
+	// (b) wire the matching shell in _authed.tsx. The blank template is exempt (same
+	// isBlankBriefTemplate signal as the brief test) so the shipped skeleton stays green.
 	it('Product Archetype (Layer 0) is resolved and matches the wired layout (ADR 0014)', () => {
 		const briefPath = join(ROOT_DIR, 'DESIGN_BRIEF.md')
 		let brief: string
@@ -1114,9 +1119,7 @@ describe('Design System artifacts', () => {
 			return
 		}
 
-		// Pristine skeleton ships the full questionnaire (>=5 example markers) — exempt,
-		// so the skeleton itself stays green until a real project fills the brief.
-		if ((brief.match(/<!-- Example:/g) ?? []).length >= 5) return
+		if (isBlankBriefTemplate(brief)) return
 
 		const ARCHETYPES = ['admin-crud', 'conversational', 'focused-tool', 'split-view', 'custom']
 
@@ -1191,6 +1194,19 @@ describe('Design System artifacts', () => {
 			allowed.includes(wiredShell),
 			`Product Archetype "${archetype}" requires one of [${allowed.join(', ')}] as the authenticated shell, but src/routes/_authed.tsx imports "${wiredShell || '(none found)'}".\n\nFix: change the import in _authed.tsx to '@/layouts/${allowed[0]}', or correct the archetype in DESIGN_BRIEF.md Layer 0. (See the Layout Reasoning table in AGENTS.md.)`,
 		).toBe(true)
+	})
+
+	// The exemption used to count example comments, so a filled brief that kept them skipped both gates.
+	it('Only the untouched brief template is exempt from INV-201 and the archetype gate', () => {
+		const blank = `# Design Brief\n\n${BLANK_BRIEF_MARKER} -->\n\n### 1. User Job\n> What does the user come here to do?\n\n<!-- Example: "Find shoes" -->\n\n**Selected archetype:** _(replace with one value)_\n`
+		const withAnswer = (answer: string) => blank.replace('?\n\n', `?\n\n${answer}\n`)
+		expect(isBlankBriefTemplate(blank)).toBe(true)
+		expect(isBlankBriefTemplate(withAnswer('Reconcile bank movements'))).toBe(false)
+		expect(isBlankBriefTemplate(withAnswer('- Reconcile bank movements'))).toBe(false)
+		expect(isBlankBriefTemplate(blank.replace('_(replace with one value)_', 'admin-crud'))).toBe(
+			false,
+		)
+		expect(isBlankBriefTemplate(blank.replace(BLANK_BRIEF_MARKER, ''))).toBe(false)
 	})
 
 	// --- styles.css must use semantic tokens, not hardcoded colors ---
