@@ -55,6 +55,7 @@ export {
 	Users,
 	Warning as AlertTriangle,
 	WarningCircle as AlertCircle,
+	WebhooksLogo as Webhook,
 	WifiSlash as WifiOff,
 	X,
 } from '@phosphor-icons/react'

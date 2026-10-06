@@ -35,7 +35,8 @@ Any backend that follows the AI-First API contract works: `/api/v1/<slice>` path
 | | Capability | What you get | Guide |
 |---|---|---|---|
 | 🔐 | Auth flows | Login, register, optional Google button, an `_authed` route guard with a pending skeleton, profile and settings pages | [Auth and API keys](docs/auth-and-api-keys.md) |
-| 🔑 | API key page | Create (token shown once, with copy) and revoke keys at `/settings/api-keys`, with scope presets (read only, read and write, full access for owner/admin) shown in the table | [Auth and API keys](docs/auth-and-api-keys.md#what-a-key-created-here-can-do) |
+| 🔑 | API key page | Create (token shown once, with copy) and revoke keys at `/settings/api-keys`, with scope presets (read only, read and write, full access for owner/admin) shown in the table, and how to connect an agent (MCP URL and CLI variables) | [Auth and API keys](docs/auth-and-api-keys.md#what-a-key-created-here-can-do) |
+| 🪝 | Webhooks page | Destinations (signing secret shown once), sent events with delivery state, attempts and resend at `/settings/webhooks`, for owner and admin | [Auth and API keys](docs/auth-and-api-keys.md#webhooks) |
 | 🧭 | Layout archetypes | Four shell presets (sidebar, navbar, focused, split) picked by the product archetype in `DESIGN_BRIEF.md`, plus a governed `custom` escape hatch | [Layouts](docs/layouts.md) |
 | 🗂️ | Reference slices | `todos` (admin CRUD), `chat` (conversational), `editor` (focused tool), `board` (custom, full-bleed kanban), `team` | [AGENTS.md](AGENTS.md) |
 | 📋 | CRUD view contract | DataTable with server pagination, search, sort, bulk delete, `FormDialog` create/edit, `ConfirmDelete`, skeleton and empty states | [INVARIANTS.md](INVARIANTS.md) |

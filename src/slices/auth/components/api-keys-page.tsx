@@ -8,7 +8,6 @@ import {
 import { useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { setFieldErrors } from '@/services/api-error'
-import { copyToClipboard } from '@/services/clipboard-service'
 import { Button } from '@/ui/button'
 import { ConfirmDelete } from '@/ui/confirm-delete'
 import { CrudPageHeader } from '@/ui/crud-page-header'
@@ -34,6 +33,7 @@ import {
 } from '../hooks/use-api-keys'
 import { useCurrentUser } from '../hooks/use-auth'
 import { buildApiKeyColumns } from './api-key-columns'
+import { NewApiKeyNotice } from './new-api-key-notice'
 
 export function ApiKeysPage() {
 	const { data: keys, isLoading, error, refetch } = useApiKeys()
@@ -93,40 +93,8 @@ export function ApiKeysPage() {
 				}
 			/>
 
-			{/* Newly created key banner */}
-			{newRawKey && (
-				<div className="animate-in fade-in slide-in-from-top-2 space-y-3 rounded-surface border border-primary/20 bg-primary/5 p-(--surface-padding)">
-					<div className="space-y-1">
-						<p className="text-sm font-medium text-foreground">Tu nueva clave API está lista</p>
-						<p className="text-xs text-muted-foreground">
-							Cópiala ahora. Por seguridad, no se volverá a mostrar.
-						</p>
-					</div>
-					<div className="flex items-center gap-2">
-						<code className="flex-1 break-all rounded-control border border-border bg-background p-3 font-mono text-sm text-foreground">
-							{newRawKey}
-						</code>
-						<Button
-							type="button"
-							variant="secondary"
-							onClick={() => void copyToClipboard(newRawKey)}
-						>
-							Copiar
-						</Button>
-					</div>
-					<div className="pt-2">
-						<Button
-							type="button"
-							variant="ghost"
-							size="sm"
-							onClick={() => setNewRawKey(null)}
-							className="text-muted-foreground hover:text-foreground"
-						>
-							Cerrar
-						</Button>
-					</div>
-				</div>
-			)}
+			{/* Newly created key banner, with how an agent connects with it */}
+			{newRawKey && <NewApiKeyNotice rawKey={newRawKey} onClose={() => setNewRawKey(null)} />}
 
 			<div className="rounded-surface bg-card shadow-surface">
 				<DataTable

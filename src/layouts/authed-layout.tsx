@@ -1,8 +1,10 @@
+import { rolePermissions } from '@repo/shared'
 import { Link, useMatches, useRouterState } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { DEFAULT_LIST_PARAMS } from '@/hooks/use-query-params'
 import { useTheme } from '@/providers/theme-provider'
+import { useCurrentUser } from '@/slices/auth/hooks/use-auth'
 import { Badge } from '@/ui/badge'
 import { Button } from '@/ui/button'
 import { ACTIVE_ICON_WEIGHT, ChevronRight, Menu, Moon, Sun } from '@/ui/icons'
@@ -20,7 +22,7 @@ import { cn } from '@/utils/cn'
 import type { LayoutVariant } from './content-area'
 import { ContentArea } from './content-area'
 import type { NavItem } from './nav-items'
-import { navItems } from './nav-items'
+import { navItemsFor } from './nav-items'
 
 // ─── Sidebar Navigation ────────────────────────────────────────────────────
 // Items come from nav-items.ts. AI agents add entries there, not here.
@@ -210,8 +212,9 @@ function SidebarNav() {
 		if (isMobile) setOpen(false)
 	}, [isMobile, setOpen])
 
-	const groups = new Map<string, typeof navItems>()
-	for (const item of navItems) {
+	const { data: user } = useCurrentUser()
+	const groups = new Map<string, NavItem[]>()
+	for (const item of navItemsFor(user ? rolePermissions(user.role) : [])) {
 		const group = groups.get(item.group) ?? []
 		group.push(item)
 		groups.set(item.group, group)

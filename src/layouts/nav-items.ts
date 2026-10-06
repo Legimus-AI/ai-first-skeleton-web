@@ -1,3 +1,4 @@
+import { grantsPermission } from '@repo/shared'
 import type { ListParams } from '@/hooks/use-query-params'
 import { DEFAULT_LIST_PARAMS } from '@/hooks/use-query-params'
 import type { AppIcon } from '@/ui/icons'
@@ -26,6 +27,8 @@ export interface NavItem {
 	activePrefix?: string
 	/** Marks a reference demo whose data is not saved anywhere. */
 	demo?: boolean
+	/** Grant needed to see the entry (e.g. `webhooks:manage`); the API enforces it either way. */
+	permission?: string
 	/** Optional sub-items for nested navigation. */
 	children?: Omit<NavItem, 'group' | 'icon'>[]
 }
@@ -78,6 +81,16 @@ export const navItems: NavItem[] = [
 			{ label: 'Seguridad', to: '/settings/security' },
 			{ label: 'Notificaciones', to: '/settings/notifications' },
 			{ label: 'Claves API', to: '/settings/api-keys' },
+			{ label: 'Webhooks', to: '/settings/webhooks', permission: 'webhooks:manage' },
 		],
 	},
 ]
+
+/** The navigation a user holding `grants` may use: entries needing a grant they lack are left out. */
+export function navItemsFor(grants: readonly string[]): NavItem[] {
+	const isAllowed = (entry: { permission?: string }) =>
+		!entry.permission || grantsPermission(grants, entry.permission)
+	return navItems
+		.filter(isAllowed)
+		.map((item) => (item.children ? { ...item, children: item.children.filter(isAllowed) } : item))
+}
