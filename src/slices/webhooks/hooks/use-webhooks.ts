@@ -2,7 +2,7 @@ import {
 	type CreateWebhookDestination,
 	type CreateWebhookDestinationResponse,
 	createWebhookDestinationResponseSchema,
-	type WebhookDestination,
+	type WebhookDestinationListResponse,
 	type WebhookEventListResponse,
 	webhookDestinationListResponseSchema,
 	webhookEventListResponseSchema,
@@ -40,7 +40,7 @@ export function nextDeliveryRefresh(pages: readonly WebhookEventListResponse[]):
 const WEBHOOKS_KEY = ['webhooks'] as const
 
 /** The API answers 409 to a create or resend while it records no events. */
-function webhookErrorMessage(error: unknown): string {
+export function webhookErrorMessage(error: unknown): string {
 	return error instanceof ApiError && error.status === 409
 		? 'Los eventos están apagados en el servidor: activa EVENTS_ENABLED para enviar webhooks.'
 		: toUserMessage(error)
@@ -48,11 +48,12 @@ function webhookErrorMessage(error: unknown): string {
 
 export const webhookDestinationsQueryOptions = queryOptions({
 	queryKey: [...WEBHOOKS_KEY, 'destinations'],
-	queryFn: async ({ signal }): Promise<WebhookDestination[]> => {
+	// Destinations plus `eventsEnabled`: while events are off, nothing can be created or resent.
+	queryFn: async ({ signal }): Promise<WebhookDestinationListResponse> => {
 		const res = await api.get('/api/v1/webhooks', undefined, signal)
 		await throwIfNotOk(res)
 		const json: unknown = await res.json()
-		return safeParseResponse(webhookDestinationListResponseSchema, json).data
+		return safeParseResponse(webhookDestinationListResponseSchema, json)
 	},
 })
 
@@ -100,9 +101,7 @@ export function useCreateWebhookDestination() {
 				description: 'Copia el secreto de firma ahora: no se volverá a mostrar.',
 			})
 		},
-		onError: (error) => {
-			toast.error('No se pudo crear el destino', { description: webhookErrorMessage(error) })
-		},
+		// The create dialog shows the error itself, next to the form the user is looking at.
 	})
 }
 

@@ -54,6 +54,6 @@ Owners and admins manage webhooks at `/settings/webhooks`. The entry is hidden f
 
 - **Destinations:** create one with a URL and the event types it receives, or `*` for all. The signing secret is shown once, with a copy button. Delete a destination with a confirmation.
 - **Sent events:** newest first (`order=desc`). Each event shows its delivery state (Entregado, Pendiente, Fallido, Sin envíos), its attempts and the error behind that state, with Reenviar and a button for older events. The state comes from the latest send to each destination (`summarizeDeliveries`). While a send is pending, the list refreshes when the next attempt is due (`nextDeliveryRefresh`), never more often than the worker's 5 s poll. A failed send can wait hours for its retry. Deleting a destination deletes its sends, so its events show Sin envíos.
-- **Events off:** the backend needs `EVENTS_ENABLED=true`. Otherwise creating a destination or resending answers 409, and the toast says so.
+- **Events off:** the backend needs `EVENTS_ENABLED=true`. The destination list reports `eventsEnabled`; while it is false the page says how to turn events on and disables Crear destino and Reenviar. If a create still fails, the error shows inside the dialog.
 
 Scopes, approvals of destructive calls, MCP and the CLI: the backend's [agent surface guide](https://github.com/Legimus-AI/ai-first-skeleton-typescript/blob/main/docs/agent-surface.md).

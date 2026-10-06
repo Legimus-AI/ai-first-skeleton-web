@@ -22,11 +22,14 @@ interface WebhookEventColumnsOptions {
 	onResend: (eventId: string) => void
 	/** The event whose resend is in flight, if any. */
 	resendingId: string | undefined
+	/** True while the API records no events: a resend would only answer 409. */
+	resendDisabled: boolean
 }
 
 export function buildWebhookEventColumns({
 	onResend,
 	resendingId,
+	resendDisabled,
 }: WebhookEventColumnsOptions): Column<WebhookEvent>[] {
 	return [
 		{
@@ -98,6 +101,7 @@ export function buildWebhookEventColumns({
 					size="sm"
 					type="button"
 					loading={resendingId === event.id}
+					disabled={resendDisabled}
 					onClick={(e) => {
 						e.stopPropagation()
 						onResend(event.id)

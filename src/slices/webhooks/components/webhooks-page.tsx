@@ -4,6 +4,7 @@ import { ConfirmDelete } from '@/ui/confirm-delete'
 import { CrudPageHeader } from '@/ui/crud-page-header'
 import { DataTable } from '@/ui/data-table'
 import { FadeIn } from '@/ui/fade-in'
+import { Hint } from '@/ui/hint'
 import { Plus, Webhook } from '@/ui/icons'
 import { InlineError } from '@/ui/inline-error'
 import { useDeleteWebhookDestination, useWebhookDestinations } from '../hooks/use-webhooks'
@@ -13,7 +14,8 @@ import { WebhookEventsPanel } from './webhook-events-panel'
 import { WebhookSecretNotice } from './webhook-secret-notice'
 
 export function WebhooksPage() {
-	const { data: destinations, isLoading, error, refetch } = useWebhookDestinations()
+	const { data: destinationList, isLoading, error, refetch } = useWebhookDestinations()
+	const eventsOff = destinationList?.eventsEnabled === false
 	const deleteDestination = useDeleteWebhookDestination()
 	const [showCreate, setShowCreate] = useState(false)
 	const [deleteId, setDeleteId] = useState<string | null>(null)
@@ -22,7 +24,7 @@ export function WebhooksPage() {
 	const columns = useMemo(() => buildWebhookDestinationColumns(setDeleteId), [])
 
 	const createButton = (
-		<Button onClick={() => setShowCreate(true)} className="w-full sm:w-auto">
+		<Button onClick={() => setShowCreate(true)} disabled={eventsOff} className="w-full sm:w-auto">
 			<Plus className="mr-1.5 h-4 w-4" />
 			Crear destino
 		</Button>
@@ -37,6 +39,13 @@ export function WebhooksPage() {
 					action={createButton}
 				/>
 
+				{eventsOff && (
+					<Hint variant="warning">
+						Los eventos están apagados en este servidor, así que no se pueden crear destinos ni
+						reenviar eventos. Para activarlos, define EVENTS_ENABLED=true en la API y reiníciala.
+					</Hint>
+				)}
+
 				{newSecret && <WebhookSecretNotice secret={newSecret} onClose={() => setNewSecret(null)} />}
 
 				{error ? (
@@ -44,14 +53,14 @@ export function WebhooksPage() {
 				) : (
 					<div className="rounded-surface bg-card shadow-surface">
 						<DataTable
-							data={destinations ?? []}
+							data={destinationList?.data ?? []}
 							columns={columns}
 							getId={(destination) => destination.id}
 							isLoading={isLoading}
 							emptyMessage="Sin destinos. Crea uno para recibir los eventos en tu sistema."
 							emptyIcon={<Webhook className="h-6 w-6 text-muted-foreground" />}
 							emptyAction={
-								<Button size="sm" onClick={() => setShowCreate(true)}>
+								<Button size="sm" onClick={() => setShowCreate(true)} disabled={eventsOff}>
 									<Plus className="mr-1.5 h-4 w-4" />
 									Crear destino
 								</Button>
@@ -61,7 +70,7 @@ export function WebhooksPage() {
 				)}
 			</div>
 
-			<WebhookEventsPanel />
+			<WebhookEventsPanel resendDisabled={eventsOff} />
 
 			<CreateWebhookDialog
 				open={showCreate}
