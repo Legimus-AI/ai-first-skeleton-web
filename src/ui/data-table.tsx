@@ -1,3 +1,5 @@
+// DataTable owns every view of a list (skeleton, empty, desktop table, mobile cards) so the
+// CRUD slices share one selection, sorting and responsive behaviour; split only if a view grows.
 import {
 	type ColumnDef,
 	flexRender,
@@ -5,9 +7,9 @@ import {
 	type SortingState,
 	useReactTable,
 } from '@tanstack/react-table'
-import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useMemo } from 'react'
+import { ArrowDown, ArrowUp, ArrowUpDown } from '@/ui/icons'
 import { Skeleton } from '@/ui/skeleton'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/ui/table'
 import { cn } from '@/utils/cn'
@@ -30,6 +32,10 @@ interface DataTableProps<T> {
 	onRowClick?: (item: T) => void
 	selectedIds?: Set<string>
 	onSelectionChange?: (ids: Set<string>) => void
+	/** Rows that may be selected; the rest get no checkbox (e.g. yourself in a team list). */
+	canSelect?: (item: T) => boolean
+	/** Human name of a row for screen readers ("Seleccionar <name>"); never an id. */
+	getRowLabel?: (item: T) => string
 	sort?: string
 	order?: 'asc' | 'desc'
 	onSortChange?: (sort: string, order: 'asc' | 'desc') => void
@@ -55,13 +61,52 @@ function SortIcon({
 	return <ArrowDown className="h-3 w-3" />
 }
 
+const CHECKBOX_CLASS =
+	'h-4 w-4 rounded border-input text-primary accent-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
+
+/** Visible at the base breakpoint: shown in the mobile card (secondary columns use `hidden sm:...`). */
+function isBaseVisible<T>(col: Column<T>): boolean {
+	return !/(^|\s)hidden(\s|$)/.test(col.className ?? '')
+}
+
+const selectAnyRow = () => true
+const genericRowLabel = () => 'fila'
+
+interface Selection<T> {
+	selectedIds: Set<string> | undefined
+	onSelectionChange: ((ids: Set<string>) => void) | undefined
+	canSelect: (item: T) => boolean
+	getId: (item: T) => string
+	getRowLabel: (item: T) => string
+}
+
+function RowCheckbox<T>({ item, selection }: { item: T; selection: Selection<T> }) {
+	const { selectedIds, onSelectionChange, canSelect, getId, getRowLabel } = selection
+	if (!canSelect(item)) return null
+	const id = getId(item)
+	return (
+		<input
+			type="checkbox"
+			checked={selectedIds?.has(id) ?? false}
+			onChange={() => {
+				if (!onSelectionChange || !selectedIds) return
+				const next = new Set(selectedIds)
+				if (next.has(id)) next.delete(id)
+				else next.add(id)
+				onSelectionChange(next)
+			}}
+			onClick={(e) => e.stopPropagation()}
+			className={CHECKBOX_CLASS}
+			aria-label={`Seleccionar ${getRowLabel(item)}`}
+		/>
+	)
+}
+
 /** Convert our public Column<T> to TanStack ColumnDef<T>. */
 function toColumnDefs<T>(
 	cols: Column<T>[],
 	hasSelection: boolean,
-	selectedIds: Set<string> | undefined,
-	onSelectionChange: ((ids: Set<string>) => void) | undefined,
-	getId: (item: T) => string,
+	selection: Selection<T>,
 ): ColumnDef<T>[] {
 	const defs: ColumnDef<T>[] = []
 
@@ -70,40 +115,25 @@ function toColumnDefs<T>(
 			id: '__select__',
 			meta: { className: 'w-10' },
 			header: ({ table }) => {
-				const allSelected = table.getRowCount() > 0 && table.getRowCount() === selectedIds?.size
+				const selectableIds = table
+					.getRowModel()
+					.rows.filter((r) => selection.canSelect(r.original))
+					.map((r) => selection.getId(r.original))
+				if (selectableIds.length === 0) return null
+				const allSelected = selectableIds.every((id) => selection.selectedIds?.has(id))
 				return (
 					<input
 						type="checkbox"
 						checked={allSelected}
-						onChange={() => {
-							if (!onSelectionChange) return
-							const allIds = new Set(table.getRowModel().rows.map((r) => getId(r.original)))
-							onSelectionChange(allSelected ? new Set() : allIds)
-						}}
-						className="h-4 w-4 rounded border-input text-primary focus:ring-primary/20 accent-primary"
-						aria-label="Select all rows"
+						onChange={() =>
+							selection.onSelectionChange?.(new Set(allSelected ? [] : selectableIds))
+						}
+						className={CHECKBOX_CLASS}
+						aria-label="Seleccionar todas las filas"
 					/>
 				)
 			},
-			cell: ({ row }) => {
-				const id = getId(row.original)
-				return (
-					<input
-						type="checkbox"
-						checked={selectedIds?.has(id) ?? false}
-						onChange={() => {
-							if (!onSelectionChange || !selectedIds) return
-							const next = new Set(selectedIds)
-							if (next.has(id)) next.delete(id)
-							else next.add(id)
-							onSelectionChange(next)
-						}}
-						onClick={(e) => e.stopPropagation()}
-						className="h-4 w-4 rounded border-input text-primary focus:ring-primary/20 accent-primary"
-						aria-label={`Select row ${id}`}
-					/>
-				)
-			},
+			cell: ({ row }) => <RowCheckbox item={row.original} selection={selection} />,
 		})
 	}
 
@@ -130,20 +160,25 @@ export function DataTable<T>({
 	onRowClick,
 	selectedIds,
 	onSelectionChange,
+	canSelect = selectAnyRow,
+	getRowLabel = genericRowLabel,
 	sort,
 	order,
 	onSortChange,
-	emptyMessage = 'No items found.',
+	emptyMessage = 'No hay resultados.',
 	emptyAction,
 	emptyIcon,
 	skeletonRows = 5,
 }: DataTableProps<T>) {
 	const hasSelection = onSelectionChange !== undefined
 
+	const selection = useMemo<Selection<T>>(
+		() => ({ selectedIds, onSelectionChange, canSelect, getId, getRowLabel }),
+		[selectedIds, onSelectionChange, canSelect, getId, getRowLabel],
+	)
 	const columnDefs = useMemo(
-		() => toColumnDefs(columns, hasSelection, selectedIds, onSelectionChange, getId),
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[columns, hasSelection, selectedIds, onSelectionChange, getId],
+		() => toColumnDefs(columns, hasSelection, selection),
+		[columns, hasSelection, selection],
 	)
 
 	const sortingState: SortingState = useMemo(
@@ -157,6 +192,8 @@ export function DataTable<T>({
 		getRowId: getId,
 		getCoreRowModel: getCoreRowModel(),
 		manualSorting: true,
+		// asc ⇄ desc only: a third "unsorted" click would leave the URL sort unchanged (a dead click).
+		enableSortingRemoval: false,
 		onSortingChange: (updater) => {
 			const next = typeof updater === 'function' ? updater(sortingState) : updater
 			const first = next[0]
@@ -209,71 +246,105 @@ export function DataTable<T>({
 	if (data.length === 0) {
 		return (
 			<div className="flex flex-col items-center justify-center py-12 md:py-16 text-center">
-				{emptyIcon && (
-					<div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
-						{emptyIcon}
-					</div>
-				)}
+				{emptyIcon}
 				<p className="mt-4 text-sm font-medium">{emptyMessage}</p>
 				{emptyAction && <div className="mt-4">{emptyAction}</div>}
 			</div>
 		)
 	}
 
-	// ── Data table ────────────────────────────────────────────────────────────
+	// ── Data table (sm+) and stacked cards (mobile) ───────────────────────────
+
+	const cardColumns = columns.filter(isBaseVisible)
+	const primaryKey = cardColumns.find((col) => col.label)?.key
 
 	return (
-		<div className="overflow-x-auto">
-			<Table>
-				<TableHeader>
-					{table.getHeaderGroups().map((headerGroup) => (
-						<TableRow key={headerGroup.id} className="hover:bg-transparent">
-							{headerGroup.headers.map((header) => {
-								const meta = header.column.columnDef.meta as { className?: string } | undefined
-								const canSort = header.column.getCanSort()
-								return (
-									<TableHead key={header.id} className={meta?.className}>
-										{header.isPlaceholder ? null : canSort ? (
-											<button
-												type="button"
-												onClick={header.column.getToggleSortingHandler()}
-												className="inline-flex items-center gap-1 transition-colors duration-150 hover:text-foreground"
-											>
-												{flexRender(header.column.columnDef.header, header.getContext())}
-												<SortIcon sort={sort} order={order} columnKey={header.id} />
-											</button>
-										) : (
-											flexRender(header.column.columnDef.header, header.getContext())
-										)}
-									</TableHead>
-								)
-							})}
-						</TableRow>
-					))}
-				</TableHeader>
-				<TableBody>
-					{table.getRowModel().rows.map((row) => {
-						const isSelected = selectedIds?.has(row.id) ?? false
-						return (
-							<TableRow
-								key={row.id}
-								data-selected={isSelected}
-								className={cn(onRowClick && 'cursor-pointer')}
-								onClick={() => onRowClick?.(row.original)}
-							>
-								{row.getVisibleCells().map((cell) => {
-									const meta = cell.column.columnDef.meta as { className?: string } | undefined
+		<>
+			<div className="hidden overflow-x-auto sm:block">
+				<Table>
+					<TableHeader>
+						{table.getHeaderGroups().map((headerGroup) => (
+							<TableRow key={headerGroup.id} className="hover:bg-transparent">
+								{headerGroup.headers.map((header) => {
+									const meta = header.column.columnDef.meta as { className?: string } | undefined
+									const canSort = header.column.getCanSort()
 									return (
-										<TableCell key={cell.id} className={meta?.className}>
-											{flexRender(cell.column.columnDef.cell, cell.getContext())}
-										</TableCell>
+										<TableHead key={header.id} className={meta?.className}>
+											{header.isPlaceholder ? null : canSort ? (
+												<button
+													type="button"
+													onClick={header.column.getToggleSortingHandler()}
+													className="inline-flex items-center gap-1 transition-colors duration-150 hover:text-foreground"
+												>
+													{flexRender(header.column.columnDef.header, header.getContext())}
+													<SortIcon sort={sort} order={order} columnKey={header.id} />
+												</button>
+											) : (
+												flexRender(header.column.columnDef.header, header.getContext())
+											)}
+										</TableHead>
 									)
 								})}
 							</TableRow>
-						)
-					})}
-				</TableBody>
-			</Table>
-		</div>
+						))}
+					</TableHeader>
+					<TableBody>
+						{table.getRowModel().rows.map((row) => {
+							const isSelected = selectedIds?.has(row.id) ?? false
+							return (
+								<TableRow
+									key={row.id}
+									data-selected={isSelected}
+									className={cn(onRowClick && 'cursor-pointer')}
+									onClick={() => onRowClick?.(row.original)}
+								>
+									{row.getVisibleCells().map((cell) => {
+										const meta = cell.column.columnDef.meta as { className?: string } | undefined
+										return (
+											<TableCell key={cell.id} className={meta?.className}>
+												{flexRender(cell.column.columnDef.cell, cell.getContext())}
+											</TableCell>
+										)
+									})}
+								</TableRow>
+							)
+						})}
+					</TableBody>
+				</Table>
+			</div>
+			<ul className="divide-y divide-border/50 sm:hidden">
+				{table.getRowModel().rows.map((row) => (
+					<li
+						key={row.id}
+						data-selected={selectedIds?.has(row.id) ?? false}
+						className="flex items-start gap-3 px-4 py-3 data-[selected=true]:bg-muted/50"
+					>
+						{hasSelection && (
+							<div className="pt-0.5">
+								<RowCheckbox item={row.original} selection={selection} />
+							</div>
+						)}
+						{cardColumns.map((col) => (
+							<div
+								key={col.key}
+								className={col.key === primaryKey ? 'min-w-0 flex-1 break-words' : 'shrink-0'}
+							>
+								{col.key === primaryKey && onRowClick ? (
+									<button
+										type="button"
+										className="w-full text-left"
+										onClick={() => onRowClick(row.original)}
+									>
+										{col.render(row.original)}
+									</button>
+								) : (
+									col.render(row.original)
+								)}
+							</div>
+						))}
+					</li>
+				))}
+			</ul>
+		</>
 	)
 }

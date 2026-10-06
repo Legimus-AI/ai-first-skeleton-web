@@ -1,5 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { Bell, BellOff, Send, Volume2, VolumeX } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { usePushNotifications } from '@/hooks/use-push-notifications'
@@ -7,6 +6,7 @@ import { Badge } from '@/ui/badge'
 import { Button } from '@/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/ui/card'
 import { Hint } from '@/ui/hint'
+import { Bell, BellOff, Send, Volume, VolumeOff } from '@/ui/icons'
 import { InfoTooltip } from '@/ui/info-tooltip'
 import { isMac } from '@/utils/platform'
 
@@ -59,25 +59,25 @@ function SettingsNotificationsPage() {
 			if (perm !== 'granted') {
 				const result = await Notification.requestPermission()
 				if (result !== 'granted') {
-					toast.error('Notification permission denied')
+					toast.error('No diste permiso para mostrar notificaciones')
 					return
 				}
 			}
 
 			const reg = await navigator.serviceWorker.ready
-			await reg.showNotification('Test Notification', {
-				body: 'Push notifications are working correctly!',
+			await reg.showNotification('Notificación de prueba', {
+				body: '¡Las notificaciones push funcionan!',
 				icon: '/favicon.ico',
 				tag: 'test-notification',
 			})
 			setPushTestSent(true)
-			toast.success('Notification sent!', {
+			toast.success('Notificación enviada', {
 				description:
-					'Check your OS notification center. If nothing appears, ensure Chrome has notification access in System Settings → Notifications → Google Chrome.',
+					'Revisa el centro de notificaciones de tu sistema. Si no aparece nada, permite las notificaciones de tu navegador en la configuración del sistema.',
 			})
-		} catch (err) {
-			toast.error('Could not send test notification', {
-				description: err instanceof Error ? err.message : 'Unknown error',
+		} catch {
+			toast.error('No pudimos enviar la notificación de prueba', {
+				description: 'Revisa que tu navegador tenga permiso para mostrar notificaciones.',
 			})
 		}
 	}, [])
@@ -99,10 +99,8 @@ function SettingsNotificationsPage() {
 	return (
 		<div className="max-w-2xl space-y-6">
 			<div>
-				<h1 className="text-2xl font-semibold tracking-tight">Notifications</h1>
-				<p className="text-sm text-muted-foreground">
-					Configure how and when you receive notifications.
-				</p>
+				<h1 className="text-2xl font-semibold tracking-tight">Notificaciones</h1>
+				<p className="text-sm text-muted-foreground">Elige cómo y cuándo recibir avisos.</p>
 			</div>
 
 			{/* Push Notifications */}
@@ -112,11 +110,11 @@ function SettingsNotificationsPage() {
 						<div className="space-y-1">
 							<CardTitle className="flex items-center gap-2">
 								<Bell className="h-4 w-4" />
-								Push Notifications
-								<InfoTooltip content="Native browser notifications that appear even when the tab is minimized or in the background. Works on Chrome, Firefox, Edge, and Safari 16.4+." />
+								Notificaciones push
+								<InfoTooltip content="Notificaciones del navegador que aparecen aunque la pestaña esté minimizada o en segundo plano. Funcionan en Chrome, Firefox, Edge y Safari 16.4+." />
 							</CardTitle>
 							<CardDescription>
-								Receive native browser notifications even when the tab is in the background.
+								Recibe avisos del navegador aunque la pestaña esté en segundo plano.
 							</CardDescription>
 						</div>
 						<PushStatusBadge permission={push.permission} isSubscribed={push.isSubscribed} />
@@ -125,14 +123,14 @@ function SettingsNotificationsPage() {
 				<CardContent className="space-y-4">
 					{!push.isSupported ? (
 						<p className="text-sm text-muted-foreground">
-							Your browser does not support push notifications.
+							Tu navegador no admite notificaciones push.
 						</p>
 					) : push.permission === 'denied' ? (
 						<div className="rounded-lg border border-destructive/20 bg-destructive/5 p-4">
-							<p className="text-sm font-medium text-destructive">Notifications blocked</p>
+							<p className="text-sm font-medium text-destructive">Notificaciones bloqueadas</p>
 							<p className="mt-1 text-xs text-muted-foreground">
-								You blocked notifications for this site. To enable them, click the lock icon in your
-								browser's address bar and allow notifications.
+								Bloqueaste las notificaciones de este sitio. Para activarlas, haz clic en el candado
+								de la barra de direcciones y permite las notificaciones.
 							</p>
 						</div>
 					) : (
@@ -140,13 +138,13 @@ function SettingsNotificationsPage() {
 							<div>
 								<p className="text-sm font-medium text-foreground">
 									{push.isSubscribed
-										? 'Notifications are active on this device'
-										: 'Enable notifications on this device'}
+										? 'Las notificaciones están activas en este dispositivo'
+										: 'Activa las notificaciones en este dispositivo'}
 								</p>
 								<p className="text-xs text-muted-foreground">
 									{push.isSubscribed
-										? "You'll receive alerts for new messages, leads, and updates."
-										: 'Get instant alerts when something important happens.'}
+										? 'Recibirás avisos cuando pase algo importante.'
+										: 'Entérate al instante cuando pase algo importante.'}
 								</p>
 							</div>
 							<Button
@@ -160,12 +158,12 @@ function SettingsNotificationsPage() {
 								) : push.isSubscribed ? (
 									<>
 										<BellOff className="mr-1.5 h-3.5 w-3.5" />
-										Disable
+										Desactivar
 									</>
 								) : (
 									<>
 										<Bell className="mr-1.5 h-3.5 w-3.5" />
-										Enable
+										Activar
 									</>
 								)}
 							</Button>
@@ -177,20 +175,19 @@ function SettingsNotificationsPage() {
 							<div className="flex items-center gap-3 rounded-lg border border-border/50 bg-muted/30 px-4 py-3">
 								<Button variant="ghost" size="sm" onClick={sendTestPush} disabled={pushTestSent}>
 									<Send className="mr-1.5 h-3.5 w-3.5" />
-									{pushTestSent ? 'Sent!' : 'Send test notification'}
+									{pushTestSent ? '¡Enviada!' : 'Enviar notificación de prueba'}
 								</Button>
 								<span className="text-xs text-muted-foreground">
-									Verify notifications work on this device.
+									Comprueba que funcionan en este dispositivo.
 								</span>
 							</div>
 							{isMac() && (
 								<Hint variant="tip">
-									<strong>macOS:</strong> If no notification appears, go to{' '}
+									<strong>macOS:</strong> si no aparece ninguna notificación, ve a{' '}
 									<span className="font-medium text-foreground">
-										System Settings → Notifications → Google Chrome
+										Configuración del Sistema → Notificaciones → Google Chrome
 									</span>{' '}
-									and ensure &quot;Allow Notifications&quot; is enabled with Banners or Alerts
-									style.
+									y activa &quot;Permitir notificaciones&quot; con estilo Tiras o Alertas.
 								</Hint>
 							)}
 						</div>
@@ -204,16 +201,16 @@ function SettingsNotificationsPage() {
 					<div className="flex items-center justify-between">
 						<div className="space-y-1">
 							<CardTitle className="flex items-center gap-2">
-								{sound.enabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
-								Sound Notifications
-								<InfoTooltip content="Plays an audio cue inside the app when a new notification arrives. Does not affect push notifications." />
+								{sound.enabled ? <Volume className="h-4 w-4" /> : <VolumeOff className="h-4 w-4" />}
+								Sonido
+								<InfoTooltip content="Reproduce un sonido dentro de la app cuando llega un aviso nuevo. No afecta a las notificaciones push." />
 							</CardTitle>
 							<CardDescription>
-								Play a sound when a new notification arrives in the app.
+								Suena un aviso cuando llega una notificación dentro de la app.
 							</CardDescription>
 						</div>
 						<Badge variant={sound.enabled ? 'success' : 'secondary'}>
-							{sound.enabled ? 'On' : 'Off'}
+							{sound.enabled ? 'Activado' : 'Desactivado'}
 						</Badge>
 					</div>
 				</CardHeader>
@@ -221,10 +218,10 @@ function SettingsNotificationsPage() {
 					<div className="flex items-center justify-between">
 						<div>
 							<p className="text-sm font-medium text-foreground">
-								{sound.enabled ? 'Sound alerts are active' : 'Sound alerts are muted'}
+								{sound.enabled ? 'El sonido está activado' : 'El sonido está silenciado'}
 							</p>
 							<p className="text-xs text-muted-foreground">
-								Applies to in-app notifications like new messages and assignments.
+								Aplica a los avisos dentro de la app, como mensajes nuevos y asignaciones.
 							</p>
 						</div>
 						<Button
@@ -232,18 +229,18 @@ function SettingsNotificationsPage() {
 							size="sm"
 							onClick={() => {
 								sound.toggle()
-								toast.success(sound.enabled ? 'Sound muted' : 'Sound enabled')
+								toast.success(sound.enabled ? 'Sonido silenciado' : 'Sonido activado')
 							}}
 						>
 							{sound.enabled ? (
 								<>
-									<VolumeX className="mr-1.5 h-3.5 w-3.5" />
-									Mute
+									<VolumeOff className="mr-1.5 h-3.5 w-3.5" />
+									Silenciar
 								</>
 							) : (
 								<>
-									<Volume2 className="mr-1.5 h-3.5 w-3.5" />
-									Unmute
+									<Volume className="mr-1.5 h-3.5 w-3.5" />
+									Activar sonido
 								</>
 							)}
 						</Button>
@@ -251,10 +248,10 @@ function SettingsNotificationsPage() {
 
 					<div className="flex items-center gap-3 rounded-lg border border-border/50 bg-muted/30 px-4 py-3">
 						<Button variant="ghost" size="sm" onClick={playTestSound} disabled={testPlayed}>
-							<Volume2 className="mr-1.5 h-3.5 w-3.5" />
-							{testPlayed ? 'Played!' : 'Test sound'}
+							<Volume className="mr-1.5 h-3.5 w-3.5" />
+							{testPlayed ? '¡Listo!' : 'Probar sonido'}
 						</Button>
-						<span className="text-xs text-muted-foreground">Preview the notification sound.</span>
+						<span className="text-xs text-muted-foreground">Escucha cómo suena el aviso.</span>
 					</div>
 				</CardContent>
 			</Card>
@@ -269,7 +266,7 @@ function PushStatusBadge({
 	permission: string
 	isSubscribed: boolean
 }) {
-	if (permission === 'denied') return <Badge variant="destructive">Blocked</Badge>
-	if (isSubscribed) return <Badge variant="success">Active</Badge>
-	return <Badge variant="secondary">Off</Badge>
+	if (permission === 'denied') return <Badge variant="destructive">Bloqueadas</Badge>
+	if (isSubscribed) return <Badge variant="success">Activas</Badge>
+	return <Badge variant="secondary">Desactivadas</Badge>
 }

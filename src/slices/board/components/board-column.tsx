@@ -1,7 +1,7 @@
-import { Plus } from 'lucide-react'
 import { useState } from 'react'
 import { Badge } from '@/ui/badge'
 import { Button } from '@/ui/button'
+import { Plus } from '@/ui/icons'
 import { cn } from '@/utils/cn'
 import type { BoardCard as BoardCardData, ColumnId } from '../hooks/use-board'
 import { BoardCard } from './board-card'
@@ -67,7 +67,7 @@ export function BoardColumn({
 					size="icon"
 					className="h-7 w-7"
 					onClick={() => onAddCard(columnId)}
-					aria-label={`Add a card to ${title}`}
+					aria-label={`Agregar una tarjeta a ${title}`}
 				>
 					<Plus className="h-4 w-4" />
 				</Button>
@@ -82,7 +82,7 @@ export function BoardColumn({
 			>
 				{cards.length === 0 ? (
 					<div className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-border/60 p-6 text-center text-xs text-muted-foreground">
-						{isDropTarget ? 'Drop here' : 'No cards yet — drag one over or add a card.'}
+						{isDropTarget ? 'Suelta aquí' : 'Sin tarjetas: arrastra una aquí o agrega una.'}
 					</div>
 				) : (
 					cards.map((card) => (

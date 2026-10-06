@@ -1,6 +1,6 @@
-import { Moon, Sun } from 'lucide-react'
 import { useTheme } from '@/providers/theme-provider'
 import { Button } from '@/ui/button'
+import { Moon, Sun } from '@/ui/icons'
 import { cn } from '@/utils/cn'
 
 // Light/dark switch shared by every layout shell — single source so the four

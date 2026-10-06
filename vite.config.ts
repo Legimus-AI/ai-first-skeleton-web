@@ -17,6 +17,14 @@ export default defineConfig({
 			'/api/': {
 				target: process.env.VITE_API_URL || 'http://localhost:3000',
 				changeOrigin: true,
+				// Sends X-Forwarded-For, so the API rate-limits each client, not the whole dev machine.
+				xfwd: true,
+			},
+			// Same origin as in production (nginx proxies /mcp too), so the MCP URL shown in the app works.
+			'^/mcp$': {
+				target: process.env.VITE_API_URL || 'http://localhost:3000',
+				changeOrigin: true,
+				xfwd: true,
 			},
 		},
 	},

@@ -1,5 +1,5 @@
-import { Loader2, Search, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
+import { Search, Spinner, X } from '@/ui/icons'
 import { Input } from '@/ui/input'
 import { cn } from '@/utils/cn'
 
@@ -40,7 +40,7 @@ export function SearchInput({
 	return (
 		<div className={cn('relative w-full sm:w-auto', className)}>
 			{isLoading ? (
-				<Loader2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground" />
+				<Spinner className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground" />
 			) : (
 				<Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
 			)}
@@ -56,7 +56,7 @@ export function SearchInput({
 					type="button"
 					onClick={() => handleChange('')}
 					className="absolute right-2 top-1/2 -translate-y-1/2 rounded-sm p-0.5 text-muted-foreground transition-colors duration-150 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-					aria-label="Clear search"
+					aria-label="Borrar búsqueda"
 				>
 					<X className="h-3.5 w-3.5" />
 				</button>

@@ -1,8 +1,8 @@
-import type { MemberRole, TeamMember } from '@repo/shared'
-import { Shield, Trash2 } from 'lucide-react'
+import type { MemberRole, TeamMember, UpdateMemberRole } from '@repo/shared'
 import { Badge } from '@/ui/badge'
 import { Button } from '@/ui/button'
 import type { Column } from '@/ui/data-table'
+import { Shield, Trash } from '@/ui/icons'
 import { Select } from '@/ui/select'
 import { formatDate } from '@/utils/format-date'
 
@@ -13,35 +13,49 @@ const ROLE_VARIANTS: Record<MemberRole, 'default' | 'success' | 'secondary'> = {
 }
 
 const ROLE_LABELS: Record<MemberRole, string> = {
-	owner: 'Owner',
-	admin: 'Admin',
-	user: 'Member',
+	owner: 'Propietario',
+	admin: 'Administrador',
+	user: 'Miembro',
 }
 
-export function buildMemberColumns(
-	onRoleChange: (id: string, role: MemberRole) => void,
-	onDelete: (id: string) => void,
-	currentUserId?: string,
-): Column<TeamMember>[] {
+interface MemberColumnsOptions {
+	onRoleChange: (id: string, role: UpdateMemberRole['role']) => void
+	onDelete: (id: string) => void
+	/** Your role grants `team:write`; without it every member is read-only. */
+	canManage: boolean
+	currentUserId: string | undefined
+}
+
+/** The owner and yourself are never edited or removed from this table. */
+export function isManageableMember(member: TeamMember, currentUserId: string | undefined) {
+	return member.role !== 'owner' && member.id !== currentUserId
+}
+
+export function buildMemberColumns({
+	onRoleChange,
+	onDelete,
+	canManage,
+	currentUserId,
+}: MemberColumnsOptions): Column<TeamMember>[] {
 	return [
 		{
 			key: 'name',
-			label: 'Member',
+			label: 'Miembro',
 			sortable: true,
 			render: (member) => (
 				<div className="min-w-0">
-					<p className="text-sm font-medium text-foreground">{member.name}</p>
-					<p className="text-xs text-muted-foreground">{member.email}</p>
+					<p className="text-sm font-medium text-foreground break-words">{member.name}</p>
+					<p className="text-xs text-muted-foreground break-all">{member.email}</p>
 				</div>
 			),
 		},
 		{
 			key: 'role',
-			label: 'Role',
+			label: 'Rol',
 			sortable: true,
 			className: 'w-40',
 			render: (member) => {
-				if (member.role === 'owner' || member.id === currentUserId) {
+				if (!canManage || !isManageableMember(member, currentUserId)) {
 					return (
 						<Badge variant={ROLE_VARIANTS[member.role]}>
 							{member.role === 'owner' && <Shield className="mr-1 h-3 w-3" />}
@@ -52,28 +66,29 @@ export function buildMemberColumns(
 				return (
 					<Select
 						value={member.role}
-						onChange={(e) => onRoleChange(member.id, e.target.value as MemberRole)}
-						className="h-7 w-28 text-xs"
+						onChange={(e) => onRoleChange(member.id, e.target.value as UpdateMemberRole['role'])}
+						className="h-7 w-32 text-xs"
+						aria-label={`Rol de ${member.name}`}
 					>
-						<option value="admin">Admin</option>
-						<option value="user">Member</option>
+						<option value="admin">{ROLE_LABELS.admin}</option>
+						<option value="user">{ROLE_LABELS.user}</option>
 					</Select>
 				)
 			},
 		},
 		{
 			key: 'emailVerified',
-			label: 'Status',
+			label: 'Estado',
 			className: 'hidden md:table-cell w-28',
 			render: (member) => (
 				<Badge variant={member.emailVerified ? 'success' : 'warning'}>
-					{member.emailVerified ? 'Verified' : 'Pending'}
+					{member.emailVerified ? 'Verificado' : 'Pendiente'}
 				</Badge>
 			),
 		},
 		{
 			key: 'createdAt',
-			label: 'Joined',
+			label: 'Se unió',
 			sortable: true,
 			className: 'hidden lg:table-cell w-32',
 			render: (member) => (
@@ -85,7 +100,7 @@ export function buildMemberColumns(
 			label: '',
 			className: 'w-12 text-right',
 			render: (member) => {
-				if (member.role === 'owner' || member.id === currentUserId) return null
+				if (!canManage || !isManageableMember(member, currentUserId)) return null
 				return (
 					<Button
 						variant="ghost"
@@ -96,9 +111,9 @@ export function buildMemberColumns(
 							e.stopPropagation()
 							onDelete(member.id)
 						}}
-						aria-label={`Remove ${member.name}`}
+						aria-label={`Quitar a ${member.name}`}
 					>
-						<Trash2 className="h-4 w-4" />
+						<Trash className="h-4 w-4" />
 					</Button>
 				)
 			},

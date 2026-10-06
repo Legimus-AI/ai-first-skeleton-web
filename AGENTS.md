@@ -2,14 +2,24 @@
 
 React 19 SPA with Vite, TanStack Router, TanStack Query, and Tailwind CSS.
 
+## Where this repo lives
+
+This repo is cloned into a backend skeleton's `apps/web/` directory and takes its types from `@repo/shared`. The API client is a plain fetch wrapper (`src/services/api-client.ts`), so the frontend works with any backend that follows the AI-First API contract: paths `/api/v1/<slice>` and `/api/v1/<slice>/:id`, `{ data, meta }` for lists, `{ data }` for one record, `{ error: { code, message, requestId } }` for errors. Once placed in a backend repo, run the backend's commands from the monorepo root (the README lists them for both backend skeletons).
+
 ## Commands
 
 | Task | Command |
 |------|---------|
 | Dev | `pnpm dev` |
 | Build | `pnpm build` |
+| Lint | `pnpm lint` |
 | Test | `pnpm test` |
+| Architecture tests | `pnpm test:arch` |
 | Type check | `pnpm typecheck` |
+| Lint + typecheck + test | `pnpm verify` |
+| Regenerate the route tree | `pnpm route:generate` |
+
+These scripts run inside a backend monorepo (`apps/web/`), where `@repo/shared` resolves. This repo alone cannot install its dependencies; its CI runs Biome and the architecture test standalone.
 
 ## Design Brief (MANDATORY)
 
@@ -191,7 +201,7 @@ When a provider, integration, or account needs an API key, token, secret, or acc
 
 ### Route Loaders & queryOptions
 
-Every CRUD list route must have a `loader` that calls `ensureQueryData` with a `queryOptions` factory:
+Every CRUD list route must have a `loader` that calls `ensureQueryData` with a `queryOptions` factory, keyed by the same search params the page renders (`loaderDeps`):
 
 ```ts
 // In hook file: extract queryOptions factory
@@ -201,14 +211,18 @@ export const todosQueryOptions = (params?: Partial<ListQuery>) =>
 export function useTodos(params?: Partial<ListQuery>) { return useQuery(todosQueryOptions(params)) }
 
 // In route file: wire loader
-loader: ({ context }) => context.queryClient.ensureQueryData(todosQueryOptions()),
+loaderDeps: ({ search }) => search,
+loader: ({ context, deps }) =>
+  context.queryClient
+    .ensureQueryData({ ...todosQueryOptions(deps), revalidateIfStale: true }) // stale → background refetch
+    .catch(ignoreCancelled), // from @/services/query-client
 ```
 
-This guarantees data is in cache before the component renders. Combined with hover preloading, navigation feels instant.
+This guarantees data is in cache before the component renders, with a single request per visit. Combined with hover preloading, navigation feels instant. Errors and the session policy are global: see [`docs/api-client.md`](docs/api-client.md).
 
 ## Theming
 
-OKLCH color tokens in `src/styles.css` (shadcn/ui + Tailwind v4 `@theme inline`). Never use hardcoded colors — use theme tokens. For the full design spec, read [`DESIGN_SYSTEM.md`](DESIGN_SYSTEM.md).
+The look is an identity: the IDENTITY block in `src/styles.css` (OKLCH colors with shadcn names, fonts, radii, elevation, density, motion) plus the icon set in `src/ui/icons.ts`. The default identity is **Suave**. Components read tokens only: never hex, `rgba()`, Tailwind color scales or `dark:` color overrides; use `rounded-control|button|overlay|surface`, `shadow-control|surface|overlay` and `ease-standard`. Icons are imported only from `@/ui/icons`. The anti-generic list (no icon tiles on KPIs, no uppercase labels, no decorative gradients) is in [`DESIGN_SYSTEM.md`](DESIGN_SYSTEM.md) §12; read the whole spec before UI work.
 
 ## UI Primitives
 
@@ -244,6 +258,9 @@ Detailed examples and recipes moved out of this file for conciseness:
 
 | Topic | File |
 |-------|------|
+| Index of every doc | [`docs/README.md`](docs/README.md) |
+| Agent guardrails (Claude Code hooks, rules, `.env` deny) & skeleton stamp | [`docs/agent-guardrails.md`](docs/agent-guardrails.md) |
+| Auth flows & API key page | [`docs/auth-and-api-keys.md`](docs/auth-and-api-keys.md) |
 | API client usage & error handling | [`docs/api-client.md`](docs/api-client.md) |
 | Layout architecture & variants | [`docs/layouts.md`](docs/layouts.md) |
 | Motion system & animation primitives | [`docs/motion.md`](docs/motion.md) |
@@ -252,7 +269,7 @@ Detailed examples and recipes moved out of this file for conciseness:
 | E2E testing | [`docs/testing-e2e.md`](docs/testing-e2e.md) |
 | i18n / locale awareness | [`docs/i18n.md`](docs/i18n.md) |
 | Observability (Sentry, Clarity, OTel) | [`docs/recipes/`](docs/recipes/) |
-| Design system (Aether theme) | [`DESIGN_SYSTEM.md`](DESIGN_SYSTEM.md) |
+| Design system (Suave identity, how to swap it) | [`DESIGN_SYSTEM.md`](DESIGN_SYSTEM.md) |
 | Anti-thrashing protocol | [`docs/protocols/anti-thrashing.md`](docs/protocols/anti-thrashing.md) |
 
 ## Documentation Sync (CRITICAL)

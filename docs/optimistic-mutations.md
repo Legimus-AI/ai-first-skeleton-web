@@ -1,13 +1,13 @@
 # Optimistic Mutations
 
-Use `useOptimisticMutation` from `@/utils/use-optimistic-mutation` for mutations that should feel instant (toggles, inline edits, status changes).
+Use `useOptimisticMutation` from `@/hooks/use-optimistic-mutation` for mutations that should feel instant (toggles, inline edits, status changes).
 
 ## Usage
 
 ```tsx
 const toggle = useOptimisticMutation({
   queryKey: ['todos'],
-  mutationFn: (id: string) => api.patch(`/api/todos/${id}`, { completed: true }),
+  mutationFn: (id: string) => api.patch(`/api/v1/todos/${id}`, { completed: true }),
   optimisticUpdate: (old, id) => ({
     ...old,
     data: old.data.map(t => t.id === id ? { ...t, completed: true } : t),

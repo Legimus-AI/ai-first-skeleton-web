@@ -5,8 +5,8 @@
  * NO browser, NO network — just file system reads and regex patterns.
  * Runs in < 1 second.
  */
-import { readdirSync, readFileSync, statSync } from 'node:fs'
-import { join, relative } from 'node:path'
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
+import { join, relative, sep } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 const SRC_DIR = join(__dirname, '..')
@@ -913,13 +913,13 @@ describe('Architecture rules (INVARIANTS.md)', () => {
 		}
 	})
 
-	// --- INV-112: No local redefinitions of lib/ exports ---
+	// --- INV-112: No local redefinitions of utils/ exports ---
 
-	it('Slices do not redefine functions exported by lib/ (INV-112)', () => {
-		const LIB_DIR = join(SRC_DIR, 'lib')
+	it('Slices do not redefine functions exported by utils/ (INV-112)', () => {
+		const LIB_DIR = join(SRC_DIR, 'utils')
 		const libFiles = collectFiles(LIB_DIR, ['.ts', '.tsx'], ['node_modules', '__tests__'])
 
-		// Collect all exported function/const names from lib/ (skip comments)
+		// Collect all exported function/const names from utils/ (skip comments)
 		const libExports = new Set<string>()
 		for (const file of libFiles) {
 			const content = readFileSync(file, 'utf-8')
@@ -962,7 +962,7 @@ describe('Architecture rules (INVARIANTS.md)', () => {
 							new RegExp(`export\\s+const\\s+${name}\\b`).test(c)
 						)
 					})
-					const libName = libFile ? relative(SRC_DIR, libFile) : 'lib/'
+					const libName = libFile ? relative(SRC_DIR, libFile) : 'utils/'
 					violations.push(
 						`${relPath}:${i + 1} defines ${name}() but ${libName} already exports it. Import from @/${libName.replace(/\.tsx?$/, '')} instead.`,
 					)
@@ -972,7 +972,7 @@ describe('Architecture rules (INVARIANTS.md)', () => {
 
 		if (violations.length > 0) {
 			expect.fail(
-				`Local redefinitions of lib/ exports (INV-112):\n${violations.map((v) => `  - ${v}`).join('\n')}\n\nFix: Import the function from lib/ instead of redefining it locally.`,
+				`Local redefinitions of utils/ exports (INV-112):\n${violations.map((v) => `  - ${v}`).join('\n')}\n\nFix: Import the function from utils/ instead of redefining it locally.`,
 			)
 		}
 	})
@@ -1225,6 +1225,48 @@ describe('Design System artifacts', () => {
 		}
 	})
 
+	// --- INVARIANT #203: the look lives in the identity block, not in components ---
+
+	it('No rgba/hsl colors or dark: color overrides in components (INV-203)', () => {
+		const lookPatterns = [
+			/\brgba?\(/,
+			/\bhsla?\(/,
+			/\bdark:(?:[\w[\]&_-]+:)?(?:bg|text|border|ring|shadow|from|via|to|fill|stroke|outline|divide|placeholder)-/,
+		]
+		const violations: string[] = []
+		for (const file of collectFiles(SRC_DIR, ['.tsx'])) {
+			if (file.includes('__tests__')) continue
+			const lines = readFileSync(file, 'utf-8').split('\n')
+			lines.forEach((line, index) => {
+				if (lookPatterns.some((pattern) => pattern.test(line))) {
+					violations.push(`${relative(SRC_DIR, file)}:${index + 1}`)
+				}
+			})
+		}
+		if (violations.length > 0) {
+			expect.fail(
+				`Color values or dark: overrides inside components (INV-203):\n${violations.map((v) => `  - ${v}`).join('\n')}\n\nFix: put the value in the IDENTITY block of src/styles.css (:root and .dark) and use its token.`,
+			)
+		}
+	})
+
+	// --- INVARIANT #204: one entry point for icons ---
+
+	it('Icon libraries are imported only by src/ui/icons.ts (INV-204)', () => {
+		const iconEntryPoints = new Set(['ui/icons.ts', 'providers/icon-provider.tsx'])
+		const iconLibraryImport =
+			/from ['"](?:@phosphor-icons\/react|lucide-react|react-icons|@heroicons\/react|@tabler\/icons-react|@radix-ui\/react-icons)/
+		const violations = collectFiles(SRC_DIR, ['.ts', '.tsx'])
+			.map((file) => relative(SRC_DIR, file).split(sep).join('/'))
+			.filter((relPath) => !iconEntryPoints.has(relPath))
+			.filter((relPath) => iconLibraryImport.test(readFileSync(join(SRC_DIR, relPath), 'utf-8')))
+		if (violations.length > 0) {
+			expect.fail(
+				`Icon library imported outside @/ui/icons (INV-204):\n${violations.map((v) => `  - ${v}`).join('\n')}\n\nFix: import the icon from '@/ui/icons' (add the export there if it is missing).`,
+			)
+		}
+	})
+
 	// --- ADR 0012: Frontend structure (services / hooks / utils / providers) ---
 
 	const SERVICES_DIR = join(SRC_DIR, 'services')
@@ -1323,6 +1365,82 @@ describe('Design System artifacts', () => {
 			}
 		} catch {
 			// hooks dir missing — not this test's concern
+		}
+	})
+
+	// --- Agent guardrail config is alive ---
+	// A hook that calls a missing script, or pipes its exit code away, fails silently:
+	// the agent keeps working with no guardrail and nothing reports it.
+
+	it('Agent guardrail config points at things that exist (.claude hooks, scripts, rules)', () => {
+		const repoRoot = join(SRC_DIR, '..')
+		const claudeDir = join(repoRoot, '.claude')
+		if (!existsSync(join(claudeDir, 'settings.json'))) return
+
+		const settings = JSON.parse(readFileSync(join(claudeDir, 'settings.json'), 'utf-8'))
+		const rootScripts = JSON.parse(readFileSync(join(repoRoot, 'package.json'), 'utf-8')).scripts
+		const hookGroups = Object.values(settings.hooks) as { hooks: { command?: string }[] }[][]
+		const hookCommands = hookGroups
+			.flat()
+			.flatMap((group) => group.hooks.map((hook) => hook.command ?? ''))
+		const violations: string[] = []
+
+		const existingHookSources: string[] = []
+		for (const [, hookFileName = ''] of hookCommands
+			.join('\n')
+			.matchAll(/\.claude\/hooks\/([\w.-]+)/g)) {
+			const hookPath = join(claudeDir, 'hooks', hookFileName)
+			if (existsSync(hookPath)) existingHookSources.push(readFileSync(hookPath, 'utf-8'))
+			else violations.push(`settings.json references missing hook .claude/hooks/${hookFileName}`)
+		}
+
+		// WHY: comment prose is not a command; pnpm flags and "run" are not script names.
+		const hookCode = existingHookSources.join('\n').replace(/^\s*#.*$/gm, '')
+		const pnpmCalls = hookCode.matchAll(
+			/pnpm ((?:(?:--filter|-C|--dir) \S+ |-\S+ |run )*)([\w:][\w:-]*)/g,
+		)
+		for (const [, , scriptName = ''] of pnpmCalls) {
+			if (!(scriptName in rootScripts)) {
+				violations.push(`a hook runs "pnpm ${scriptName}" but package.json has no such script`)
+			}
+		}
+
+		for (const hookCommand of hookCommands) {
+			if (hookCommand.includes('|')) {
+				violations.push(`hook command pipes away its exit code: ${hookCommand}`)
+			}
+		}
+
+		const rulesDir = join(claudeDir, 'rules')
+		const ruleFiles = existsSync(rulesDir)
+			? readdirSync(rulesDir).filter((f) => f.endsWith('.md'))
+			: []
+		for (const ruleFile of ruleFiles) {
+			if (!/^---\n[\s\S]*?^paths:/m.test(readFileSync(join(rulesDir, ruleFile), 'utf-8'))) {
+				violations.push(`.claude/rules/${ruleFile} has no "paths:" frontmatter`)
+			}
+		}
+
+		const skillsDir = join(claudeDir, 'skills')
+		const flatSkills = existsSync(skillsDir)
+			? readdirSync(skillsDir).filter((f) => f.endsWith('.md'))
+			: []
+		for (const flatSkill of flatSkills) {
+			violations.push(
+				`.claude/skills/${flatSkill} is a flat file — skills only load as <name>/SKILL.md`,
+			)
+		}
+
+		if (violations.length > 0) {
+			expect.fail(
+				[
+					'Agent guardrail config is broken:',
+					...violations.map((v) => `  - ${v}`),
+					'',
+					'Fix: point hooks at existing scripts, exit with the real status, and keep',
+					'path-scoped guidance in .claude/rules/*.md with a "paths:" frontmatter.',
+				].join('\n'),
+			)
 		}
 	})
 })

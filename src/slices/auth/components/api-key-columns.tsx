@@ -1,20 +1,9 @@
 import type { ApiKey } from '@repo/shared'
-import { Trash2 } from 'lucide-react'
 import { Button } from '@/ui/button'
 import type { Column } from '@/ui/data-table'
-import { formatDate } from '@/utils/format-date'
-
-function formatRelative(date: string) {
-	const diff = Date.now() - new Date(date).getTime()
-	const minutes = Math.floor(diff / 60_000)
-	if (minutes < 1) return 'Hace instantes'
-	if (minutes < 60) return `Hace ${minutes}m`
-	const hours = Math.floor(minutes / 60)
-	if (hours < 24) return `Hace ${hours}h`
-	const days = Math.floor(hours / 24)
-	if (days < 30) return `Hace ${days}d`
-	return formatDate(date)
-}
+import { Trash } from '@/ui/icons'
+import { formatDate, formatRelative } from '@/utils/format-date'
+import { describeScopes } from '../hooks/use-api-keys'
 
 export function buildApiKeyColumns(onDelete: (id: string) => void): Column<ApiKey>[] {
 	return [
@@ -23,9 +12,17 @@ export function buildApiKeyColumns(onDelete: (id: string) => void): Column<ApiKe
 			label: 'Clave',
 			render: (key) => (
 				<div className="min-w-0">
-					<p className="text-sm font-medium text-foreground">{key.name}</p>
+					<p className="text-sm font-medium text-foreground break-words">{key.name}</p>
 					<p className="font-mono text-xs text-muted-foreground">{key.keyPrefix}...</p>
 				</div>
+			),
+		},
+		{
+			key: 'scopes',
+			label: 'Permisos',
+			className: 'hidden sm:table-cell',
+			render: (key) => (
+				<span className="text-sm text-muted-foreground">{describeScopes(key.scopes)}</span>
 			),
 		},
 		{
@@ -72,7 +69,7 @@ export function buildApiKeyColumns(onDelete: (id: string) => void): Column<ApiKe
 					}}
 					aria-label={`Revocar "${key.name}"`}
 				>
-					<Trash2 className="h-4 w-4" />
+					<Trash className="h-4 w-4" />
 				</Button>
 			),
 		},

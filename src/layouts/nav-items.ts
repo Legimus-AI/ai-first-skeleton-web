@@ -1,14 +1,15 @@
-import type { LucideIcon } from 'lucide-react'
+import { grantsPermission } from '@repo/shared'
+import type { ListParams } from '@/hooks/use-query-params'
+import { DEFAULT_LIST_PARAMS } from '@/hooks/use-query-params'
+import type { AppIcon } from '@/ui/icons'
 import {
-	CheckCircle2,
+	CheckCircle,
 	FileText,
 	LayoutDashboard,
 	LayoutGrid,
 	MessageSquare,
 	Settings,
-} from 'lucide-react'
-import type { ListParams } from '@/hooks/use-query-params'
-import { DEFAULT_LIST_PARAMS } from '@/hooks/use-query-params'
+} from '@/ui/icons'
 
 // ─── Navigation Config ───────────────────────────────────────────────────────
 // Main app navigation shown in the sidebar / navbar.
@@ -18,12 +19,16 @@ import { DEFAULT_LIST_PARAMS } from '@/hooks/use-query-params'
 export interface NavItem {
 	label: string
 	to: string
-	icon: LucideIcon
+	icon: AppIcon
 	group: string
 	/** Search params for list routes. Omit for non-list routes. */
 	search?: ListParams
 	/** Route prefix used for active state detection. Defaults to `to`. */
 	activePrefix?: string
+	/** Marks a reference demo whose data is not saved anywhere. */
+	demo?: boolean
+	/** Grant needed to see the entry (e.g. `webhooks:manage`); the API enforces it either way. */
+	permission?: string
 	/** Optional sub-items for nested navigation. */
 	children?: Omit<NavItem, 'group' | 'icon'>[]
 }
@@ -40,27 +45,30 @@ export const navItems: NavItem[] = [
 	{
 		label: 'Tareas',
 		to: '/todos',
-		icon: CheckCircle2,
-		group: 'Menu',
+		icon: CheckCircle,
+		group: 'Menú',
 		search: DEFAULT_LIST_PARAMS,
 	},
 	{
-		label: 'Board',
+		label: 'Tablero',
 		to: '/board',
 		icon: LayoutGrid,
-		group: 'Menu',
+		group: 'Menú',
+		demo: true,
 	},
 	{
 		label: 'Chat',
 		to: '/chat',
 		icon: MessageSquare,
-		group: 'Menu',
+		group: 'Menú',
+		demo: true,
 	},
 	{
 		label: 'Editor',
 		to: '/editor',
 		icon: FileText,
-		group: 'Menu',
+		group: 'Menú',
+		demo: true,
 	},
 	// ─── Sistema ──────────────────────────────────────────────────────────────
 	{
@@ -69,11 +77,20 @@ export const navItems: NavItem[] = [
 		icon: Settings,
 		group: 'Sistema',
 		children: [
-			{ label: 'General', to: '/settings/general' },
 			{ label: 'Equipo', to: '/settings/team', search: DEFAULT_LIST_PARAMS },
 			{ label: 'Seguridad', to: '/settings/security' },
 			{ label: 'Notificaciones', to: '/settings/notifications' },
 			{ label: 'Claves API', to: '/settings/api-keys' },
+			{ label: 'Webhooks', to: '/settings/webhooks', permission: 'webhooks:manage' },
 		],
 	},
 ]
+
+/** The navigation a user holding `grants` may use: entries needing a grant they lack are left out. */
+export function navItemsFor(grants: readonly string[]): NavItem[] {
+	const isAllowed = (entry: { permission?: string }) =>
+		!entry.permission || grantsPermission(grants, entry.permission)
+	return navItems
+		.filter(isAllowed)
+		.map((item) => (item.children ? { ...item, children: item.children.filter(isAllowed) } : item))
+}

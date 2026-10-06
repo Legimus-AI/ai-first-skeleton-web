@@ -1,6 +1,6 @@
-import { SendHorizontal } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Button } from '@/ui/button'
+import { SendHorizontal } from '@/ui/icons'
 import { Input } from '@/ui/input'
 import { cn } from '@/utils/cn'
 
@@ -19,6 +19,13 @@ interface ChatViewProps {
 
 export function ChatView({ messages, onSend, title }: ChatViewProps) {
 	const [draft, setDraft] = useState('')
+	const messageListRef = useRef<HTMLDivElement>(null)
+
+	// Keeps the newest message in view, as chat apps do.
+	useEffect(() => {
+		const messageList = messageListRef.current
+		if (messageList && messages.length > 0) messageList.scrollTop = messageList.scrollHeight
+	}, [messages])
 
 	function submit() {
 		const text = draft.trim()
@@ -33,17 +40,17 @@ export function ChatView({ messages, onSend, title }: ChatViewProps) {
 				<h1 className="text-sm font-semibold tracking-tight text-foreground">{title}</h1>
 			</header>
 
-			<div className="flex-1 space-y-3 overflow-y-auto p-4" aria-live="polite">
+			<div ref={messageListRef} className="flex-1 space-y-3 overflow-y-auto p-4" aria-live="polite">
 				{messages.length === 0 ? (
 					<div className="flex h-full items-center justify-center text-center text-sm text-muted-foreground">
-						Send a message to start the conversation.
+						Envía un mensaje para empezar la conversación.
 					</div>
 				) : (
 					messages.map((message) => (
 						<p
 							key={message.id}
 							className={cn(
-								'max-w-[70%] rounded-lg px-3 py-2 text-sm',
+								'max-w-[70%] rounded-lg px-3 py-2 text-sm break-words',
 								message.author === 'user'
 									? 'ml-auto bg-primary text-primary-foreground'
 									: 'bg-muted text-foreground',
@@ -59,9 +66,10 @@ export function ChatView({ messages, onSend, title }: ChatViewProps) {
 				<Input
 					value={draft}
 					onChange={(event) => setDraft(event.target.value)}
-					onKeyDown={(event) => event.key === 'Enter' && submit()}
-					placeholder="Write a message…"
-					aria-label="Message"
+					// isComposing: Enter confirms an IME candidate (Japanese, Chinese…), it must not send.
+					onKeyDown={(event) => event.key === 'Enter' && !event.nativeEvent.isComposing && submit()}
+					placeholder="Escribe un mensaje…"
+					aria-label="Mensaje"
 				/>
 				<Button onClick={submit} size="icon" aria-label="Enviar mensaje">
 					<SendHorizontal className="h-4 w-4" />

@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { api } from '@/services/api-client'
-import { throwIfNotOk } from '@/services/api-error'
+import { throwIfNotOk, toUserMessage } from '@/services/api-error'
 
 /** Generic bulk delete hook — reusable across ALL slices.
  *
@@ -20,13 +20,13 @@ export function useBulkDelete(endpoint: string, queryKey: readonly string[]) {
 		},
 		onSuccess: (_data, ids) => {
 			queryClient.invalidateQueries({ queryKey: [...queryKey] })
-			toast.success(`${ids.length} item${ids.length === 1 ? '' : 's'} deleted`, {
-				description: 'The selected items have been permanently removed.',
-			})
+			toast.success(
+				`${ids.length} elemento${ids.length === 1 ? '' : 's'} eliminado${ids.length === 1 ? '' : 's'}`,
+			)
 		},
-		onError: (error: Error) => {
-			toast.error('Failed to delete items', {
-				description: error.message,
+		onError: (error) => {
+			toast.error('No se pudieron eliminar', {
+				description: toUserMessage(error),
 			})
 		},
 	})

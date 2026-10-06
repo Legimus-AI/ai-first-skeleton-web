@@ -1,8 +1,8 @@
 # Design System — AI-First Skeleton Web
 
 > This is the visual constitution. AI agents MUST read it before writing any UI.
-> Default theme: **Aether** — translucent obsidian surfaces, hairline borders, single accent.
-> Inspired by Linear, Vercel Dashboard, Supabase.
+> Default identity: **Suave** — soft warm-neutral surfaces, pill buttons, soft shadows, Onest type, color only for state.
+> An identity is a swappable token block, not a fixed look: see [Identities](#identities).
 
 ---
 
@@ -16,7 +16,7 @@ These are non-negotiable. They are grounded in cognitive science and usability r
 |-----------|-----------|-------------------|
 | Fewer choices = faster decisions | Hick's Law | Max 1 primary CTA per context. Max 5-7 items per visible group |
 | Bigger + closer = easier to hit | Fitts's Law | Primary actions are large (min 44px touch target) and near the content they affect |
-| Familiar = fast | Jakob's Law | Use standard SaaS patterns (sidebar+main, table CRUD, form modals). Never reinvent navigation |
+| Familiar = fast | Jakob's Law | Familiar interactions (forms, tables, dialogs); the shell follows the product archetype, not habit |
 | Proximity = relationship | Gestalt Proximity | Related items are close (gap-2). Unrelated sections have generous space (space-y-6) |
 | Similar look = same function | Gestalt Similarity | All primary buttons look identical. All destructive buttons look identical. No exceptions |
 | Less to remember = less errors | Miller's Law (7±2) | Never require users to remember info across views. Show context inline |
@@ -24,489 +24,286 @@ These are non-negotiable. They are grounded in cognitive science and usability r
 
 ### Product Principles
 
-1. **Clarity over decoration** — Every element must help the user complete a task. If removing it changes nothing, remove it.
-2. **Layered surfaces** — Background → Card → Popover. Each layer is one step elevated. Depth through color, not shadow.
-3. **Single accent** — One chromatic color for primary actions. Everything else is grayscale. Color means something, never decorates.
-4. **Generous breathing room** — Whitespace > borders. Spacing creates hierarchy. Dense ≠ productive.
-5. **Progressive disclosure** — Show essentials first. Advanced features appear when needed (expand, tabs, modals). Never overwhelm.
+1. **Every element carries data or a function** — if removing it loses nothing, remove it. Decoration that repeats a label (an icon tile above a KPI) is noise.
+2. **Layered surfaces** — Background → Card → Popover. Light mode separates layers with soft shadows; dark mode with surface tone.
+3. **Neutral ink** — `primary` is ink (near black / near white). Color appears only for state: success, warning, destructive, info.
+4. **Breathing room by default, density by token** — Suave is airy; data-heavy screens switch to `data-density="compact"` instead of hand-tightening.
+5. **Progressive disclosure** — Show essentials first. Advanced features appear when needed (expand, tabs, modals).
 6. **Feedback is mandatory** — Every action gets immediate feedback: loading state, success toast, error message. Silence = broken.
-7. **Prevent, don't recover** — Confirmations on destructive actions. Smart defaults. Inline validation. Prevention > error messages.
-8. **Dark mode native** — Design dark first, adapt to light. Both must feel intentional.
+7. **Prevent, don't recover** — Confirmations on destructive actions. Smart defaults. Inline validation.
+8. **Both modes are intentional** — Light and dark are designed, not inverted. Check both before shipping.
+9. **One identity per product** — Suave is where a project starts, not where every project ends. The brief decides the identity.
 
 ---
 
 ## 2. Color Tokens
 
-All colors use OKLCH for perceptual uniformity. Defined in `src/styles.css`.
+All colors use OKLCH. They live in the IDENTITY block of `src/styles.css`; components read only the semantic names.
 
-### Semantic Roles (universal — applies to any theme)
+### Semantic Roles (universal — applies to any identity)
 
 | Role | Usage | Never use for |
 |------|-------|--------------|
-| `background` | Page canvas, deepest layer | — |
-| `card` | Elevated surfaces (cards, panels) | Text color |
-| `popover` | Modals, dropdowns, tooltips | — |
-| `muted` / `muted-foreground` | Disabled fills, secondary text, metadata | Primary actions |
-| `primary` / `primary-foreground` | CTAs, active states, brand emphasis | Body text, borders |
-| `destructive` | Delete, error, danger states | Success or info |
-| `success` | Connected, complete, valid | Primary actions |
-| `warning` | Caution, pending, attention | — |
-| `info` | Informational, neutral highlight | — |
-| `border` | Lines, dividers, input borders | Backgrounds |
+| `background` | Page canvas, deepest layer; also the fill of inputs inside cards | — |
+| `card` | Elevated surfaces (cards, sidebar, panels) | Text color |
+| `popover` | Dialogs, dropdowns, tooltips, floating bars | — |
+| `muted` / `muted-foreground` | Quiet fills, secondary text, metadata | Primary actions |
+| `accent` | Hover and active fills (nav pills, menu items, table rows) | Brand color |
+| `primary` / `primary-foreground` | CTAs, the active state | Body text, borders |
+| `destructive` · `success` · `warning` · `info` | State only: text, dots, tints, solid fills | Decoration |
+| `border` / `input` | Table rows, inputs, dividers | Backgrounds |
+| `ring` | Focus outline | — |
 
-### Aether Dark Mode Values
+### Suave Values
 
-| Token | Value | Description |
-|-------|-------|-------------|
-| `--background` | `oklch(0 0 0)` | True black page background |
-| `--card` | `oklch(0.07 0 0)` | Obsidian card surfaces |
-| `--popover` | `oklch(0.1 0 0)` | Modal/dropdown surfaces |
-| `--muted` | `oklch(0.14 0 0)` | Disabled fills |
-| `--muted-foreground` | `oklch(0.556 0 0)` / `#888` | Secondary text |
-| `--border` | `rgba(255,255,255,0.08)` | Hairline borders |
-| `--input` | `oklch(0.05 0 0)` | Recessed input background |
+| Token | Light | Dark |
+|-------|-------|------|
+| `--background` | `oklch(0.972 0.004 80)` | `oklch(0.19 0.005 60)` |
+| `--card` | `oklch(0.995 0.002 80)` | `oklch(0.235 0.006 60)` |
+| `--popover` | `oklch(0.995 0.002 80)` | `oklch(0.27 0.006 60)` |
+| `--foreground` / `--primary` | `oklch(0.25 0.008 60)` | `oklch(0.95 0.004 80)` |
+| `--muted` / `--secondary` / `--accent` | `oklch(0.935 0.005 80)` | `oklch(0.29 0.006 60)` |
+| `--muted-foreground` / `--ring` | `oklch(0.5 0.008 60)` | `oklch(0.72 0.006 80)` |
+| `--border` | `oklch(0.915 0.005 80)` | `oklch(0.31 0.007 60)` |
+| States | lightness 0.5, white foreground | lightness 0.72–0.8, ink foreground |
 
-### Aether Light Mode Values
+The neutrals carry a warm hue (60–80) at very low chroma: they read as grey, not cream. Changing that hue and chroma is the cheapest way to give another product a different temperature.
 
-| Token | Value | Description |
-|-------|-------|-------------|
-| `--background` | `oklch(0.985 0 0)` | Near-white page |
-| `--card` | `oklch(1 0 0)` | Pure white cards |
-| `--popover` | `oklch(1 0 0)` | Pure white modals |
+### Contrast (measured)
 
-### Border Philosophy
+Every text pair clears WCAG AA 4.5:1 in both modes. Lowest pairs: `muted-foreground` on `muted` 4.96 (light) and 5.69 (dark); state text on a 10–12% tint of itself 4.70 (light `success`); state foregrounds on solid state fills ≥ 5.3 (light) and ≥ 6.8 (dark). Re-run the check when you change an identity.
 
-- **Dark:** `rgba(255,255,255,0.08)` — hairline, nearly invisible. Never solid grey.
-- **Light:** Standard subtle gray. `border-border/50`.
-- **Rule:** Prefer spacing over borders. Try `gap-6` before adding a divider.
-- **Tables:** Bottom borders only. No full grid borders.
+### State Tints
 
-### Corner Radius
-
-| Context | Radius | Tailwind |
-|---------|--------|----------|
-| Inputs, buttons | 8px | `rounded-lg` |
-| Cards, dialogs, dropdowns | 12px | `rounded-xl` |
-| Badges, pills | full | `rounded-full` |
+Badges and soft alerts use the state color at 10–12% under text of the same color: `bg-success/10 text-success`. One class works in both modes; never add `dark:` overrides.
 
 ---
 
 ## 3. Typography
 
-**Font:** Geist Sans (loaded via Google Fonts CDN in `index.html`).
+**Font:** Onest Variable, self-hosted through `@fontsource-variable/onest` (imported at the top of `src/styles.css`). No Google Fonts request.
 
-| Level | Class | Size | Weight | Tracking | Use for |
-|-------|-------|------|--------|----------|---------|
-| Page title | `text-2xl font-semibold tracking-tight` | 24px | 600 | -0.03em | H1 page headings |
-| Section title | `text-lg font-semibold` | 18px | 600 | -0.03em | Card titles, section heads |
-| Body | `text-sm` | 14px | 400 | -0.01em | Text, table cells, labels |
-| Secondary | `text-sm text-muted-foreground` | 14px | 400 | -0.01em | Helper text, descriptions |
-| Caption | `text-xs text-muted-foreground` | 12px | 400 | -0.01em | Timestamps, metadata |
+| Token | Utility | Suave |
+|-------|---------|-------|
+| `--font-body` | `font-sans` | Onest Variable |
+| `--font-display` | `font-heading` (h1–h3 get it globally) | Onest Variable |
+| `--tracking-body` / `--tracking-display` | global | -0.005em / -0.025em |
 
-Headlines get `-0.03em` tracking via global CSS. Body gets `-0.01em`.
+| Level | Class | Size | Weight | Use for |
+|-------|-------|------|--------|---------|
+| Page title | `text-2xl font-semibold` | 24px | 600 | H1 page headings |
+| Section title | `text-lg font-semibold` | 18px | 600 | Card titles, section heads |
+| Body | `text-sm` | 14px | 400 | Text, table cells, labels |
+| Secondary | `text-sm text-muted-foreground` | 14px | 400 | Helper text, descriptions |
+| Caption | `text-xs text-muted-foreground` | 12px | 400 | Timestamps, metadata |
+| Micro | `text-2xs` | 11px | 500 | Avatar initials, counters |
 
-**Page title pattern:**
-```tsx
-<div className="flex flex-col gap-1">
-  <h1 className="text-2xl font-semibold tracking-tight">Page Title</h1>
-  <p className="text-sm text-muted-foreground">Brief description of purpose.</p>
-</div>
-```
+- Sentence case everywhere. No uppercase labels with tracked letters.
+- Numbers in tables and KPIs use `tabular-nums`; never `font-mono` for data.
+- Never arbitrary sizes (`text-[13px]`): add a token if the scale is missing a step.
 
 ---
 
-## 4. Spacing System
+## 4. Spacing & Density
 
 Base unit: **4px**. Everything is a multiple.
 
-| Context | Value | Tailwind | Why |
-|---------|-------|----------|-----|
-| Page padding | 32px desktop, 16px mobile | `p-4 md:p-8` | Breathing room on edges |
-| Between page sections | 24px | `space-y-6` | Clear section separation (Gestalt) |
-| Inside cards | 24px | `p-6` | Comfortable internal spacing |
-| Between form fields | 16px | `space-y-4` | Grouped but distinct |
-| Between inline elements | 8px | `gap-2` | Tight relationship |
-| Between icon and label | 8px | `gap-2` | Visual proximity |
-| Table to pagination | 16px | `mt-4` | Logical separation |
-| Min touch target | 44px | `min-h-11` | Fitts's Law: usable on mobile |
+| Context | Value | Tailwind |
+|---------|-------|----------|
+| Page padding | 32px desktop, 16px mobile | `p-4 md:p-8` |
+| Between page sections | 24px | `space-y-6` |
+| Inside surfaces | `--surface-padding` (24px) | `p-(--surface-padding)` |
+| Between form fields | 16px | `space-y-4` |
+| Between inline elements, icon and label | 8px | `gap-2` |
+| Min touch target | 44px | `min-h-11` |
+
+### Density tokens
+
+| Token | Comfortable (default) | Compact |
+|-------|----------------------|---------|
+| `--control-height` | 40px | 36px |
+| `--row-padding-y` | 12px | 8px |
+| `--surface-padding` | 24px | 16px |
+
+Set `data-density="compact"` on `<html>` for a whole product, or on one wrapper for a dense screen. Buttons, inputs, selects, table cells and cards follow automatically.
 
 ---
 
-## 5. Component Patterns
+## 5. Shape & Elevation
+
+| Utility | Token | Suave | Use for |
+|---------|-------|-------|---------|
+| `rounded-control` (= `rounded-lg`) | `--radius` | 12px | Inputs, selects, textareas, menu items |
+| `rounded-button` | `--radius-button-value` | pill | Buttons, segmented controls |
+| `rounded-overlay` (= `rounded-xl`) | `--radius-overlay-value` | 16px | Dialogs, dropdowns, popovers |
+| `rounded-surface` | `--radius-surface-value` | 20px | Cards, sidebar, panels |
+| `rounded-full` | — | — | Avatars, badges, dots |
+
+| Utility | Light | Dark |
+|---------|-------|------|
+| `shadow-control` | 1px soft shadow | 1px dark shadow |
+| `shadow-surface` | soft two-layer warm shadow | faint top edge + deep shadow |
+| `shadow-overlay` | larger soft shadow | faint top edge + deeper shadow |
+
+Cards have no border in Suave: elevation separates them. Borders stay on inputs, table rows and dividers.
+
+---
+
+## 6. Component Patterns
 
 ### States Matrix
 
-Every interactive component MUST handle these states:
+| Component | Default | Hover | Press | Focus | Disabled | Loading | Error |
+|-----------|---------|-------|-------|-------|----------|---------|-------|
+| Button | Per variant | Fill shift, 150ms | `scale(0.97)`, 120ms | `ring-2 ring-ring` | 50% opacity | Spinner + disabled | — |
+| Input | `bg-background border-input` | Border darkens | — | Border `ring`, ring 2px at 20% | 50% opacity | — | Border destructive |
+| Card | `bg-card shadow-surface` | — | — | — | 50% opacity | Skeleton | — |
+| Table row | No fill | `bg-accent/60` | — | — | — | Skeleton rows | — |
+| Nav item | Muted text | `bg-accent/60` | — | Ring | 50% opacity | — | — |
+| Badge | State tint | — | — | — | — | — | — |
 
-| Component | Default | Hover | Active/Press | Focus | Disabled | Loading | Error |
-|-----------|---------|-------|-------------|-------|----------|---------|-------|
-| Button | Styled per variant | Color shift, 150ms | Scale 0.96 (squish) | Ring-2 | Opacity 50%, cursor not-allowed | Spinner + disabled | — |
-| Input | Border, bg-input | — | — | Ring-2 primary | Opacity 50% | — | Border destructive |
-| Card | Border, bg-card | Subtle bg shift (optional) | — | — | Opacity 50% | Skeleton | — |
-| Table row | No bg | `bg-[rgba(255,255,255,0.03)]` | — | — | — | Skeleton rows | — |
-| Link/Nav | Text color | Underline or bg shift | — | Ring-2 | Opacity 50% | — | — |
-| Badge | Semantic tint | — | — | — | — | — | — |
-| Dialog | Open state | — | — | Focus trap | — | Submit loading | Form errors |
+### Buttons
 
-### Button Variants (Aether)
+Pill (`rounded-button`), height `--control-height`. Variants: `primary` (ink), `secondary` (accent fill), `outline` (border, card fill), `ghost`, `destructive`, `link`. The press scale lives in the button itself; never add it per call site.
 
-| Variant | Dark Mode | Light Mode |
-|---------|-----------|------------|
-| `primary` | White bg, black text, radial gradient hover | Accent bg, white text |
-| `outline` | White stroke, transparent. Hover: fill white | Border, hover bg |
-| `destructive` | Red bg | Red bg |
-| `secondary` | Muted bg | Muted bg |
-| `ghost` | Transparent, hover accent bg | Transparent, hover muted |
-| `link` | Underline, accent color | Same |
+### Tables
 
-All buttons: `aether-squish` active scale(0.96), `transition-colors duration-150`.
-
-### Badge Variants (Aether — soft tints)
-
-| Variant | Value |
-|---------|-------|
-| `default` | `bg-primary/8 text-primary/90` |
-| `secondary` | `bg-[rgba(255,255,255,0.06)] text-muted-foreground` |
-| `destructive` | `bg-destructive/8 text-destructive/90` |
-| `success` | `bg-success/8 text-success/90` |
-| `warning` | `bg-warning/8 text-warning/90` |
-| `info` | `bg-info/8 text-info/90` |
-
-### Table Design (Aether)
-
-| Element | Style |
-|---------|-------|
-| Row default | No background |
-| Row hover | `bg-[rgba(255,255,255,0.03)]` |
-| Row selected | `bg-primary/5` |
-| Row border | `border-[rgba(255,255,255,0.06)]` (hairline bottom) |
-| Header | `text-xs font-medium text-muted-foreground uppercase tracking-wider` |
-| Action buttons | Icon-only, `h-4 w-4`, inline (never dropdown) |
+Header in sentence case, `text-xs font-medium text-muted-foreground`. Rows separated by `border-border`, cells padded with `--row-padding-y`. Action buttons are icon-only and inline.
 
 ### Empty States
 
-```tsx
-<div className="flex flex-col items-center justify-center py-16 text-center">
-  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
-    <Icon className="h-6 w-6 text-muted-foreground" />
-  </div>
-  <h3 className="mt-4 text-sm font-semibold">No items yet</h3>
-  <p className="mt-1 text-sm text-muted-foreground max-w-sm">Create the first one to get started.</p>
-  <Button className="mt-4" size="sm"><Plus className="mr-1.5 h-4 w-4" />Add</Button>
-</div>
-```
+A sentence that says what is missing and one button that fixes it. An icon only when it shows the thing that is missing; never an icon inside a tinted circle as decoration.
 
 ---
 
-## 6. Motion System
+## 7. Motion System
 
 ### Philosophy
 
-Motion is felt, never seen. No bouncing, no spring physics, no dramatic entrances. Everything transitions in 100-200ms with the same easing curve. Motion adds meaning (state changed) or guides attention (new element appeared). Never decorative.
+Motion answers what the person did: open, close, confirm, move. Nothing animates on page load except the content fade. Never decorative loops.
 
 ### Signature Easing
 
-**All transitions use the same curve:** `cubic-bezier(0.16, 1, 0.3, 1)` — fast start, gentle deceleration.
+One curve for everything: `ease-standard` = `--motion-ease` = `cubic-bezier(0.16, 1, 0.3, 1)`.
 
 ### Timing Scale
 
 | Speed | Duration | Use for |
 |-------|----------|---------|
-| Quick | 100ms | Color changes on hover, focus rings |
-| Normal | 150ms | Button state changes, row highlights |
-| Entrance | 200ms | Fade-in, slide-in, new elements appearing |
-| Layout | 300ms | Sidebar collapse, panel resize |
+| Press | 120ms | Button press scale, toggles |
+| Normal | 150–200ms | Hover fills, focus, menus and dialogs entering |
+| Layout | 300–320ms | Sidebar collapse, accordion height, sliding indicators |
 
-### What Animates What
+### Rules
 
-| Trigger | Property | Duration | Easing |
-|---------|----------|----------|--------|
-| Hover (button) | `background-color, color` | 150ms | Signature curve |
-| Hover (table row) | `background-color` | 150ms | Signature curve |
-| Press (button) | `transform: scale(0.96)` | 100ms | ease |
-| Focus | `box-shadow (ring)` | 150ms | Signature curve |
-| Element appears | `opacity, transform(6px)` | 200ms | Signature curve |
-| Skeleton loading | shimmer gradient | 800ms | ease-in-out |
-| Emphasis | glow pulse | 3000ms | ease-in-out infinite |
-
-### Reduced Motion
-
-ALL animations MUST use `motion-safe:` prefix. Respect `prefers-reduced-motion`.
-
----
-
-## 7. Aether-Specific Effects
-
-### Glassmorphism (sidebar + dropdowns in dark mode)
-
-```css
-.aether-glass {
-  background: oklch(0.05 0 0 / 70%);
-  backdrop-filter: blur(10px);
-}
-```
-
-Dropdown menus: `dark:bg-[rgba(10,10,10,0.85)] dark:backdrop-blur-xl`
-
-### Active Sidebar Glow
-
-Active nav items: `dark:shadow-[0_0_12px_2px_var(--glow-color)]` + left accent border `border-l-2 border-primary`.
-
-### Dark Inset Inputs
-
-Inputs feel recessed: `background-color: oklch(0.05 0 0)`. Focus: border turns white with subtle inner glow.
+- Prefer CSS transitions over keyframes for anything a user can trigger twice quickly: transitions are interruptible, keyframes glitch.
+- Animate `transform` and `opacity`; animate height with the `grid-rows-[0fr]` → `grid-rows-[1fr]` pattern.
+- All animations use `motion-safe:`; `prefers-reduced-motion` turns them off.
 
 ---
 
 ## 8. Responsive Strategy
 
-### Breakpoints
-
 | Name | Width | What changes |
 |------|-------|-------------|
-| Mobile | < 640px | Single column, stacked layout, full-width buttons, hamburger nav |
-| Tablet | 640-1024px | 1-2 columns, sidebar may collapse, reduced padding |
-| Desktop | > 1024px | Full layout, sidebar visible, multi-column grids |
-
-### Rules
+| Mobile | < 640px | Single column, full-width primary buttons, sidebar becomes a drawer |
+| Tablet | 640-1024px | 1-2 columns, reduced padding |
+| Desktop | > 1024px | Full layout, floating sidebar, multi-column grids |
 
 1. **Mobile-first classes.** Write `text-sm md:text-base`, not the reverse.
-2. **Touch targets:** Min 44px height on all interactive elements on mobile (`min-h-11`).
-3. **Tables → cards on mobile.** Complex tables should stack as cards below `sm:`. Simple tables can scroll horizontally.
-4. **Sidebar → drawer.** Below `lg:`, sidebar becomes a slide-in drawer triggered by hamburger.
-5. **Full-width CTAs on mobile.** Primary buttons become `w-full` below `sm:`.
-6. **Typography stays consistent.** Don't change font sizes per breakpoint. The scale is already optimized for readability at 14px body.
-7. **Hide secondary content, not primary.** On mobile, hide descriptions and metadata. Never hide the primary action or main content.
+2. **Touch targets:** min 44px on mobile.
+3. **Tables:** complex tables stack as cards below `sm:`; simple ones scroll horizontally inside their own box.
+4. **Hide secondary content, never the primary action.**
+5. Verify at 375px with no horizontal page scroll.
 
 ---
 
 ## 9. Screen-Type Patterns
 
-### CRUD List (the skeleton default — see INVARIANTS.md 106-111)
+**CRUD list** — `CrudPageHeader` (title, description, search, one create button), data table with bulk select, server search/sort/pagination, create and edit in `FormDialog`, delete through `ConfirmDelete`. Layout `default`.
 
-```
-┌─ CrudPageHeader ──────────────────────────────┐
-│  Title + Description    [Search] [+ Create]    │
-├────────────────────────────────────────────────┤
-│  ☐ Name          Status      Created   Actions │
-│  ☐ Item A        Active      Jan 5     ✏️ 🗑️   │
-│  ☐ Item B        Draft       Jan 3     ✏️ 🗑️   │
-├────────────────────────────────────────────────┤
-│  [Bulk delete bar when items selected]         │
-│  ← 1 2 3 ... →  (pagination)                  │
-└────────────────────────────────────────────────┘
-```
+**Dashboard** — Lead with the user's main job (what needs attention now), then the numbers that drive action. A number earns a place only if it changes what someone does; pair it with its trend instead of an icon. Layout `full`.
 
-Layout: `default` (max-w-7xl). Bulk select, server search (600ms debounce), server sort, server pagination. Create/Edit via FormDialog modal. Delete via ConfirmDelete.
+**Settings** — Tabs for sections; each section is a title, a description and one form card with at most 6 fields; save per card. Layout `narrow`.
 
-### Dashboard
+**Detail view** — Breadcrumb, a header surface with the key facts and actions, tabs for views. The only place where a `⋯` menu for secondary actions is acceptable. Layout `default`.
 
-```
-┌─ Page Title ───────────────────────────────────┐
-│  Welcome back, User          [Primary action]  │
-├────────────────────────────────────────────────┤
-│  ┌─ KPI ─┐  ┌─ KPI ─┐  ┌─ KPI ─┐  ┌─ KPI ─┐ │
-│  │ Value  │  │ Value  │  │ Value  │  │ Value  │ │
-│  │ +12%   │  │ -3%    │  │ 98%    │  │ 42     │ │
-│  └────────┘  └────────┘  └────────┘  └────────┘ │
-│  ┌─ Chart/Activity ─────────────────────────┐  │
-│  │                                           │  │
-│  └───────────────────────────────────────────┘  │
-└────────────────────────────────────────────────┘
-```
+**Wizard** — Linear, max 5 steps, progress visible, back always available, summary before submit. Layout `narrow`.
 
-Layout: `full`. Max 4 KPI cards. Each KPI: one number, one label, optional trend. Chart below. Every metric must answer "so what?" — if it doesn't drive action, remove it.
-
-### Settings (tabs layout)
-
-```
-┌─ Settings ─────────────────────────────────────┐
-│  [General] [Team] [Security] [API Keys] [...]  │
-├────────────────────────────────────────────────┤
-│  Section Title                                  │
-│  Description text                               │
-│  ┌─ Form Card ──────────────────────────────┐  │
-│  │  Field label                              │  │
-│  │  [input]                                  │  │
-│  │  Field label                              │  │
-│  │  [input]                                  │  │
-│  │                          [Cancel] [Save]  │  │
-│  └───────────────────────────────────────────┘  │
-└────────────────────────────────────────────────┘
-```
-
-Layout: `narrow` (max-w-2xl). Tabs for sections. Each section: title + description + form card. Max 6 fields per section. Save at card level, not page level.
-
-### Detail View (entity page)
-
-```
-┌─ Breadcrumb: List > Item Name ─────────────────┐
-│  ┌─ Header Card ────────────────────────────┐  │
-│  │  Entity name        [Status] [Edit] [⋯]  │  │
-│  │  Created Jan 5 by User                    │  │
-│  └───────────────────────────────────────────┘  │
-│  [Overview] [Activity] [Settings]              │
-│  ┌─ Tab content ────────────────────────────┐  │
-│  │                                           │  │
-│  └───────────────────────────────────────────┘  │
-└────────────────────────────────────────────────┘
-```
-
-Layout: `default`. Breadcrumb navigation. Header card with key info + actions. Tabs for different views. This is the ONLY pattern where dropdown menu (⋯) is acceptable — for secondary actions on the entity.
-
-### Wizard / Multi-Step
-
-```
-┌─ Step indicator: ① → ② → ③ ───────────────────┐
-│  Step title                                     │
-│  Step description                               │
-│  ┌─ Form Card ──────────────────────────────┐  │
-│  │  Fields for this step                     │  │
-│  │                        [Back] [Continue]  │  │
-│  └───────────────────────────────────────────┘  │
-└────────────────────────────────────────────────┘
-```
-
-Layout: `narrow`. Linear flow only. Max 5 steps. Step indicator shows progress. Back always available. Final step shows summary before submit. Use when: >6 fields, sequential logic, or user needs guidance through a process.
+The shell (sidebar, navbar, split, focused) comes from the archetype in `DESIGN_BRIEF.md`; see `docs/layouts.md`.
 
 ---
 
 ## 10. Quality Checklist
 
-This is what `/arquitecto` evaluates. Before shipping any UI, verify:
+This is what `/arquitecto` evaluates.
 
-### Hierarchy & Clarity
-
-- [ ] Can you identify the page purpose in 3 seconds? (3-Second Test)
-- [ ] Is there exactly 1 primary CTA visible? (Hick's Law)
-- [ ] Squint the screen — can you see 3 distinct zones? (Squint Test)
-- [ ] Is the most important content top-left or top-center? (F-pattern)
-
-### Interaction Quality
-
-- [ ] Every action has immediate feedback (loading, success, error)
-- [ ] Destructive actions require confirmation
-- [ ] Forms validate inline, not just on submit
-- [ ] Submit buttons disable during loading (anti double-submit)
-- [ ] Empty states guide to first action with clear CTA
-
-### Visual Consistency
-
-- [ ] Only semantic color tokens used (no hardcoded hex)
-- [ ] Typography follows the 5-level scale (no extra sizes)
-- [ ] Spacing follows the 4px grid (no arbitrary values)
-- [ ] All buttons of same variant look identical across pages
-- [ ] Dark mode and light mode both work correctly
-
-### Accessibility
-
-- [ ] Color contrast meets 4.5:1 (WCAG AA)
-- [ ] Every interactive element has visible `:focus-visible`
-- [ ] Every input has a `<label>` or `aria-label`
-- [ ] Color is never the sole indicator of state
-- [ ] Semantic HTML: `<button>` for actions, `<a>` for navigation
-
-### Responsive
-
-- [ ] Works at 375px (iPhone SE) without horizontal scroll
-- [ ] Touch targets are min 44px
-- [ ] Primary content and actions visible on mobile (nothing critical hidden)
-- [ ] Tables degrade gracefully (scroll or stack)
-
-### Motion
-
-- [ ] All animations use `motion-safe:` prefix
-- [ ] No animation exceeds 300ms (except looping indicators)
-- [ ] Hover transitions on all interactive elements (150ms)
+- [ ] Page purpose clear in 3 seconds; exactly one primary CTA visible
+- [ ] Every visual element carries data or a function (nothing from §12 slipped in)
+- [ ] Every action has feedback; destructive actions confirm; submit disables while loading
+- [ ] Only semantic tokens and token utilities (no hex, no rgba, no `dark:` color overrides)
+- [ ] Typography follows the scale; sentence case; tabular numbers in data
+- [ ] Light and dark both checked; contrast ≥ 4.5:1 for text
+- [ ] Visible `:focus-visible` on every interactive element; every input labelled
+- [ ] Works at 375px without horizontal scroll; touch targets ≥ 44px
+- [ ] Motion uses `ease-standard`, `motion-safe:`, and is interruptible
 
 ---
 
 ## 11. Icons
 
-Generic UI icons from `lucide-react`. Tree-shakeable, consistent stroke width.
+Phosphor, imported ONLY from `@/ui/icons` (never from `@phosphor-icons/react` or any other set directly). The wrapper exports set-agnostic names (`Search`, `ChevronRight`, `Spinner`…), so switching the set is one file.
 
-### Brand Icons (MANDATORY)
+| Setting | Suave | Where |
+|---------|-------|-------|
+| Default weight | `regular` | `ICON_WEIGHT` in `src/ui/icons.ts`, applied by `IconProvider` |
+| Active nav item | `fill` | `ACTIVE_ICON_WEIGHT` |
+| Inline size | 16px | `h-4 w-4` |
 
-When referencing a brand (WhatsApp, Google, Shopify, etc.), ALWAYS use the brand's real SVG with its official color. Never substitute with a generic lucide icon. Brand recognition = trust = conversion.
-
-### Sizes
-
-| Context | Size | Tailwind |
-|---------|------|----------|
-| Inline (buttons, nav) | 16px | `h-4 w-4` |
-| Empty state | 24px in 48px circle | `h-6 w-6` |
-| Hero | 40px | `h-10 w-10` |
-| Table actions | 16px | `h-4 w-4` |
+**Brand icons (MANDATORY):** WhatsApp, Google, Shopify and other brands use the brand's real SVG and color, never a generic glyph.
 
 ---
 
-## 12. Do NOT
+## 12. Do NOT (anti-generic list)
 
-- Use `space-y-2` for page layout (use `space-y-6`)
-- Use text buttons in table action columns (use icon-only)
-- Skip page description in CrudPageHeader
-- Use `text-2xl` for card titles (use `text-lg`)
-- Add borders where spacing suffices
-- Use solid grey borders in dark mode (use hairline rgba)
-- Use gradients for backgrounds (solid colors only)
-- Skip `motion-safe:` prefix on animations
-- Show more than 7 items in a nav group without collapsing
-- Create settings forms with >6 fields (split into sections)
-- Use spinners for page loading (use skeleton placeholders)
-- Put secondary text in the same visual weight as primary text
-- Animate anything >300ms (except looping indicators)
+These are the tells of a templated SaaS. Each one is banned unless the brief explicitly asks for it.
 
----
-
-## Brief → Token Mapping (for design system generation)
-
-When generating a new design system from DESIGN_BRIEF.md answers, use this table:
-
-### Brand Posture → Visual Tokens
-
-| Posture | Background | Accent | Radius | Shadows | Motion | Density |
-|---------|-----------|--------|--------|---------|--------|---------|
-| Sober/Professional | Light gray `oklch(0.97)` | Blue/green (muted) | 4-6px | Subtle `shadow-sm` | Minimal 100ms | Comfortable |
-| Premium/Minimal | True black `oklch(0)` | Single cool color | 8-12px | None (depth via bg layers) | Subtle 150ms | Spacious |
-| Friendly/Approachable | Warm white `oklch(0.98)` | Warm (orange/yellow/coral) | 12-16px | Soft `shadow-md` | Expressive 200ms | Comfortable |
-| Bold/Energetic | Dark or vibrant | Multiple vibrant | 16px+ / full | Colored shadows | Dynamic 200-300ms | Dense |
-
-### Dominant Emotion → Interaction Tokens
-
-| Emotion | Feedback intensity | Tooltip frequency | Motion timing | Color temperature |
-|---------|-------------------|-------------------|---------------|-------------------|
-| Control | High — every state visible | Low — expert users | Fast 100ms | Cool (blue/slate) |
-| Speed | Medium — success only | None | Ultra-fast 80ms | Neutral |
-| Security | High — confirmations on everything | Medium | Normal 150ms | Cool (blue/green) |
-| Accompaniment | High — contextual guidance | High — everywhere | Normal 150ms | Warm (amber/orange) |
-| Delight | Medium — micro-celebrations | Low | Expressive 200ms+ | Warm/vibrant |
-
-### Error Cost → Validation Strategy
-
-| Cost | Confirmations | Inline validation | Undo support | Color usage |
-|------|--------------|-------------------|--------------|-------------|
-| Low | Delete only | On submit | Nice-to-have | Red = error only |
-| Medium | Delete + bulk actions | On blur | Recommended | Red = error, yellow = warning |
-| High | All destructive + transfers | Real-time | Required | Red prominent, warnings visible |
+- An icon inside a tinted circle or square above a KPI or as card decoration
+- Four identical KPI cards as the opening of every screen
+- Uppercase labels with wide tracking above headings or nav groups
+- `→` appended to links and buttons; emoji as UI icons
+- Gradient washes, glows and glassmorphism as decoration
+- Cards with a colored left border as an accent
+- `font-mono` for small data labels; arbitrary pixel font sizes
+- `dark:` color overrides or rgba/hex values inside components (put the value in a token)
+- Importing an icon set anywhere except `src/ui/icons.ts`
+- Spinners for page loading (use skeletons); animations longer than 320ms (except loops like the spinner)
 
 ---
 
-## Quick Reference — Aether Dark Values
+## Identities
 
-| Element | Value |
-|---------|-------|
-| Page bg | `#000` (oklch(0 0 0)) |
-| Card | `~#0A0A0A` (oklch(0.07 0 0)) |
-| Popover | oklch(0.1 0 0) |
-| Border | `rgba(255,255,255,0.08)` |
-| Secondary text | `#888` (oklch(0.556 0 0)) |
-| Input bg | `oklch(0.05 0 0)` |
-| Glow | `oklch(0.65 0.2 260 / 30%)` |
-| Sidebar bg | `oklch(0.05 0 0 / 70%)` + blur(10px) |
-| Font | Geist Sans |
-| Headline tracking | -0.03em |
-| Body tracking | -0.01em |
-| Radius | 8px (elements), 12px (cards) |
-| Shimmer | 0.8s |
-| Fade-in | cubic-bezier(0.16, 1, 0.3, 1) |
-| Button squish | scale(0.96) on :active |
+An identity is everything between `IDENTITY` and `END IDENTITY` in `src/styles.css`, plus the icon set and weight in `src/ui/icons.ts`. To give a product its own face:
+
+1. Copy the block and rename it (`IDENTITY: <Name>`).
+2. Change the neutrals' hue and chroma (temperature), the fonts (`--font-body`, `--font-display`, plus the `@fontsource` import), the radii, the elevation and the motion curve.
+3. Pick the icon set and weight in `src/ui/icons.ts`.
+4. Pick the shell from the archetype (`DESIGN_BRIEF.md` Layer 0).
+5. Re-check contrast in both modes.
+
+Theme exports from tweakcn or shadcn/create use the same color names, so they can be pasted over the color part of the block.
+
+## Brief → Token Mapping
+
+| Brand posture | Neutral temperature | Radius (control / surface) | Elevation | Density | Motion | Icon weight |
+|---------------|--------------------|---------------------------|-----------|---------|--------|-------------|
+| Sober / professional | Cool, chroma ≤ 0.006 | 6px / 10px | Borders + `shadow-control` | Compact | 150ms | regular |
+| Premium / minimal | Pure neutral | 8px / 12px | Tone only | Comfortable | 200ms | light |
+| Friendly / approachable (Suave) | Warm, chroma ≈ 0.005 | 12px / 20px, pill buttons | Soft shadows | Comfortable | 200ms | regular, fill when active |
+| Bold / energetic | Any, with one vivid state | 16px+ | Strong shadows | Compact | 200–300ms | bold or duotone |
+
+| Error cost | Confirmations | Inline validation | Undo |
+|------------|--------------|-------------------|------|
+| Low | Delete only | On submit | Nice-to-have |
+| Medium | Delete + bulk actions | On blur | Recommended |
+| High | All destructive + transfers | Real-time | Required |

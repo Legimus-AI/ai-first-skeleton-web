@@ -1,5 +1,6 @@
-import { LayoutGrid } from 'lucide-react'
 import { useState } from 'react'
+import { DemoNotice } from '@/ui/demo-notice'
+import { LayoutGrid } from '@/ui/icons'
 import { COLUMNS, type ColumnId, useBoard } from '../hooks/use-board'
 import { BoardColumn } from './board-column'
 import { CreateCardDialog } from './create-card-dialog'
@@ -27,12 +28,13 @@ export function BoardPage() {
 					<LayoutGrid className="h-4 w-4" />
 				</div>
 				<div>
-					<h1 className="text-lg font-semibold tracking-tight text-foreground">Board</h1>
+					<h1 className="text-lg font-semibold tracking-tight text-foreground">Tablero</h1>
 					<p className="text-xs text-muted-foreground">
-						Drag cards between columns, or use the move buttons on each card.
+						Arrastra las tarjetas entre columnas o usa los botones de cada tarjeta.
 					</p>
 				</div>
 			</header>
+			<DemoNotice />
 
 			<div className="flex min-h-0 flex-1 gap-4 overflow-x-auto pb-2">
 				{COLUMNS.map((column, index) => (

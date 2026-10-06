@@ -1,9 +1,9 @@
 import { Link, useRouterState } from '@tanstack/react-router'
-import { Menu, X } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useState } from 'react'
 import { AppLogo } from '@/ui/app-logo'
 import { Button } from '@/ui/button'
+import { Menu, X } from '@/ui/icons'
 import { ThemeToggle } from '@/ui/theme-toggle'
 import { UserDropdown } from '@/ui/user-dropdown'
 import type { LayoutVariant } from './content-area'
@@ -112,7 +112,7 @@ export function AuthedLayout({ children, variant }: NavbarLayoutProps) {
 						size="icon"
 						className="h-9 w-9 md:hidden"
 						onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-						aria-label={mobileMenuOpen ? 'Cerrar menu' : 'Abrir menu'}
+						aria-label={mobileMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
 					>
 						{mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
 					</Button>

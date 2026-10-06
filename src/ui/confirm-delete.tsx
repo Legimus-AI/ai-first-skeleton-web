@@ -1,4 +1,3 @@
-import { Loader2 } from 'lucide-react'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -9,6 +8,7 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from '@/ui/alert-dialog'
+import { Spinner } from '@/ui/icons'
 
 interface ConfirmDeleteProps {
 	open: boolean
@@ -17,15 +17,17 @@ interface ConfirmDeleteProps {
 	title?: string
 	description?: string
 	isPending?: boolean
+	confirmLabel?: string
 }
 
 export function ConfirmDelete({
 	open,
 	onOpenChange,
 	onConfirm,
-	title = 'Are you sure?',
-	description = 'This action cannot be undone. The item will be permanently deleted.',
+	title = '¿Estás seguro?',
+	description = 'Esta acción no se puede deshacer. El elemento se eliminará para siempre.',
 	isPending,
+	confirmLabel = 'Eliminar',
 }: ConfirmDeleteProps) {
 	return (
 		<AlertDialog open={open} onOpenChange={onOpenChange}>
@@ -35,14 +37,18 @@ export function ConfirmDelete({
 					<AlertDialogDescription>{description}</AlertDialogDescription>
 				</AlertDialogHeader>
 				<AlertDialogFooter>
-					<AlertDialogCancel>Cancel</AlertDialogCancel>
+					<AlertDialogCancel disabled={isPending}>Cancelar</AlertDialogCancel>
 					<AlertDialogAction
-						onClick={onConfirm}
+						onClick={(event) => {
+							// Stay open until the request settles; the caller closes it in onSettled.
+							event.preventDefault()
+							onConfirm()
+						}}
 						disabled={isPending}
 						className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
 					>
-						{isPending && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />}
-						Delete
+						{isPending && <Spinner className="mr-1.5 h-4 w-4 animate-spin" />}
+						{confirmLabel}
 					</AlertDialogAction>
 				</AlertDialogFooter>
 			</AlertDialogContent>

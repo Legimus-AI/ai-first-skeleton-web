@@ -22,19 +22,17 @@ export function formatDateTime(
 	return new Intl.DateTimeFormat(locale, options).format(new Date(date))
 }
 
-/** Relative time (e.g., "2 hours ago"). */
+/** Relative time in the app locale (e.g., "hace 2 horas"); a plain date after a week. */
 export function formatRelative(date: string | Date): string {
-	const now = Date.now()
-	const then = new Date(date).getTime()
-	const diffMs = now - then
-	const diffSec = Math.floor(diffMs / 1000)
+	const diffSec = Math.floor((Date.now() - new Date(date).getTime()) / 1000)
 	const diffMin = Math.floor(diffSec / 60)
 	const diffHr = Math.floor(diffMin / 60)
 	const diffDay = Math.floor(diffHr / 24)
+	const relative = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' })
 
-	if (diffSec < 60) return 'just now'
-	if (diffMin < 60) return `${diffMin}m ago`
-	if (diffHr < 24) return `${diffHr}h ago`
-	if (diffDay < 7) return `${diffDay}d ago`
+	if (diffSec < 60) return relative.format(0, 'second')
+	if (diffMin < 60) return relative.format(-diffMin, 'minute')
+	if (diffHr < 24) return relative.format(-diffHr, 'hour')
+	if (diffDay < 7) return relative.format(-diffDay, 'day')
 	return formatDate(date)
 }
