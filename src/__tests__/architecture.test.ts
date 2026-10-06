@@ -237,28 +237,30 @@ describe('Architecture rules (INVARIANTS.md)', () => {
 		}
 	})
 
-	// --- INVARIANT #13: One component per file ---
+	// --- INV-15: One component per file ---
 
-	it('No multiple component exports in a single .tsx file (slices)', () => {
+	it('No more than one component declared in a single .tsx file (slices)', () => {
 		const sliceTsxFiles = collectFiles(SLICES_DIR, ['.tsx'])
 		const violations: string[] = []
+		// A PascalCase function, or a PascalCase const set to an arrow function, memo() or forwardRef().
+		const componentDeclaration =
+			/^\s*(?:export\s+)?(?:default\s+)?(?:function\s+[A-Z]\w*\s*[(<]|const\s+[A-Z][a-z]\w*\s*(?::[^=]+)?=\s*(?:memo\(|forwardRef\(|(?:async\s*)?(?:\([^)]*\)|\w+)\s*(?::[^=]+)?=>))/gm
 
 		for (const file of sliceTsxFiles) {
-			const content = readFileSync(file, 'utf-8')
-			const relPath = relative(SRC_DIR, file)
-
-			// Count exported function components
-			const exportedComponents = content.match(/export\s+function\s+[A-Z]/g)
-			const count = exportedComponents?.length ?? 0
+			// Comments are dropped so a commented-out example is not counted.
+			const code = readFileSync(file, 'utf-8')
+				.replace(/\/\*[\s\S]*?\*\//g, '')
+				.replace(/^\s*\/\/.*$/gm, '')
+			const count = code.match(componentDeclaration)?.length ?? 0
 
 			if (count > 1) {
-				violations.push(`${relPath} — ${count} exported components (max 1)`)
+				violations.push(`${relative(SRC_DIR, file)} — ${count} components (max 1)`)
 			}
 		}
 
 		if (violations.length > 0) {
 			expect.fail(
-				`Multiple components per file (INVARIANT #13):\n${violations.map((v) => `  - ${v}`).join('\n')}\n\nFix: Split into separate files, one component per file.`,
+				`Multiple components per file (INV-15):\n${violations.map((v) => `  - ${v}`).join('\n')}\n\nFix: Move each component, exported or file-private, to its own file.`,
 			)
 		}
 	})
