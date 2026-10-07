@@ -1,5 +1,4 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import type { FormEvent } from 'react'
 import { PublicLayout } from '@/layouts/public-layout'
 import { useVerifyEmail } from '@/slices/auth/hooks/use-account-emails'
 import { Button, buttonVariants } from '@/ui/button'
@@ -20,8 +19,7 @@ function VerifyEmailPage() {
 	const verifyEmail = useVerifyEmail()
 	const next = safeRedirectPath(redirect)
 
-	const onSubmit = (event?: FormEvent) => {
-		event?.preventDefault()
+	const onSubmit = () => {
 		if (token) verifyEmail.mutate(token)
 	}
 
@@ -30,7 +28,6 @@ function VerifyEmailPage() {
 			<PublicLayout
 				title="Email verificado"
 				description="Tu cuenta quedó confirmada."
-				onSubmit={onSubmit}
 				footer={
 					<Link to="." href={next ?? '/'} className={buttonVariants({ className: 'w-full' })}>
 						{next ? 'Continuar' : 'Ir a la app'}

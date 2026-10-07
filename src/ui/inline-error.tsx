@@ -5,6 +5,8 @@ import { AlertCircle, Copy, RefreshCw, WifiOff } from '@/ui/icons'
 
 interface InlineErrorProps {
 	error: unknown
+	/** What the user reads; by default the api-client's message for `error`. */
+	message?: string
 	/** Re-run what failed without reloading the page (`refetch`, `router.invalidate`). */
 	onRetry?: () => void
 }
@@ -26,12 +28,12 @@ function describeError(error: unknown): string {
 	)
 }
 
-export function InlineError({ error, onRetry }: InlineErrorProps) {
+export function InlineError({ error, message = toUserMessage(error), onRetry }: InlineErrorProps) {
 	const Icon = isServerUnreachable(error) ? WifiOff : AlertCircle
 	return (
 		<div role="alert" className="flex flex-col items-center justify-center py-16 text-center">
 			<Icon className="h-8 w-8 text-destructive" aria-hidden="true" />
-			<p className="mt-4 max-w-md text-sm font-medium">{toUserMessage(error)}</p>
+			<p className="mt-4 max-w-md text-sm font-medium">{message}</p>
 			<div className="mt-4 flex flex-wrap items-center justify-center gap-2">
 				<Button
 					variant="ghost"
