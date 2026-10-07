@@ -12,7 +12,7 @@ Every guide in `docs/`, one line each. New here? Read [AGENTS.md](../AGENTS.md) 
 | [optimistic-mutations.md](optimistic-mutations.md) | `useOptimisticMutation` for toggles and inline edits, and when not to use it |
 | [motion.md](motion.md) | CSS-only motion primitives, timing and reduced-motion rules |
 | [i18n.md](i18n.md) | Locale-aware date and number formatting with `Intl` |
-| [auth-and-api-keys.md](auth-and-api-keys.md) | Sign-in, password reset and email verification routes, the `_authed` guard, the session policy and API key scopes |
+| [auth-and-api-keys.md](auth-and-api-keys.md) | Better Auth's client (`auth-client.ts`), sign-in, sign-up, password reset, email verification and invitation routes, OAuth consent and CLI approval pages, the `_authed` and `_session` guards, the session policy, team changes, API key scopes and connected apps |
 
 ## 🤖 Agents
 

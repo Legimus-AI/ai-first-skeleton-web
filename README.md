@@ -13,7 +13,9 @@ cd my-app
 ./scripts/setup.sh --db postgres   # clones this repo into apps/web/ and stamps .skeleton-version
 ```
 
-Then follow the backend's quick start to run the API, and start this app with `pnpm dev:web` (TypeScript backend) or `make dev` (FastAPI backend, API + web together). The app runs on http://localhost:5173 and Vite proxies `/api/` to the backend (`VITE_API_URL`, default `http://localhost:3000`).
+Then follow the backend's quick start to run the API, and start this app with `pnpm dev:web` (TypeScript backend) or `make dev` (FastAPI backend, API + web together). The app runs on http://localhost:5173 and Vite proxies `/api/`, `/mcp` and the OAuth discovery documents (`/.well-known/oauth-*`, `/.well-known/openid-configuration`) to the backend (`VITE_API_URL`, default `http://localhost:3000`).
+
+Optional browser variables: `VITE_GOOGLE_AUTH=true` shows "Continuar con Google", and `VITE_TURNSTILE_SITE_KEY` turns on the Cloudflare Turnstile captcha on login, sign-up and password reset (the API needs `TURNSTILE_SECRET_KEY`).
 
 Cloning by hand works too, but then no stamp records which commit of this repo the project started from:
 
@@ -34,8 +36,9 @@ Any backend that follows the AI-First API contract works: `/api/v1/<slice>` path
 
 | | Capability | What you get | Guide |
 |---|---|---|---|
-| 🔐 | Auth flows | Login, register, optional Google button, an `_authed` route guard with a pending skeleton, profile and settings pages | [Auth and API keys](docs/auth-and-api-keys.md) |
-| 🔑 | API key page | Create (token shown once, with copy) and revoke keys at `/settings/api-keys`, with scope presets (read only, read and write, full access for owner/admin) shown in the table, and how to connect an agent (MCP URL and CLI variables) | [Auth and API keys](docs/auth-and-api-keys.md#what-a-key-created-here-can-do) |
+| 🔐 | Auth flows | Better Auth through one client file (`src/slices/auth/auth-client.ts`): login, register, optional Google button and Turnstile captcha, password reset, email verification, invitation acceptance, an `_authed` route guard with a pending skeleton, profile and settings pages | [Auth and API keys](docs/auth-and-api-keys.md) |
+| 🤝 | OAuth for agents | `/oauth/consent` for MCP clients (app name, the host that receives the access, a loopback warning, scopes in plain Spanish) and `/device` to approve a CLI login; the login resumes an app's OAuth request | [Auth and API keys](docs/auth-and-api-keys.md#authentication) |
+| 🔑 | API key page | Create (token shown once, with copy) and revoke keys at `/settings/api-keys`, with scope presets (read only, read and write, full access for owner/admin) shown in the table, how to connect an agent (MCP URL and CLI variables), and "Apps conectadas": the OAuth apps signed in with the account, each one revocable | [Auth and API keys](docs/auth-and-api-keys.md#what-a-key-created-here-can-do) |
 | 🪝 | Webhooks page | Destinations (signing secret shown once), sent events with delivery state, attempts and resend at `/settings/webhooks`, for owner and admin | [Auth and API keys](docs/auth-and-api-keys.md#webhooks) |
 | 🧭 | Layout archetypes | Four shell presets (sidebar, navbar, focused, split) picked by the product archetype in `DESIGN_BRIEF.md`, plus a governed `custom` escape hatch | [Layouts](docs/layouts.md) |
 | 🗂️ | Reference slices | `todos` (admin CRUD), `chat` (conversational), `editor` (focused tool), `board` (custom, full-bleed kanban), `team` | [AGENTS.md](AGENTS.md) |
@@ -55,7 +58,7 @@ Any backend that follows the AI-First API contract works: `/api/v1/<slice>` path
 
 **Coding agents** read [`AGENTS.md`](AGENTS.md); `CLAUDE.md` is an adapter that only imports `AGENTS.md`, `INVARIANTS.md` and `DESIGN_SYSTEM.md`. Claude Code also gets a stop hook (architecture test before it finishes), path-scoped rules and a deny rule for `.env`; they load only when the session starts inside the repo. Details: [docs/agent-guardrails.md](docs/agent-guardrails.md).
 
-**Agents that use the product** do not go through this UI: they call the backend with an API key, through its CLI or its MCP endpoint (TypeScript backend: [agent surface guide](https://github.com/Legimus-AI/ai-first-skeleton-typescript/blob/main/docs/agent-surface.md)). The API key page offers read-only, read-and-write and (for owner/admin) full-access keys; for other scopes, use the backend's `pnpm agent login --scopes ...` or the API.
+**Agents that use the product** do not go through this UI: they call the backend with an API key, through its CLI or its MCP endpoint (TypeScript backend: [agent surface guide](https://github.com/Legimus-AI/ai-first-skeleton-typescript/blob/main/docs/agent-surface.md)). The API key page offers read-only, read-and-write and (for owner/admin) full-access keys; for other scopes, use the backend's `pnpm agent login --scopes ...` or the API. An MCP client that signs in with OAuth asks for consent at `/oauth/consent`, the CLI's login is approved at `/device`, and both show up under "Apps conectadas", where one click revokes them.
 
 ## ⌨️ Commands
 
@@ -121,4 +124,4 @@ Start at [docs/README.md](docs/README.md): it lists every guide, grouped by task
 
 ## 📝 Changelog
 
-This repo keeps no changelog file. The history lives in the commits on `main`, design decisions in [docs/DECISIONS.ndjson](docs/DECISIONS.ndjson), and versioned architecture changes in the [spec changelog](https://github.com/Legimus-AI/ai-first-architecture/blob/main/CHANGELOG.md). The latest round, on 2026-10-04 (WEB-RESILIENCE-261007), made the app say what happened instead of breaking: a lost session goes to login and back, errors render inside the layout with a working retry, Spanish copy and validation everywhere, lists that clamp bad URLs and never show a false empty page, honest dashboard and demos, team actions by permission, password reset and email verification pages, mobile cards and no dark-mode flash. The same day (SUAVE-IDENTITY) the default look became the Suave identity: one token block re-skins the app, components carry no `dark:` or rgba values, icons go through `@/ui/icons`, and the design guard bans the generic template tells.
+This repo keeps no changelog file. The history lives in the commits on `main`, design decisions in [docs/DECISIONS.ndjson](docs/DECISIONS.ndjson), and versioned architecture changes in the [spec changelog](https://github.com/Legimus-AI/ai-first-architecture/blob/main/CHANGELOG.md). The latest round, on 2026-10-07 (BETTER-AUTH, ADR 0022), moved identity to Better Auth: one client file for every `/api/auth` call, sign-in and team changes through it, an OAuth consent page for MCP clients, CLI login approval, invitation acceptance and the connected apps list. The round before, on 2026-10-04 (WEB-RESILIENCE-261007), made the app say what happened instead of breaking: a lost session goes to login and back, errors render inside the layout with a working retry, Spanish copy and validation everywhere, lists that clamp bad URLs and never show a false empty page, honest dashboard and demos, team actions by permission, password reset and email verification pages, mobile cards and no dark-mode flash. The same day (SUAVE-IDENTITY) the default look became the Suave identity: one token block re-skins the app, components carry no `dark:` or rgba values, icons go through `@/ui/icons`, and the design guard bans the generic template tells.

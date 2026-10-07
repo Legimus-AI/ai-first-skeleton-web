@@ -33,7 +33,7 @@ Before generating any new view, page, or component with visual/interaction decis
 
 - **Functional components only.** No class components.
 - Use TanStack Query for all server state (no local state for API data).
-- Use `api` from `@/services/api-client` for all API calls. See [`docs/api-client.md`](docs/api-client.md) for examples.
+- Use `api` from `@/services/api-client` for all API calls. See [`docs/api-client.md`](docs/api-client.md) for examples. The one exception: Better Auth's endpoints (`/api/auth/*`: sign-in, sign-up, email flows, team changes, invitations, OAuth consent, CLI approval) are called only through the typed functions of `src/slices/auth/auth-client.ts`, the single file that imports `better-auth` (INVARIANTS #7 named exception). Need another Better Auth endpoint? Add a function there and ask for it in the API's allowlist (`apps/api/src/slices/auth/handler.ts`).
 - Import types from `@repo/shared` for forms (React Hook Form + Zod).
 - Tailwind CSS only — no CSS files, no CSS-in-JS.
 - Use CVA (`class-variance-authority`) for component variants.
@@ -194,6 +194,8 @@ When a provider, integration, or account needs an API key, token, secret, or acc
 ## Routing
 
 - File-based via TanStack Router + Vite plugin. Route files in `src/routes/`.
+- Signed-in pages without the app shell (OAuth consent, CLI approval) live under the pathless `src/routes/_session.tsx`; everything with the shell lives under `_authed`.
+- The router's `parseSearch` folds Better Auth's signed OAuth query into one `oauth_query` param (`src/utils/signed-oauth-query.ts`): never re-encode that value or split it into separate params.
 - `routeTree.gen.ts` is auto-generated — do NOT edit.
 - Router enables `defaultPreload: 'intent'` — hovering a `<Link>` preloads route code + runs loaders.
 - `defaultPreloadStaleTime: 0` ensures preloads always fetch fresh data.
@@ -261,7 +263,7 @@ Detailed examples and recipes moved out of this file for conciseness:
 |-------|------|
 | Index of every doc | [`docs/README.md`](docs/README.md) |
 | Agent guardrails (Claude Code hooks, rules, `.env` deny) & skeleton stamp | [`docs/agent-guardrails.md`](docs/agent-guardrails.md) |
-| Auth flows & API key page | [`docs/auth-and-api-keys.md`](docs/auth-and-api-keys.md) |
+| Auth flows (Better Auth client, OAuth consent, CLI approval, invitations), team changes, API keys & connected apps | [`docs/auth-and-api-keys.md`](docs/auth-and-api-keys.md) |
 | API client usage & error handling | [`docs/api-client.md`](docs/api-client.md) |
 | Layout architecture & variants | [`docs/layouts.md`](docs/layouts.md) |
 | Motion system & animation primitives | [`docs/motion.md`](docs/motion.md) |
