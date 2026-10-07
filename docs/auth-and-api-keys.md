@@ -51,11 +51,7 @@ The form offers three presets and the table shows each key's permissions:
 
 `*:action` never covers the reserved resources (team, API keys, webhooks, audit). A key never exceeds its creator's role, and with the TypeScript backend skeleton it reaches only the routes marked for agents (`x-agent`). A key with `*:write` deletes data in one call, with no approval. A key never changes who has access or where data is sent: inviting, changing roles and removing members, creating and revoking API keys, and creating, changing and deleting webhook destinations are refused to every key, `full` included, and stay in this web app.
 
-For other scope combinations, create the key through the API with a session cookie, never another key (`POST /api/v1/auth/api-keys` with `scopes`), or use the backend's agent CLI, whose login you approve in the browser at `/device`:
-
-```bash
-pnpm agent login --scopes todos:read,todos:write   # approve in the browser; no password in the CLI
-```
+For other scope combinations, create the key through the API with a session cookie, never another key (`POST /api/v1/auth/api-keys` with `scopes`). The backend's agent CLI needs no key: `pnpm agent login` is approved in the browser at `/device`, and the CLI then acts with `*:read` and `*:write` within the person's role.
 
 ### Apps conectadas
 
