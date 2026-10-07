@@ -33,6 +33,7 @@ import {
 } from '../hooks/use-api-keys'
 import { useCurrentUser } from '../hooks/use-auth'
 import { buildApiKeyColumns } from './api-key-columns'
+import { ConnectedApps } from './connected-apps'
 import { NewApiKeyNotice } from './new-api-key-notice'
 
 export function ApiKeysPage() {
@@ -76,10 +77,6 @@ export function ApiKeysPage() {
 		)
 	}
 
-	if (error) {
-		return <InlineError error={error} onRetry={() => void refetch()} />
-	}
-
 	return (
 		<FadeIn className="space-y-6">
 			<CrudPageHeader
@@ -96,22 +93,28 @@ export function ApiKeysPage() {
 			{/* Newly created key banner, with how an agent connects with it */}
 			{newRawKey && <NewApiKeyNotice rawKey={newRawKey} onClose={() => setNewRawKey(null)} />}
 
-			<div className="rounded-surface bg-card shadow-surface">
-				<DataTable
-					data={keys ?? []}
-					columns={columns}
-					getId={(key) => key.id}
-					isLoading={isLoading}
-					emptyMessage="Sin claves API. Crea una para comenzar."
-					emptyIcon={<Key className="h-6 w-6 text-muted-foreground" />}
-					emptyAction={
-						<Button size="sm" onClick={() => setShowCreate(true)}>
-							<Plus className="mr-1.5 h-4 w-4" />
-							Crear clave
-						</Button>
-					}
-				/>
-			</div>
+			{error ? (
+				<InlineError error={error} onRetry={() => void refetch()} />
+			) : (
+				<div className="rounded-surface bg-card shadow-surface">
+					<DataTable
+						data={keys ?? []}
+						columns={columns}
+						getId={(key) => key.id}
+						isLoading={isLoading}
+						emptyMessage="Sin claves API. Crea una para comenzar."
+						emptyIcon={<Key className="h-6 w-6 text-muted-foreground" />}
+						emptyAction={
+							<Button size="sm" onClick={() => setShowCreate(true)}>
+								<Plus className="mr-1.5 h-4 w-4" />
+								Crear clave
+							</Button>
+						}
+					/>
+				</div>
+			)}
+
+			<ConnectedApps />
 
 			{/* Create dialog */}
 			<Dialog open={showCreate} onOpenChange={setShowCreate}>
