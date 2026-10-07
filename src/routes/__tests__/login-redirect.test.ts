@@ -1,6 +1,7 @@
 import { QueryClient } from '@tanstack/react-query'
 import { createMemoryHistory, createRouter } from '@tanstack/react-router'
 import { describe, expect, it } from 'vitest'
+import { router as appRouter } from '@/router'
 import { routeTree } from '@/routeTree.gen'
 
 const UNSAFE_REDIRECTS = [
@@ -38,5 +39,29 @@ describe('login redirect', () => {
 
 	it('keeps a path on this site', async () => {
 		expect((await loginSearchFor('/todos?page=2')).redirect).toBe('/todos?page=2')
+	})
+})
+
+describe('login resuming an OAuth request', () => {
+	it("hands the page Better Auth's signed query intact, repeated names included", async () => {
+		const signed = new URLSearchParams([
+			['response_type', 'code'],
+			['client_id', 'claude-code'],
+			['state', '1e5'],
+			['ba_param', 'ba_param'],
+			['ba_param', 'client_id'],
+			['ba_param', 'response_type'],
+			['ba_param', 'state'],
+			['sig', 'c2ln'],
+		]).toString()
+		const router = createRouter({
+			routeTree,
+			context: { queryClient: new QueryClient() },
+			parseSearch: appRouter.options.parseSearch,
+			history: createMemoryHistory({ initialEntries: [`/login?${signed}`] }),
+		})
+		await router.load()
+		const search = router.state.matches.at(-1)?.search as { oauth_query?: string }
+		expect(search.oauth_query).toBe(signed)
 	})
 })
