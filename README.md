@@ -3,7 +3,7 @@
 React 19 + TanStack Router + TanStack Query + Tailwind v4 frontend for the [AI-First Architecture](https://github.com/Legimus-AI/ai-first-architecture) v3.0.0 skeletons.
 It is a component repo: a backend skeleton's `scripts/setup.sh` clones it into `apps/web/`, where it takes its types from `@repo/shared` and talks to the API through a plain fetch wrapper.
 
-**Version 3.0.0, the agentic era (2026-10-07).** Every agent can connect to the product, and this app is where a person approves it: OAuth consent for MCP clients, CLI login approval and a list of connected apps to revoke. Sign-in moved to Better Auth, so 3.0.0 breaks compatibility: see [Upgrading a project born before 3.0.0](#️-upgrading-a-project-born-before-300) and [CHANGELOG.md](CHANGELOG.md).
+**Version 3.0.0, the agentic era (2026-10-07).** Every agent can connect to the product, and this app is where a person approves it: OAuth consent for MCP clients, CLI login approval and a list of connected apps to revoke. Sign-in moved to Better Auth, so 3.0.0 breaks compatibility: see [Upgrading a project born before 3.0.0](#️-upgrading-a-project-born-before-300) and [CHANGELOG.md](CHANGELOG.md). **3.1.0** moves to the latest toolchain: TypeScript 7's native compiler typechecks the web 4 times faster.
 
 ## 🚀 Quick start
 
