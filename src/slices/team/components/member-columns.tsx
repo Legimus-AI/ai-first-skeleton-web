@@ -109,8 +109,8 @@ export function buildMemberColumns({
 						size="icon"
 						className="h-8 w-8 text-muted-foreground hover:text-destructive"
 						type="button"
-						onClick={(e) => {
-							e.stopPropagation()
+						onClick={(event) => {
+							event.stopPropagation()
 							onDelete(member)
 						}}
 						aria-label={`Quitar a ${member.name}`}

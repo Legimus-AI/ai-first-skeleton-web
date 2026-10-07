@@ -109,7 +109,7 @@ export function TeamList() {
 				search={
 					<SearchInput
 						value={params.search}
-						onChange={(v) => setParams({ search: v, page: 1 })}
+						onChange={(search) => setParams({ search, page: 1 })}
 						placeholder="Buscar miembros..."
 						isLoading={isFetching && !isLoading}
 						className="w-full sm:w-64"
@@ -122,15 +122,15 @@ export function TeamList() {
 				<DataTable
 					data={data?.data ?? []}
 					columns={columns}
-					getId={(m) => m.id}
-					getRowLabel={(m) => m.name}
+					getId={(member) => member.id}
+					getRowLabel={(member) => member.name}
 					isLoading={isLoading || movingToLastPage}
 					selectedIds={selectedIds}
 					{...(canManage && { onSelectionChange: setSelectedIds })}
-					canSelect={(m) => isManageableMember(m, currentUser?.id)}
+					canSelect={(member) => isManageableMember(member, currentUser?.id)}
 					sort={params.sort}
 					order={params.order}
-					onSortChange={(s, o) => setParams({ sort: s, order: o })}
+					onSortChange={(sort, order) => setParams({ sort, order })}
 					emptyMessage={
 						params.search ? `Sin resultados para "${params.search}"` : 'Aún no hay miembros.'
 					}
@@ -142,8 +142,8 @@ export function TeamList() {
 			{data?.meta && data.meta.total > 0 && (
 				<Pagination
 					meta={data.meta}
-					onPageChange={(p) => setParams({ page: p })}
-					onPerPageChange={(l) => setParams({ limit: l, page: 1 })}
+					onPageChange={(page) => setParams({ page })}
+					onPerPageChange={(limit) => setParams({ limit, page: 1 })}
 				/>
 			)}
 

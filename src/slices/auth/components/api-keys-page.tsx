@@ -47,7 +47,9 @@ export function ApiKeysPage() {
 	const [scopePreset, setScopePreset] = useState<ApiKeyScopePresetId>('read')
 	// A key can never exceed its creator: "Acceso total" is offered only to roles holding `full`.
 	const canGrantFull = user ? grantsPermission(rolePermissions(user.role), 'full') : false
-	const scopePresets = API_KEY_SCOPE_PRESETS.filter((p) => p.id !== 'full' || canGrantFull)
+	const scopePresets = API_KEY_SCOPE_PRESETS.filter(
+		(preset) => preset.id !== 'full' || canGrantFull,
+	)
 
 	const {
 		register,
@@ -62,7 +64,7 @@ export function ApiKeysPage() {
 	const columns = useMemo(() => buildApiKeyColumns(setDeleteId), [])
 
 	const onSubmit = (input: CreateApiKey) => {
-		const scopes = API_KEY_SCOPE_PRESETS.find((p) => p.id === scopePreset)?.scopes ?? []
+		const scopes = API_KEY_SCOPE_PRESETS.find((preset) => preset.id === scopePreset)?.scopes ?? []
 		createApiKey.mutate(
 			{ ...input, scopes: [...scopes] },
 			{
