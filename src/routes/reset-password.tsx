@@ -53,7 +53,10 @@ function ResetPasswordPage() {
 					</Button>
 				) : (
 					<p className="text-center text-sm">
-						<Link to="/forgot-password" className="text-primary underline-offset-4 hover:underline">
+						<Link
+							to="/forgot-password"
+							className="rounded-control text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+						>
 							Pedir un enlace nuevo
 						</Link>
 					</p>
