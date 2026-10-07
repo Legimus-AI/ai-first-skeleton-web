@@ -1,23 +1,28 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import type { FormEvent } from 'react'
 import { PublicLayout } from '@/layouts/public-layout'
-import { useVerifyEmail } from '@/slices/auth/hooks/use-auth'
-import { Button } from '@/ui/button'
+import { useVerifyEmail } from '@/slices/auth/hooks/use-account-emails'
+import { Button, buttonVariants } from '@/ui/button'
+import { safeRedirectPath } from '@/utils/safe-redirect'
 
 export const Route = createFileRoute('/verify-email')({
-	validateSearch: (search: Record<string, unknown>): { token?: string } =>
-		typeof search.token === 'string' ? { token: search.token } : {},
+	validateSearch: (search: Record<string, unknown>): { token?: string; redirect?: string } => ({
+		...(typeof search.token === 'string' && { token: search.token }),
+		// The page the person was on when they signed up, such as the invitation they were opening.
+		...(typeof search.redirect === 'string' && { redirect: search.redirect }),
+	}),
 	component: VerifyEmailPage,
 })
 
 // One click confirms: opening the link never changes anything by itself (mail scanners open links).
 function VerifyEmailPage() {
-	const { token } = Route.useSearch()
+	const { token, redirect } = Route.useSearch()
 	const verifyEmail = useVerifyEmail()
+	const next = safeRedirectPath(redirect)
 
 	const onSubmit = (event?: FormEvent) => {
 		event?.preventDefault()
-		if (token) verifyEmail.mutate({ token })
+		if (token) verifyEmail.mutate(token)
 	}
 
 	if (verifyEmail.isSuccess) {
@@ -27,11 +32,8 @@ function VerifyEmailPage() {
 				description="Tu cuenta quedó confirmada."
 				onSubmit={onSubmit}
 				footer={
-					<Link
-						to="/"
-						className="inline-flex h-10 w-full items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-					>
-						Ir a la app
+					<Link to="." href={next ?? '/'} className={buttonVariants({ className: 'w-full' })}>
+						{next ? 'Continuar' : 'Ir a la app'}
 					</Link>
 				}
 			>
