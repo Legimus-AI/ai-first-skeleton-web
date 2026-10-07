@@ -91,7 +91,7 @@ function LoginPage() {
 						<Link
 							to="/register"
 							search={{ redirect: search.redirect, oauth_query: search.oauth_query }}
-							className="text-primary font-medium underline-offset-4 hover:underline"
+							className="rounded-control text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring font-medium"
 						>
 							Regístrate
 						</Link>
@@ -132,7 +132,7 @@ function LoginPage() {
 			<div className="flex justify-end">
 				<Link
 					to="/forgot-password"
-					className="text-sm text-primary underline-offset-4 hover:underline"
+					className="rounded-control text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring text-sm"
 				>
 					¿Olvidaste tu contraseña?
 				</Link>

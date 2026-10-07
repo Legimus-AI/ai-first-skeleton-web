@@ -52,7 +52,10 @@ function ForgotPasswordPage() {
 						{sent ? 'Enviar de nuevo' : 'Enviar enlace'}
 					</Button>
 					<p className="text-center text-sm text-muted-foreground">
-						<Link to="/login" className="text-primary underline-offset-4 hover:underline">
+						<Link
+							to="/login"
+							className="rounded-control text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+						>
 							Volver a iniciar sesión
 						</Link>
 					</p>

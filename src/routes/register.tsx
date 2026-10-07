@@ -80,7 +80,7 @@ function RegisterPage() {
 						<Link
 							to="/login"
 							search={{ redirect: search.redirect, oauth_query: search.oauth_query }}
-							className="text-primary underline-offset-4 hover:underline"
+							className="rounded-control text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 						>
 							Inicia sesión
 						</Link>
