@@ -3,11 +3,11 @@ import { toast } from 'sonner'
 import {
 	answerOAuthConsent,
 	decideDeviceRequest,
-	followAuthRedirect,
 	getDeviceRequest,
 	getOAuthClient,
 } from '../auth-client'
 import { authErrorMessage } from '../auth-error'
+import { followAuthRedirect } from '../auth-redirect'
 
 // OAuth for MCP clients (consent) and for the CLI (device login approval), both Better Auth's.
 

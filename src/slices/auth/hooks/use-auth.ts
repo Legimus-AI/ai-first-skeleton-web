@@ -8,8 +8,6 @@ import { safeParseResponse, throwIfNotOk } from '@/services/api-error'
 import { safeRedirectPath } from '@/utils/safe-redirect'
 import { OAUTH_QUERY_PARAM } from '@/utils/signed-oauth-query'
 import {
-	type AuthRedirect,
-	followAuthRedirect,
 	getSession,
 	signInWithEmail,
 	signInWithGoogle,
@@ -19,6 +17,7 @@ import {
 } from '../auth-client'
 import { authErrorMessage } from '../auth-error'
 import type { LoginForm, RegisterForm } from '../auth-form-schemas'
+import { type AuthRedirect, followAuthRedirect } from '../auth-redirect'
 
 // WHY: the session can end server-side at any moment (logout in another tab, revocation, another
 // localhost app replacing the cookie), so the cached user must be re-checked, not trusted forever.

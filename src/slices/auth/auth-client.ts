@@ -10,6 +10,7 @@ import { adminAc, memberAc, ownerAc } from 'better-auth/plugins/organization/acc
 import { api } from '@/services/api-client'
 import { OAUTH_QUERY_PARAM } from '@/utils/signed-oauth-query'
 import { authApiErrorFrom } from './auth-error'
+import { redirectOf } from './auth-redirect'
 
 // WHY: not exported. Its inferred type is too large to emit (TS7056), and the functions below keep
 // every endpoint the web uses in one reviewable place.
@@ -37,28 +38,6 @@ const betterAuthClient = createAuthClient({
 		oauthDeviceAuthorizationClient(),
 	],
 })
-
-/** Where Better Auth sends the browser next (an OAuth resume, Google), when it says so. */
-export interface AuthRedirect {
-	url: string | undefined
-}
-
-function redirectOf(response: unknown): AuthRedirect {
-	const url =
-		typeof response === 'object' && response !== null && 'url' in response
-			? response.url
-			: undefined
-	return { url: typeof url === 'string' && url !== '' ? url : undefined }
-}
-
-/** Sends the browser where Better Auth points, unless the scheme would run code. */
-export function followAuthRedirect(url: string): void {
-	const scheme = new URL(url, globalThis.location.origin).protocol
-	if (['javascript:', 'data:', 'vbscript:'].includes(scheme)) {
-		throw new Error(`Refused to follow a ${scheme} redirect`)
-	}
-	globalThis.location.assign(url)
-}
 
 /** The Turnstile token header Better Auth's captcha plugin reads (sign-in, sign-up, reset). */
 function captchaHeaders(captchaToken: string | null): Record<string, string> {
