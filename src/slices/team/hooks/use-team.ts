@@ -1,5 +1,10 @@
 // @generated-by-ai-first-skeleton — do not remove this line
-import { type ListQuery, type TeamMember, teamListResponseSchema } from '@repo/shared'
+import {
+	type ListQuery,
+	pendingInvitationListResponseSchema,
+	type TeamMember,
+	teamListResponseSchema,
+} from '@repo/shared'
 import {
 	keepPreviousData,
 	type QueryClient,
@@ -12,6 +17,7 @@ import { toast } from 'sonner'
 import { api } from '@/services/api-client'
 import { safeParseResponse, throwIfNotOk } from '@/services/api-error'
 import {
+	cancelInvitation,
 	inviteMember,
 	membershipIdOf,
 	removeMember,
@@ -22,6 +28,7 @@ import { authQueryOptions } from '@/slices/auth/hooks/use-auth'
 import type { AssignableRole, InviteMemberForm } from '../team-form-schema'
 
 export const TEAM_KEY = ['team'] as const
+const INVITATIONS_KEY = [...TEAM_KEY, 'invitations'] as const
 
 /** The member list stays on REST: it pages, searches and sorts like every other list. */
 export const teamQueryOptions = (params?: Partial<ListQuery>) =>
@@ -57,6 +64,7 @@ export function useInviteMember() {
 		mutationFn: async (input: InviteMemberForm) =>
 			inviteMember({ ...input, organizationId: await organizationIdOf(queryClient) }),
 		onSuccess: (_data, { email }) => {
+			void queryClient.invalidateQueries({ queryKey: INVITATIONS_KEY })
 			toast.success('Invitación enviada', {
 				description: `${email} recibirá un enlace para unirse al equipo.`,
 			})
@@ -132,5 +140,37 @@ export function useBulkRemoveMembers() {
 		// The title counts the failures; the first one's reason says why.
 		onError: (error) => toast.error(error.message, { description: authErrorMessage(error.cause) }),
 		onSettled: () => queryClient.invalidateQueries({ queryKey: TEAM_KEY }),
+	})
+}
+
+/** One page of the invitations nobody has answered yet, newest first (the team API's order). */
+export const invitationsQueryOptions = (params?: Partial<ListQuery>) =>
+	queryOptions({
+		queryKey: [...INVITATIONS_KEY, params],
+		queryFn: async ({ signal }) => {
+			const res = await api.get('/api/v1/team/invitations', params, signal)
+			await throwIfNotOk(res)
+			const json: unknown = await res.json()
+			return safeParseResponse(pendingInvitationListResponseSchema, json)
+		},
+		placeholderData: keepPreviousData,
+	})
+
+export function usePendingInvitations(params?: Partial<ListQuery>) {
+	return useQuery(invitationsQueryOptions(params))
+}
+
+/** Cancels an invitation: the link in its email stops working. */
+export function useCancelInvitation() {
+	const queryClient = useQueryClient()
+	return useMutation({
+		mutationFn: cancelInvitation,
+		onSuccess: () => {
+			toast.success('Invitación anulada')
+		},
+		onError: (error) => {
+			toast.error('No se pudo anular la invitación', { description: authErrorMessage(error) })
+		},
+		onSettled: () => queryClient.invalidateQueries({ queryKey: INVITATIONS_KEY }),
 	})
 }

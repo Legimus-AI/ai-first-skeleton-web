@@ -189,6 +189,11 @@ export async function removeMember(input: {
 	})
 }
 
+/** POST /organization/cancel-invitation: the emailed link stops working. */
+export async function cancelInvitation(invitationId: string): Promise<void> {
+	await betterAuthClient.organization.cancelInvitation({ invitationId })
+}
+
 /** An invitation as its recipient sees it. */
 export interface InvitationView {
 	role: string

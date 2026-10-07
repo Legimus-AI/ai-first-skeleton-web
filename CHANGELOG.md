@@ -28,6 +28,9 @@ compatibility. Implements AI-First Architecture v3.0.0 ([ADR 0022](https://githu
   returns.
 - "Apps conectadas" on the API keys page: every OAuth app signed in with the account, each revocable;
   the list reads the shared `oauthConnectionsResponseSchema`.
+- "Invitaciones pendientes" on the team page: owners and admins see who was invited and has not joined
+  (email, role, expiry), newest first and paged from `GET /api/v1/team/invitations`, and can cancel an
+  invitation.
 - Cloudflare Turnstile on login, sign-up and password reset (`VITE_TURNSTILE_SITE_KEY`).
 - Vite proxies `/.well-known/oauth-*` and `/.well-known/openid-configuration` to the API in development.
 

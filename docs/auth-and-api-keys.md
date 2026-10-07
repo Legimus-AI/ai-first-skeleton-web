@@ -71,6 +71,9 @@ Below the keys, the same page lists the apps that signed in with the account thr
 | Invite (email and role; the person accepts at `/accept-invitation`) | `POST /organization/invite-member` |
 | Change a role | `GET /organization/list-members` (finds the membership id: the list is keyed by user id) then `POST /organization/update-member-role` |
 | Remove one or several members | `POST /organization/remove-member`, one call per member, by email |
+| Cancel a pending invitation (with confirmation; its link stops working) | `POST /organization/cancel-invitation` |
+
+Below the members, owners and admins see **Invitaciones pendientes**: each invitation's email, role and expiry ("Venció el …" once its link expired, since Better Auth keeps it pending), with **Anular** behind a confirmation. The list comes from the team API (`GET /api/v1/team/invitations`, shared `pendingInvitationListResponseSchema`), newest first and paged like the members; its page lives in the URL as `invitationsPage`. Inviting someone or canceling an invitation refreshes it. Better Auth's own list is not used: it returns at most 100 invitations of every status, in no order.
 
 ## Webhooks
 

@@ -24,13 +24,14 @@ import {
 } from '../hooks/use-team'
 import type { AssignableRole } from '../team-form-schema'
 import { buildMemberColumns, isManageableMember } from './member-columns'
+import { PendingInvitations } from './pending-invitations'
 import { TeamForm } from './team-form'
 
 export function TeamList() {
-	const params = useSearch({ from: '/_authed/settings/team' })
+	const { invitationsPage = 1, ...params } = useSearch({ from: '/_authed/settings/team' })
 	const navigate = useNavigate()
 	const setParams = useCallback(
-		(updates: Partial<ListParams>) => {
+		(updates: Partial<ListParams & { invitationsPage: number }>) => {
 			void navigate({
 				to: '.',
 				search: (prev: Record<string, unknown>) => ({ ...prev, ...updates }),
@@ -73,6 +74,10 @@ export function TeamList() {
 		[onRoleChange, canManage, currentUser?.id, roleChangePendingFor],
 	)
 	const setPage = useCallback((page: number) => setParams({ page }), [setParams])
+	const setInvitationsPage = useCallback(
+		(page: number) => setParams({ invitationsPage: page }),
+		[setParams],
+	)
 	const movingToLastPage = usePageInRange(data?.meta, setPage)
 
 	if (error) {
@@ -144,6 +149,14 @@ export function TeamList() {
 					meta={data.meta}
 					onPageChange={(page) => setParams({ page })}
 					onPerPageChange={(limit) => setParams({ limit, page: 1 })}
+				/>
+			)}
+
+			{canManage && (
+				<PendingInvitations
+					page={invitationsPage}
+					onPageChange={setInvitationsPage}
+					onInvite={() => setShowInvite(true)}
 				/>
 			)}
 
