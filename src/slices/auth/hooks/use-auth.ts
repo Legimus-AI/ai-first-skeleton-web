@@ -1,26 +1,29 @@
-import {
-	type AuthResponse,
-	authResponseSchema,
-	type ForgotPasswordInput,
-	type Login,
-	type Register,
-	type ResetPasswordInput,
-	type UpdateProfile,
-	type User,
-	type VerifyEmailInput,
-} from '@repo/shared'
+import { type AuthResponse, authResponseSchema, type UpdateProfile, type User } from '@repo/shared'
 import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { toast } from 'sonner'
 import { HOME_PATH } from '@/constants/routes'
 import { api } from '@/services/api-client'
-import { ApiError, safeParseResponse, throwIfNotOk, toUserMessage } from '@/services/api-error'
+import { safeParseResponse, throwIfNotOk } from '@/services/api-error'
 import { safeRedirectPath } from '@/utils/safe-redirect'
+import { OAUTH_QUERY_PARAM } from '@/utils/signed-oauth-query'
+import {
+	getSession,
+	signInWithEmail,
+	signInWithGoogle,
+	signOut,
+	signUpWithEmail,
+	updateProfile,
+} from '../auth-client'
+import { authErrorMessage } from '../auth-error'
+import type { LoginForm, RegisterForm } from '../auth-form-schemas'
+import { type AuthRedirect, followAuthRedirect } from '../auth-redirect'
 
 // WHY: the session can end server-side at any moment (logout in another tab, revocation, another
 // localhost app replacing the cookie), so the cached user must be re-checked, not trusted forever.
 const AUTH_STALE_TIME_MS = 60_000
 
+/** The signed-in user with the role and organization of their live membership (REST, not Better Auth). */
 export const authQueryOptions = queryOptions({
 	queryKey: ['auth', 'me'],
 	// WHY: the _authed beforeLoad awaits this same fetch. With a `signal` (or a fetch paused offline),
@@ -39,169 +42,130 @@ export const authQueryOptions = queryOptions({
 	refetchOnWindowFocus: true,
 })
 
+/** The signed-in user with a team (REST /me); null without a session or without a team. */
 export function useCurrentUser() {
 	return useQuery(authQueryOptions)
 }
 
-/** Signs in, then goes to `redirectTo` (the page that asked for a login). */
-export function useLogin(redirectTo: string) {
+/**
+ * Who holds the session cookie (Better Auth's session), team or not; null when nobody is signed in.
+ * WHY: an invited person may have a session but no team yet, and /me answers them 401.
+ */
+export function useAuthSession() {
+	return useQuery({ queryKey: ['auth', 'session'], queryFn: getSession, retry: false })
+}
+
+export interface SignInTarget {
+	/** Page on this site to open once signed in. */
+	redirectTo: string
+	/** Better Auth's signed OAuth query: signing in resumes that app's authorization instead. */
+	oauthQuery: string | undefined
+}
+
+/** A Turnstile token, when the captcha is on (`VITE_TURNSTILE_SITE_KEY`). */
+export interface CaptchaInput {
+	captchaToken: string | null
+}
+
+/** Once a session exists: follow Better Auth's `url` (an OAuth resume), or open `redirectTo`. */
+function useContinueSignedIn() {
 	const queryClient = useQueryClient()
 	const navigate = useNavigate()
+	return ({ url }: AuthRedirect, redirectTo: string) => {
+		// Data cached under a previous account must never show under this one.
+		queryClient.clear()
+		if (url) return followAuthRedirect(url)
+		// Checked again where it is used: only a path on this site, never another host.
+		void navigate({ href: safeRedirectPath(redirectTo) ?? HOME_PATH })
+	}
+}
+
+/** Signs in with email and password, then goes where `target` says. */
+export function useLogin(target: SignInTarget) {
+	const continueSignedIn = useContinueSignedIn()
 	return useMutation({
-		mutationFn: async (input: Login) => {
-			const res = await api.post('/api/v1/auth/login', input)
-			await throwIfNotOk(res)
-			const json: unknown = await res.json()
-			return safeParseResponse(authResponseSchema, json)
-		},
-		onSuccess: (data) => {
-			// Data cached under a previous account must never show under this one.
-			queryClient.clear()
-			queryClient.setQueryData(authQueryOptions.queryKey, data.data)
-			// Checked again where it is used: only a path on this site, never another host.
-			void navigate({ href: safeRedirectPath(redirectTo) ?? HOME_PATH })
-		},
+		mutationFn: (input: LoginForm & CaptchaInput) =>
+			signInWithEmail({ ...input, oauthQuery: target.oauthQuery }),
+		onSuccess: (response) => continueSignedIn(response, target.redirectTo),
 		onError: (error) => {
-			toast.error('No pudimos iniciar sesión', {
-				description:
-					error instanceof ApiError && error.status === 401
-						? 'Email o contraseña incorrectos.'
-						: toUserMessage(error),
-			})
+			toast.error('No pudimos iniciar sesión', { description: authErrorMessage(error) })
 		},
 	})
 }
 
-// NOTE: Register creates a new organization for each user.
-// For multi-user projects, implement an invite flow:
-//   1. POST /api/v1/auth/invite — sends invite with org ID
-//   2. GET /api/v1/auth/accept-invite/:token — joins existing org
-// See: AGENTS.md "Multi-User" section for guidance.
-export function useRegister() {
-	const queryClient = useQueryClient()
-	const navigate = useNavigate()
+/** Creates an account (Better Auth signs it in), then goes where `target` says. */
+export function useRegister(target: SignInTarget) {
+	const continueSignedIn = useContinueSignedIn()
 	return useMutation({
-		mutationFn: async (input: Register) => {
-			const res = await api.post('/api/v1/auth/register', input)
-			await throwIfNotOk(res)
-			const json: unknown = await res.json()
-			return safeParseResponse(authResponseSchema, json)
-		},
-		onSuccess: (data) => {
-			queryClient.clear()
-			queryClient.setQueryData(authQueryOptions.queryKey, data.data)
-			void navigate({ href: HOME_PATH })
-		},
+		mutationFn: (input: RegisterForm & CaptchaInput) =>
+			signUpWithEmail({
+				...input,
+				oauthQuery: target.oauthQuery,
+				// Where the confirmation link goes on to, such as the invitation being opened.
+				callbackURL:
+					target.redirectTo === HOME_PATH ? undefined : safeRedirectPath(target.redirectTo),
+			}),
+		onSuccess: (response) => continueSignedIn(response, target.redirectTo),
 		onError: (error) => {
-			toast.error('No pudimos crear tu cuenta', {
-				description: toUserMessage(error),
-			})
+			toast.error('No pudimos crear tu cuenta', { description: authErrorMessage(error) })
 		},
 	})
 }
 
+/** Starts the Google sign-in: Better Auth answers Google's URL and the browser goes there. */
+export function useGoogleSignIn(target: SignInTarget) {
+	return useMutation({
+		mutationFn: async () => {
+			const origin = globalThis.location.origin
+			// A failure comes back to the login with `?error=`, keeping where the person was going.
+			const retryLogin = new URL('/login', origin)
+			if (target.redirectTo !== HOME_PATH) {
+				retryLogin.searchParams.set('redirect', target.redirectTo)
+			}
+			if (target.oauthQuery) retryLogin.searchParams.set(OAUTH_QUERY_PARAM, target.oauthQuery)
+			const { url } = await signInWithGoogle({
+				callbackURL: new URL(target.redirectTo, origin).href,
+				errorCallbackURL: retryLogin.href,
+				oauthQuery: target.oauthQuery,
+			})
+			if (!url) throw new Error('Better Auth answered the Google sign-in without a URL')
+			return url
+		},
+		onSuccess: followAuthRedirect,
+		onError: (error) => {
+			toast.error('No pudimos iniciar sesión con Google', { description: authErrorMessage(error) })
+		},
+	})
+}
+
+/** Saves the profile name (Better Auth's update-user) and refreshes the signed-in user. */
 export function useUpdateProfile() {
 	const queryClient = useQueryClient()
 	return useMutation({
-		mutationFn: async (input: UpdateProfile) => {
-			const res = await api.patch('/api/v1/auth/me', input)
-			await throwIfNotOk(res)
-			const json: unknown = await res.json()
-			return safeParseResponse(authResponseSchema, json)
-		},
-		onSuccess: (data) => {
-			queryClient.setQueryData(authQueryOptions.queryKey, data.data)
-			toast.success('Perfil actualizado', {
-				description: 'Guardamos tus cambios.',
-			})
+		mutationFn: (input: UpdateProfile) => updateProfile(input),
+		onSuccess: () => {
+			void queryClient.invalidateQueries({ queryKey: authQueryOptions.queryKey })
+			toast.success('Perfil actualizado', { description: 'Guardamos tus cambios.' })
 		},
 		onError: (error) => {
-			toast.error('No pudimos guardar tu perfil', {
-				description: toUserMessage(error),
-			})
+			toast.error('No pudimos guardar tu perfil', { description: authErrorMessage(error) })
 		},
 	})
 }
 
-export function useLogout() {
+/** Signs out; `redirectTo` is where the next sign-in returns (e.g. an invitation for another email). */
+export function useLogout(redirectTo?: string) {
 	const queryClient = useQueryClient()
 	const navigate = useNavigate()
 	return useMutation({
-		mutationFn: async () => {
-			const res = await api.post('/api/v1/auth/logout', {})
-			await throwIfNotOk(res)
-		},
+		mutationFn: signOut,
 		onSuccess: () => {
 			queryClient.clear()
 			toast.success('Cerraste sesión')
-			void navigate({ to: '/login' })
+			void navigate({ to: '/login', search: { redirect: safeRedirectPath(redirectTo) } })
 		},
 		onError: (error) => {
-			toast.error('No pudimos cerrar sesión', {
-				description: toUserMessage(error),
-			})
-		},
-	})
-}
-
-/** An invalid, used or expired email link answers 400. */
-function linkErrorMessage(error: unknown): string {
-	return error instanceof ApiError && error.status === 400
-		? 'El enlace no es válido o ya venció. Pide uno nuevo.'
-		: toUserMessage(error)
-}
-
-export function useForgotPassword() {
-	return useMutation({
-		mutationFn: async (input: ForgotPasswordInput) => {
-			const res = await api.post('/api/v1/auth/forgot-password', input)
-			await throwIfNotOk(res)
-		},
-		onError: (error) => {
-			toast.error('No pudimos enviar el enlace', {
-				description: toUserMessage(error),
-			})
-		},
-	})
-}
-
-export function useResetPassword() {
-	const navigate = useNavigate()
-	return useMutation({
-		mutationFn: async (input: ResetPasswordInput) => {
-			const res = await api.post('/api/v1/auth/reset-password', input)
-			await throwIfNotOk(res)
-		},
-		onSuccess: () => {
-			toast.success('Tu contraseña está lista', {
-				description: 'Ya puedes iniciar sesión.',
-			})
-			void navigate({ to: '/login' })
-		},
-		onError: (error) => {
-			toast.error('No pudimos guardar tu contraseña', {
-				description: linkErrorMessage(error),
-			})
-		},
-	})
-}
-
-export function useVerifyEmail() {
-	const queryClient = useQueryClient()
-	return useMutation({
-		mutationFn: async (input: VerifyEmailInput) => {
-			const res = await api.post('/api/v1/auth/verify-email', input)
-			await throwIfNotOk(res)
-		},
-		onSuccess: () => {
-			void queryClient.invalidateQueries({
-				queryKey: authQueryOptions.queryKey,
-			})
-		},
-		onError: (error) => {
-			toast.error('No pudimos verificar tu email', {
-				description: linkErrorMessage(error),
-			})
+			toast.error('No pudimos cerrar sesión', { description: authErrorMessage(error) })
 		},
 	})
 }

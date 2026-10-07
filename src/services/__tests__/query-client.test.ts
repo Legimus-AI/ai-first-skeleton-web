@@ -18,10 +18,10 @@ describe('session policy (401)', () => {
 		expect(isSessionLost(unauthorized('/api/v1/todos'))).toBe(true)
 	})
 
-	it('ignores the 401s that mean "not signed in" or "wrong password"', () => {
+	it('ignores the 401s that mean "not signed in", "wrong password" or "bad email link"', () => {
 		expect(isSessionLost(unauthorized('/api/v1/auth/me'))).toBe(false)
-		expect(isSessionLost(unauthorized('/api/v1/auth/login'))).toBe(false)
-		expect(isSessionLost(unauthorized('/api/v1/auth/register'))).toBe(false)
+		expect(isSessionLost(unauthorized('/api/auth/sign-in/email'))).toBe(false)
+		expect(isSessionLost(unauthorized('/api/auth/verify-email'))).toBe(false)
 	})
 
 	it('ignores other failures', () => {
@@ -60,7 +60,7 @@ describe('session policy (401)', () => {
 		const onSessionLost = vi.fn()
 		const queryClient = createQueryClient(onSessionLost)
 		const mutation = queryClient.getMutationCache().build(queryClient, {
-			mutationFn: () => Promise.reject(unauthorized('/api/v1/auth/login')),
+			mutationFn: () => Promise.reject(unauthorized('/api/auth/sign-in/email')),
 		})
 		await mutation.execute(undefined).catch(() => undefined)
 		expect(onSessionLost).not.toHaveBeenCalled()

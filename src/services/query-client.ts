@@ -1,11 +1,12 @@
 import { CancelledError, MutationCache, QueryCache, QueryClient } from '@tanstack/react-query'
 import { ApiError } from '@/services/api-error'
 
-// A 401 here means "not signed in" (auth/me) or "wrong password" (login), not "session lost".
+// A 401 here means "not signed in" (auth/me), "wrong password" (sign-in) or "bad email link"
+// (verify-email), not "session lost".
 const SESSION_EXEMPT_PATHS = new Set([
 	'/api/v1/auth/me',
-	'/api/v1/auth/login',
-	'/api/v1/auth/register',
+	'/api/auth/sign-in/email',
+	'/api/auth/verify-email',
 ])
 
 /** True when a request failed because the session is gone (expired, revoked, replaced). */

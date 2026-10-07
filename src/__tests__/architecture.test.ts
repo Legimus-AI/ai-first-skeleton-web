@@ -55,7 +55,7 @@ function getSliceNames(): string[] {
 }
 
 // Infrastructure slices — not standard CRUD, exempt from CRUD-specific checks (INV-050)
-// team: manages users table (under settings), needs auth cross-import for currentUser
+// team: lists members over REST and writes through slices/auth/auth-client.ts (Better Auth)
 const INFRA_SLICES = new Set(['auth', 'team'])
 
 function getCrudSliceNames(): string[] {
@@ -171,6 +171,24 @@ describe('Architecture rules (INVARIANTS.md)', () => {
 		if (violations.length > 0) {
 			expect.fail(
 				`Raw fetch() calls found (INVARIANT #7):\n${violations.map((v) => `  - ${v}`).join('\n')}\n\nFix: Use the api client from @/services/api-client.`,
+			)
+		}
+	})
+
+	// --- INVARIANT #7, named exception (ADR 0022): one Better Auth import site ---
+	// Better Auth's client sends its own requests to /api/auth/*; only auth-client.ts may use it,
+	// so every other call still goes through the api-client.
+
+	it('Only slices/auth/auth-client.ts imports Better Auth (INVARIANT #7 named exception)', () => {
+		const betterAuthImport = /from ['"](?:better-auth|@better-auth\/)/
+		const violations = allTsFiles
+			.filter((file) => !file.endsWith(join('slices', 'auth', 'auth-client.ts')))
+			.filter((file) => betterAuthImport.test(readFileSync(file, 'utf-8')))
+			.map((file) => relative(SRC_DIR, file))
+
+		if (violations.length > 0) {
+			expect.fail(
+				`Better Auth imported outside slices/auth/auth-client.ts (INVARIANT #7):\n${violations.map((v) => `  - ${v}`).join('\n')}\n\nFix: add a typed function to auth-client.ts and call that.`,
 			)
 		}
 	})
@@ -293,7 +311,8 @@ describe('Architecture rules (INVARIANTS.md)', () => {
 
 	describe('No cross-slice imports', () => {
 		const sliceNames = getSliceNames()
-		// Allowed cross-slice imports (infra slices may import from auth for currentUser)
+		// Allowed cross-slice imports: team reads currentUser from auth and writes through
+		// slices/auth/auth-client.ts (Better Auth's organization endpoints)
 		const allowedCrossImports: Record<string, Set<string>> = {
 			team: new Set(['auth']),
 		}

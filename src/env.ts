@@ -8,6 +8,8 @@ const envSchema = z.object({
 		.string()
 		.transform((v) => v === 'true')
 		.default(false),
+	// Cloudflare Turnstile: set it (with TURNSTILE_SECRET_KEY on the API) to ask for a captcha.
+	VITE_TURNSTILE_SITE_KEY: z.string().min(1).optional(),
 })
 
 export type Env = z.infer<typeof envSchema>

@@ -1,23 +1,32 @@
 # Authentication and API Keys
 
-What the web app does for sign-in and for API keys. The backend owns the rules (sessions, roles, scopes); this repo renders the flows.
+What the web app does for sign-in, OAuth apps (MCP clients and the CLI), the team and API keys. The backend owns the rules (sessions, roles, scopes); this repo renders the flows.
 
 ## Authentication
 
-Session-based auth with login, register, and logout flows. Protected routes redirect unauthenticated users to `/login`.
+Identity is Better Auth's ([ADR 0022](https://github.com/Legimus-AI/ai-first-architecture/blob/main/docs/decisions/0022-better-auth-identity-skeleton-authorization-mcp-oauth.md)): sign-in, sign-up, sessions, the email flows, Google, invitations and the OAuth server for MCP clients live under `/api/auth/*` on the API. The web app calls them only through `src/slices/auth/auth-client.ts`, the one file that imports `better-auth` (INVARIANTS #7 named exception). It exports one typed function per endpoint, so it is also the list of endpoints the API's allowlist must serve. Its requests still travel through the api-client (`api.send`: same 15 s limit and network errors), and a failure throws `AuthApiError` (an `ApiError` with Better Auth's `authCode`). `authErrorMessage` (`auth-error.ts`) turns each code into Spanish, including the login lockout (429) with its `Retry-After` wait.
 
-| Route | Description |
-|-------|-------------|
-| `/login` | Email + password sign-in, plus a Google button when `VITE_GOOGLE_AUTH=true`. `?redirect=<path>` returns there after sign-in (only a page on this site other than the auth pages, checked again right before navigating); `?error=oauth` shows "No pudimos iniciar sesión con Google"; a signed-in user is sent on |
-| `/register` | Create a new account (name, email, password); a signed-in user goes to `HOME_PATH` (`/dashboard` unless the project changed it in `src/constants/routes.ts`) |
-| `/forgot-password` | Asks for an email and sends a reset link (`POST /api/v1/auth/forgot-password`) |
-| `/reset-password?token=` | Sets a new password (`POST /api/v1/auth/reset-password`); `&invited=1` shows "Crea tu contraseña" for invited members |
-| `/verify-email?token=` | One click confirms the email (`POST /api/v1/auth/verify-email`); opening the link alone changes nothing |
-| `/` | Protected; redirects to `HOME_PATH` (and to `/login` if not authenticated) |
-| `/profile` | Protected; user info and edit form |
-| `/settings/*` | Protected; general, notifications, security, team, API keys |
+| Route | What it does | Better Auth endpoint |
+|-------|--------------|----------------------|
+| `/login` | Email + password, plus Google when `VITE_GOOGLE_AUTH=true`. `?redirect=<path>` returns there after sign-in (only a page on this site other than the auth pages, checked again before navigating); `?error=` (set by Better Auth when Google fails) shows "No pudimos iniciar sesión con Google", or, for `account_not_linked` (an account with that email whose email is not confirmed yet), points to "¿Olvidaste tu contraseña?": the reset confirms the email, and Google links on the next try; a signed-in user is sent on. With `?oauth_query=` it resumes an app's OAuth authorization (below) | `POST /sign-in/email`, `POST /sign-in/social` |
+| `/register` | Name, email, password; Better Auth signs the new account in. Takes `redirect` and `oauth_query` like `/login` | `POST /sign-up/email` |
+| `/forgot-password` | Asks for an email and sends a reset link | `POST /request-password-reset` |
+| `/reset-password?token=` | Sets a new password; Better Auth ends the account's other sessions | `POST /reset-password` |
+| `/verify-email?token=` | One click confirms the email; opening the link alone changes nothing | `GET /verify-email` |
+| `/accept-invitation?token=` | The invitation email's link: sign in or create the account with that email, then accept or reject. Better Auth asks for a confirmed email first; the page offers to resend the link | `GET /get-session`, `GET /organization/get-invitation`, `POST /organization/accept-invitation`, `POST /organization/reject-invitation`, `POST /send-verification-email` |
+| `/oauth/consent?oauth_query=` | Signed in only. An MCP client asks for access: its name, the host that receives the access, a warning when that host is this computer (localhost, 127.x, `::1`), and the requested scopes in plain Spanish (`*:read` "Leer tus datos", `*:write` "Crear y modificar datos"). Permitir or Rechazar sends the browser back to the app | `GET /oauth2/public-client`, `POST /oauth2/consent` |
+| `/device?user_code=` | Signed in only. The CLI's login (OAuth device grant): the person types or sees the code, checks the app and scopes, and approves or denies | `GET /device`, `POST /device/approve`, `POST /device/deny` |
+| `/` | Protected; redirects to `HOME_PATH` (and to `/login` if not authenticated) | |
+| `/profile` | Protected; user info and the name form | `POST /update-user` |
+| `/settings/*` | Protected; general, notifications, security, team, API keys | |
 
-Auth state is managed via TanStack Query (`useCurrentUser`, `authQueryOptions` in `src/slices/auth/hooks/use-auth.ts`), re-checked after 60 s and on window focus, because a session can end server-side at any time. Login and register clear the whole cache first, so one account never sees another's data. A 401 anywhere else sends the user to `/login?redirect=…` (see [api-client.md](api-client.md)). The `_authed` layout route (`src/routes/_authed.tsx`) checks auth in `beforeLoad` before rendering any child route and shows a skeleton while it waits. Auth state lives only in TanStack Query; there is no React Context for it.
+Logout is `POST /sign-out` (user menu). `/oauth/consent` and `/device` sit under the pathless `src/routes/_session.tsx`: it checks the session like `_authed` and sends a signed-out person to `/login?redirect=<this page>`, without the app shell.
+
+**Who is signed in** stays on REST: `useCurrentUser` / `authQueryOptions` (`src/slices/auth/hooks/use-auth.ts`) read `GET /api/v1/auth/me`, because the app needs the role and organization of the live membership. It is re-checked after 60 s and on window focus. Sign-in, sign-up, logout and accepting an invitation clear the whole cache, so one account never sees another's data. A 401 anywhere else sends the user to `/login?redirect=…` (see [api-client.md](api-client.md)). The `_authed` layout route checks auth in `beforeLoad` and shows a skeleton while it waits. Auth state lives only in TanStack Query; there is no React Context for it, and Better Auth's own React hooks are not used.
+
+**OAuth resume.** When an MCP client starts an authorization and nobody is signed in, Better Auth sends the browser to `/login` with a signed query (its `loginPage`). That query lists its signed names in a repeated `ba_param`, which the router would re-encode as one JSON array and so break the signature. The router's `parseSearch` (`src/router.ts`, `utils/signed-oauth-query.ts`) folds it into one opaque `oauth_query` param before anything reads it. Signing in (email, sign-up or Google) posts it back as `oauth_query`, and the page follows the `url` Better Auth answers: the consent page (its `consentPage`, `/oauth/consent`) or the app itself.
+
+**Captcha.** With `VITE_TURNSTILE_SITE_KEY` set (and `TURNSTILE_SECRET_KEY` on the API), the login, sign-up and forgot-password forms render a Cloudflare Turnstile widget and send its token in the `x-captcha-response` header, the one Better Auth's captcha plugin reads. A token is spent on every try, so the widget renews after each submit. Without the key nothing renders.
 
 ## API Key Management
 
@@ -42,11 +51,29 @@ The form offers three presets and the table shows each key's permissions:
 
 `*:action` never covers the reserved resources (team, API keys, webhooks, audit). A key never exceeds its creator's role, and with the TypeScript backend skeleton it reaches only the routes marked for agents (`x-agent`). A key with `*:write` deletes data in one call, with no approval. A key never changes who has access or where data is sent: inviting, changing roles and removing members, creating and revoking API keys, and creating, changing and deleting webhook destinations are refused to every key, `full` included, and stay in this web app.
 
-For other scope combinations, create the key through the API with a session cookie, never another key (`POST /api/v1/auth/api-keys` with `scopes`), or with the backend's agent CLI, whose login you approve in the browser:
+For other scope combinations, create the key through the API with a session cookie, never another key (`POST /api/v1/auth/api-keys` with `scopes`). The backend's agent CLI needs no key: `pnpm agent login` is approved in the browser at `/device`, and the CLI then acts with `*:read` and `*:write` within the person's role.
 
-```bash
-pnpm agent login --scopes todos:read,todos:write   # approve in the browser; no password in the CLI
-```
+### Apps conectadas
+
+Below the keys, the same page lists the apps that signed in with the account through OAuth: MCP clients (Claude, an editor, an agent) and the CLI. Each row shows the app's name, its permissions, when it connected and when it last got a token. **Desconectar** asks for confirmation and revokes the app at once: its tokens and consent go, so its next call to `/mcp` is refused.
+
+| Call | Contract |
+|------|----------|
+| `GET /api/v1/auth/connections` | `{ data: [{ clientId, clientName, scopes, createdAt, lastUsedAt }] }` |
+| `DELETE /api/v1/auth/connections/{clientId}` | 204; `clientId` is URL-encoded, because a client registered by metadata document has a URL as its id |
+
+## Team and invitations
+
+`/settings/team` lists the members over REST (`GET /api/v1/team`: paging, search, sort). Changes go through Better Auth's organization endpoints, which take only a session and refuse to remove or demote the last owner (the page shows that error):
+
+| Action | Better Auth endpoint |
+|--------|----------------------|
+| Invite (email and role; the person accepts at `/accept-invitation`) | `POST /organization/invite-member` |
+| Change a role | `GET /organization/list-members` (finds the membership id: the list is keyed by user id) then `POST /organization/update-member-role` |
+| Remove one or several members | `POST /organization/remove-member`, one call per member, by email |
+| Cancel a pending invitation (with confirmation; its link stops working) | `POST /organization/cancel-invitation` |
+
+Below the members, owners and admins see **Invitaciones pendientes**: each invitation's email, role and expiry ("Venció el …" once its link expired, since Better Auth keeps it pending), with **Anular** behind a confirmation. The list comes from the team API (`GET /api/v1/team/invitations`, shared `pendingInvitationListResponseSchema`), newest first and paged like the members; its page lives in the URL as `invitationsPage`. Inviting someone or canceling an invitation refreshes it. Better Auth's own list is not used: it returns at most 100 invitations of every status, in no order.
 
 ## Webhooks
 

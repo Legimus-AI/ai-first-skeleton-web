@@ -1,20 +1,30 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { type Login, loginSchema } from '@repo/shared'
 import { createFileRoute, Link, Navigate } from '@tanstack/react-router'
 import { useForm } from 'react-hook-form'
 import { HOME_PATH } from '@/constants/routes'
 import { PublicLayout } from '@/layouts/public-layout'
+import { type LoginForm, loginFormSchema } from '@/slices/auth/auth-form-schemas'
 import { AuthFormField } from '@/slices/auth/components/auth-form-field'
 import { GoogleOAuthButton } from '@/slices/auth/components/google-oauth-button'
-import { useCurrentUser, useLogin } from '@/slices/auth/hooks/use-auth'
+import { NoTeamPage } from '@/slices/auth/components/no-team-page'
+import { CAPTCHA_STATUS_ID, TurnstileWidget } from '@/slices/auth/components/turnstile-widget'
+import { useAuthSession, useCurrentUser, useLogin } from '@/slices/auth/hooks/use-auth'
+import { useCaptcha } from '@/slices/auth/hooks/use-captcha'
 import { Button } from '@/ui/button'
+import { nonEmptyText } from '@/utils/non-empty-text'
 import { safeRedirectPath } from '@/utils/safe-redirect'
+
+// WHY: Better Auth links Google to an existing account only once its email is confirmed; a password
+// reset confirms it (the API claims the account), so that is the way in.
+const GOOGLE_NOT_LINKED = 'account_not_linked'
 
 export interface LoginSearch {
 	/** Page to return to after signing in. */
 	redirect?: string | undefined
-	/** Set by the backend when the Google sign-in failed. */
-	error?: 'oauth'
+	/** Set by Better Auth (its error code) when the Google sign-in failed. */
+	error?: string | undefined
+	/** Better Auth's signed OAuth query: an app (an MCP client) is asking for access. */
+	oauth_query?: string | undefined
 }
 
 export const Route = createFileRoute('/login')({
@@ -22,45 +32,66 @@ export const Route = createFileRoute('/login')({
 	// overwritten with undefined; leaving the key out lets the raw value through.
 	validateSearch: (search: Record<string, unknown>): LoginSearch => ({
 		redirect: safeRedirectPath(search.redirect),
-		...(search.error === 'oauth' ? { error: 'oauth' as const } : {}),
+		error: nonEmptyText(search.error),
+		oauth_query: nonEmptyText(search.oauth_query),
 	}),
 	component: LoginPage,
 })
 
 function LoginPage() {
 	const search = Route.useSearch()
-	const redirectTo = safeRedirectPath(search.redirect) ?? HOME_PATH
+	const target = {
+		redirectTo: safeRedirectPath(search.redirect) ?? HOME_PATH,
+		oauthQuery: search.oauth_query,
+	}
 	const { data: user } = useCurrentUser()
-	const login = useLogin(redirectTo)
+	const session = useAuthSession()
+	const captcha = useCaptcha()
+	const login = useLogin(target)
 	const {
 		register,
 		handleSubmit,
 		formState: { errors },
-	} = useForm<Login>({
-		resolver: zodResolver(loginSchema),
+	} = useForm<LoginForm>({
+		resolver: zodResolver(loginFormSchema),
 	})
 
-	// Already signed in: `href` (a full path with its search) takes precedence over `to`.
-	if (user) return <Navigate to="." href={redirectTo} replace />
+	// Already signed in: `href` (a full path with its search) takes precedence over `to`. An OAuth
+	// request still asks for the password here (Better Auth sends `prompt=login` this way).
+	if (user && !target.oauthQuery) return <Navigate to="." href={target.redirectTo} replace />
+	// A session the API refuses (/me is null): an invited person who has not accepted yet.
+	if (user === null && session.data && !target.oauthQuery) {
+		return <NoTeamPage email={session.data.email} />
+	}
 
-	const onSubmit = (data: Login) => login.mutate(data)
+	const onSubmit = (data: LoginForm) =>
+		login.mutate({ ...data, captchaToken: captcha.token }, { onError: captcha.renew })
 
 	return (
 		<PublicLayout
 			title="Inicia sesión"
-			description="Entra a tu cuenta"
+			description={
+				target.oauthQuery ? 'Entra a tu cuenta para conectar la app' : 'Entra a tu cuenta'
+			}
 			onSubmit={handleSubmit(onSubmit)}
-			socialLogin={<GoogleOAuthButton />}
+			socialLogin={<GoogleOAuthButton {...target} />}
 			footer={
 				<>
-					<Button type="submit" className="w-full" loading={login.isPending}>
+					<Button
+						type="submit"
+						className="w-full"
+						loading={login.isPending}
+						disabled={!captcha.ready}
+						aria-describedby={captcha.ready ? undefined : CAPTCHA_STATUS_ID}
+					>
 						Iniciar sesión
 					</Button>
 					<p className="text-center text-sm text-muted-foreground">
 						¿No tienes cuenta?{' '}
 						<Link
 							to="/register"
-							className="text-primary font-medium underline-offset-4 hover:underline"
+							search={{ redirect: search.redirect, oauth_query: search.oauth_query }}
+							className="rounded-control text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring font-medium"
 						>
 							Regístrate
 						</Link>
@@ -68,12 +99,14 @@ function LoginPage() {
 				</>
 			}
 		>
-			{search.error === 'oauth' && (
+			{search.error && (
 				<p
 					role="alert"
 					className="rounded-lg border border-destructive/20 bg-destructive/5 px-3 py-2 text-sm text-destructive"
 				>
-					No pudimos iniciar sesión con Google. Inténtalo de nuevo o entra con tu email.
+					{search.error === GOOGLE_NOT_LINKED
+						? 'Ya hay una cuenta con este email que aún no está confirmada. Recupérala con «¿Olvidaste tu contraseña?» y luego podrás entrar con Google.'
+						: 'No pudimos iniciar sesión con Google. Inténtalo de nuevo o entra con tu email.'}
 				</p>
 			)}
 			<AuthFormField
@@ -99,11 +132,14 @@ function LoginPage() {
 			<div className="flex justify-end">
 				<Link
 					to="/forgot-password"
-					className="text-sm text-primary underline-offset-4 hover:underline"
+					className="rounded-control text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring text-sm"
 				>
 					¿Olvidaste tu contraseña?
 				</Link>
 			</div>
+			{captcha.siteKey && (
+				<TurnstileWidget key={captcha.round} siteKey={captcha.siteKey} onToken={captcha.setToken} />
+			)}
 		</PublicLayout>
 	)
 }

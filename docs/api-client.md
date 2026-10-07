@@ -27,6 +27,8 @@ const res = await api.delete(`/api/v1/todos/${id}`)
 
 Response types come from `@repo/shared` (Zod schemas), validated at runtime with `safeParseResponse()` from `@/services/api-error`.
 
+`api.send(url, init)` sends a request a client library built itself, with the same time limit and network errors. Only Better Auth's client uses it (`src/slices/auth/auth-client.ts`, the INVARIANTS #7 named exception): its failures arrive as `AuthApiError`, an `ApiError` that also carries Better Auth's code. See [auth-and-api-keys.md](auth-and-api-keys.md).
+
 ## Error Handling
 
 All API errors are typed and structured:
@@ -38,7 +40,7 @@ const res = await api.get('/api/v1/todos')
 await throwIfNotOk(res) // throws ApiError { code, message, requestId, fields }
 ```
 
-Error codes from `@repo/shared`: `VALIDATION_ERROR`, `NOT_FOUND`, `UNAUTHORIZED`, `FORBIDDEN`, `CONFLICT`, `RATE_LIMITED`, `INTERNAL_ERROR`.
+Error codes from `@repo/shared`: `VALIDATION_ERROR`, `NOT_FOUND`, `UNAUTHORIZED`, `FORBIDDEN`, `EMAIL_NOT_VERIFIED`, `CONFLICT`, `RATE_LIMITED`, `INTERNAL_ERROR`.
 
 For granular error handling:
 
@@ -61,7 +63,7 @@ Backend messages stay English (they are for API consumers). The UI never shows t
 
 ## Session, retries and route errors (one place: `src/services/query-client.ts`)
 
-- **401:** the `QueryCache` and `MutationCache` `onError` treat a 401 outside `/auth/me`, `/auth/login` and `/auth/register` as a lost session: they clear the cache and go to `/login?redirect=<current path>`. Hooks never handle 401 themselves. After signing in, the user returns to `redirect` (same-origin paths only).
+- **401:** the `QueryCache` and `MutationCache` `onError` treat a 401 outside `/api/v1/auth/me` (not signed in), `/api/auth/sign-in/email` (wrong password) and `/api/auth/verify-email` (bad link) as a lost session: they clear the cache and go to `/login?redirect=<current path>`. Hooks never handle 401 themselves. After signing in, the user returns to `redirect` (same-origin paths only).
 - **Retries:** once, and only for no response or a 5xx. A 4xx is never retried.
 - **Auth:** the current user is re-checked after 60 s and on window focus; the `_authed` guard revalidates it in the background.
 - **Route errors:** `defaultErrorComponent` renders `RouteError` where the failing route renders, so the layout and menu stay. The root `ErrorBoundary` resets when the location changes and `<Toaster/>` lives outside it.

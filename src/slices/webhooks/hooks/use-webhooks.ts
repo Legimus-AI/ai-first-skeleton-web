@@ -39,9 +39,14 @@ export function nextDeliveryRefresh(pages: readonly WebhookEventListResponse[]):
 
 const WEBHOOKS_KEY = ['webhooks'] as const
 
-/** The API answers 409 to a create or resend while it records no events. */
+/**
+ * The API answers 409 to a create or resend while it records no events, and 403 EMAIL_NOT_VERIFIED
+ * to a creator whose email is not confirmed.
+ */
 export function webhookErrorMessage(error: unknown): string {
-	return error instanceof ApiError && error.status === 409
+	if (!(error instanceof ApiError)) return toUserMessage(error)
+	if (error.code === 'EMAIL_NOT_VERIFIED') return 'Confirma tu email antes de crear un webhook.'
+	return error.status === 409
 		? 'Los eventos están apagados en el servidor: activa EVENTS_ENABLED para enviar webhooks.'
 		: toUserMessage(error)
 }

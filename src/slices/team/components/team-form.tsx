@@ -1,31 +1,30 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { inviteMemberSchema } from '@repo/shared'
 import { useEffect } from 'react'
 import { type UseFormSetError, useForm } from 'react-hook-form'
-import type { z } from 'zod'
 import { FormDialog } from '@/ui/form-dialog'
 import { Input } from '@/ui/input'
 import { Select } from '@/ui/select'
-
-type InviteMemberInput = z.input<typeof inviteMemberSchema>
+import { type InviteMemberForm, inviteMemberFormSchema } from '../team-form-schema'
 
 interface TeamFormProps {
 	open: boolean
 	onOpenChange: (open: boolean) => void
-	/** `setError` lets the caller show server field errors (e.g. a taken email) under the inputs. */
-	onSubmit: (data: InviteMemberInput, setError: UseFormSetError<InviteMemberInput>) => void
+	/** `setError` lets the caller show a server error (e.g. already a member) under the email. */
+	onSubmit: (data: InviteMemberForm, setError: UseFormSetError<InviteMemberForm>) => void
 	isPending: boolean
 }
 
+const EMPTY_INVITE: InviteMemberForm = { email: '', role: 'user' }
+
 export function TeamForm({ open, onOpenChange, onSubmit, isPending }: TeamFormProps) {
-	const form = useForm<InviteMemberInput>({
-		resolver: zodResolver(inviteMemberSchema),
-		defaultValues: { email: '', name: '', role: 'user' },
+	const form = useForm<InviteMemberForm>({
+		resolver: zodResolver(inviteMemberFormSchema),
+		defaultValues: EMPTY_INVITE,
 	})
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: intentionally reset only on open
 	useEffect(() => {
-		if (open) form.reset({ email: '', name: '', role: 'user' })
+		if (open) form.reset(EMPTY_INVITE)
 	}, [open])
 
 	return (
@@ -33,7 +32,7 @@ export function TeamForm({ open, onOpenChange, onSubmit, isPending }: TeamFormPr
 			open={open}
 			onOpenChange={onOpenChange}
 			title="Invitar miembro"
-			description="Le enviaremos un email con un enlace para crear su contraseña."
+			description="Le enviaremos un email con un enlace para unirse al equipo."
 			onSubmit={form.handleSubmit((data) => onSubmit(data, form.setError))}
 			isPending={isPending}
 			submitLabel="Enviar invitación"
@@ -52,21 +51,6 @@ export function TeamForm({ open, onOpenChange, onSubmit, isPending }: TeamFormPr
 					/>
 					{form.formState.errors.email && (
 						<p className="text-xs text-destructive">{form.formState.errors.email.message}</p>
-					)}
-				</div>
-
-				<div className="space-y-2">
-					<label htmlFor="invite-name" className="text-sm font-medium text-foreground">
-						Nombre
-					</label>
-					<Input
-						id="invite-name"
-						placeholder="Nombre completo"
-						{...form.register('name')}
-						aria-invalid={!!form.formState.errors.name}
-					/>
-					{form.formState.errors.name && (
-						<p className="text-xs text-destructive">{form.formState.errors.name.message}</p>
 					)}
 				</div>
 

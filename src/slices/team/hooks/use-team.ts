@@ -1,25 +1,36 @@
 // @generated-by-ai-first-skeleton — do not remove this line
 import {
-	type InviteMember,
 	type ListQuery,
+	pendingInvitationListResponseSchema,
+	type TeamMember,
 	teamListResponseSchema,
-	teamMemberResponseSchema,
-	type UpdateMemberRole,
 } from '@repo/shared'
 import {
 	keepPreviousData,
+	type QueryClient,
 	queryOptions,
 	useMutation,
 	useQuery,
 	useQueryClient,
 } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { useBulkDelete } from '@/hooks/use-bulk-delete'
 import { api } from '@/services/api-client'
-import { safeParseResponse, throwIfNotOk, toUserMessage } from '@/services/api-error'
+import { safeParseResponse, throwIfNotOk } from '@/services/api-error'
+import {
+	cancelInvitation,
+	inviteMember,
+	membershipIdOf,
+	removeMember,
+	updateMemberRole,
+} from '@/slices/auth/auth-client'
+import { AuthApiError, authErrorMessage } from '@/slices/auth/auth-error'
+import { authQueryOptions } from '@/slices/auth/hooks/use-auth'
+import type { AssignableRole, InviteMemberForm } from '../team-form-schema'
 
 export const TEAM_KEY = ['team'] as const
+const INVITATIONS_KEY = [...TEAM_KEY, 'invitations'] as const
 
+/** The member list stays on REST: it pages, searches and sorts like every other list. */
 export const teamQueryOptions = (params?: Partial<ListQuery>) =>
 	queryOptions({
 		queryKey: [...TEAM_KEY, params],
@@ -32,67 +43,134 @@ export const teamQueryOptions = (params?: Partial<ListQuery>) =>
 		placeholderData: keepPreviousData,
 	})
 
+/** One page of members, searched and sorted by the server. */
 export function useTeamMembers(params?: Partial<ListQuery>) {
 	return useQuery(teamQueryOptions(params))
 }
 
+// Writes are Better Auth's organization endpoints: a session only, and the last owner is protected.
+
+/** The signed-in user's organization, which every organization call names. */
+async function organizationIdOf(queryClient: QueryClient): Promise<string> {
+	const user = await queryClient.ensureQueryData(authQueryOptions)
+	if (!user) throw new Error('Team changes need a signed-in user')
+	return user.organizationId
+}
+
+/** Emails an invitation; the person joins at /accept-invitation. */
 export function useInviteMember() {
 	const queryClient = useQueryClient()
 	return useMutation({
-		mutationFn: async (input: InviteMember) => {
-			const res = await api.post('/api/v1/team', input)
-			await throwIfNotOk(res)
-			const json = await res.json()
-			return safeParseResponse(teamMemberResponseSchema, json)
-		},
-		onSuccess: (_data, variables) => {
-			queryClient.invalidateQueries({ queryKey: TEAM_KEY })
+		mutationFn: async (input: InviteMemberForm) =>
+			inviteMember({ ...input, organizationId: await organizationIdOf(queryClient) }),
+		onSuccess: (_data, { email }) => {
+			void queryClient.invalidateQueries({ queryKey: INVITATIONS_KEY })
 			toast.success('Invitación enviada', {
-				description: `${variables.email} recibirá un enlace para crear su contraseña.`,
+				description: `${email} recibirá un enlace para unirse al equipo.`,
 			})
 		},
-		onError: (error) => toast.error('No se pudo invitar', { description: toUserMessage(error) }),
+		onError: (error) => toast.error('No se pudo invitar', { description: authErrorMessage(error) }),
 	})
 }
 
+/** Changes a member's role; Better Auth refuses to demote the last owner. */
 export function useUpdateMemberRole() {
 	const queryClient = useQueryClient()
 	return useMutation({
-		mutationFn: async ({ id, ...input }: UpdateMemberRole & { id: string }) => {
-			const res = await api.patch(`/api/v1/team/${id}`, input)
-			await throwIfNotOk(res)
-			const json = await res.json()
-			return safeParseResponse(teamMemberResponseSchema, json)
+		mutationFn: async ({ member, role }: { member: TeamMember; role: AssignableRole }) => {
+			const organizationId = await organizationIdOf(queryClient)
+			// WHY: Better Auth changes a role by membership id; the team list is keyed by user id.
+			const memberId = await membershipIdOf({ organizationId, userId: member.id })
+			if (!memberId) {
+				throw new AuthApiError('Member not found', 'MEMBER_NOT_FOUND', { status: 404 })
+			}
+			await updateMemberRole({ memberId, role, organizationId })
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: TEAM_KEY })
+			void queryClient.invalidateQueries({ queryKey: TEAM_KEY })
 			toast.success('Rol actualizado')
 		},
-		onError: (error) =>
-			toast.error('No se pudo cambiar el rol', {
-				description: toUserMessage(error),
-			}),
+		onError: (error) => {
+			void queryClient.invalidateQueries({ queryKey: TEAM_KEY })
+			toast.error('No se pudo cambiar el rol', { description: authErrorMessage(error) })
+		},
 	})
 }
 
+/** Removes one member; Better Auth refuses to remove the last owner. */
 export function useRemoveMember() {
 	const queryClient = useQueryClient()
 	return useMutation({
-		mutationFn: async (id: string) => {
-			const res = await api.delete(`/api/v1/team/${id}`)
-			await throwIfNotOk(res)
-			const json = await res.json()
-			return safeParseResponse(teamMemberResponseSchema, json)
-		},
+		mutationFn: async (member: TeamMember) =>
+			removeMember({ email: member.email, organizationId: await organizationIdOf(queryClient) }),
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: TEAM_KEY })
+			void queryClient.invalidateQueries({ queryKey: TEAM_KEY })
 			toast.success('Miembro quitado del equipo')
 		},
 		onError: (error) =>
-			toast.error('No se pudo quitar al miembro', {
-				description: toUserMessage(error),
-			}),
+			toast.error('No se pudo quitar al miembro', { description: authErrorMessage(error) }),
 	})
 }
 
-export const useBulkRemoveMembers = () => useBulkDelete('/api/v1/team', [...TEAM_KEY])
+/** Removes several members, one call each (Better Auth has no bulk remove); counts the failures. */
+export function useBulkRemoveMembers() {
+	const queryClient = useQueryClient()
+	return useMutation({
+		mutationFn: async (emails: string[]) => {
+			const organizationId = await organizationIdOf(queryClient)
+			const results = await Promise.allSettled(
+				emails.map((email) => removeMember({ email, organizationId })),
+			)
+			const failures = results.filter(
+				(result): result is PromiseRejectedResult => result.status === 'rejected',
+			)
+			const [firstFailure] = failures
+			if (firstFailure) {
+				const members = `${emails.length} miembro${emails.length === 1 ? '' : 's'}`
+				throw new Error(`No se pudo quitar a ${failures.length} de ${members}`, {
+					cause: firstFailure.reason,
+				})
+			}
+		},
+		onSuccess: (_data, emails) => {
+			toast.success(
+				`${emails.length} miembro${emails.length === 1 ? '' : 's'} quitado${emails.length === 1 ? '' : 's'} del equipo`,
+			)
+		},
+		// The title counts the failures; the first one's reason says why.
+		onError: (error) => toast.error(error.message, { description: authErrorMessage(error.cause) }),
+		onSettled: () => queryClient.invalidateQueries({ queryKey: TEAM_KEY }),
+	})
+}
+
+/** One page of the invitations nobody has answered yet, newest first (the team API's order). */
+export const invitationsQueryOptions = (params?: Partial<ListQuery>) =>
+	queryOptions({
+		queryKey: [...INVITATIONS_KEY, params],
+		queryFn: async ({ signal }) => {
+			const res = await api.get('/api/v1/team/invitations', params, signal)
+			await throwIfNotOk(res)
+			const json: unknown = await res.json()
+			return safeParseResponse(pendingInvitationListResponseSchema, json)
+		},
+		placeholderData: keepPreviousData,
+	})
+
+export function usePendingInvitations(params?: Partial<ListQuery>) {
+	return useQuery(invitationsQueryOptions(params))
+}
+
+/** Cancels an invitation: the link in its email stops working. */
+export function useCancelInvitation() {
+	const queryClient = useQueryClient()
+	return useMutation({
+		mutationFn: cancelInvitation,
+		onSuccess: () => {
+			toast.success('Invitación anulada')
+		},
+		onError: (error) => {
+			toast.error('No se pudo anular la invitación', { description: authErrorMessage(error) })
+		},
+		onSettled: () => queryClient.invalidateQueries({ queryKey: INVITATIONS_KEY }),
+	})
+}

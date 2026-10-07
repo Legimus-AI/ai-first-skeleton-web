@@ -1,62 +1,62 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { resetPasswordInputSchema } from '@repo/shared'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useForm } from 'react-hook-form'
-import type { z } from 'zod'
 import { PublicLayout } from '@/layouts/public-layout'
+import { authErrorField, authErrorMessage } from '@/slices/auth/auth-error'
+import { type NewPasswordForm, newPasswordFormSchema } from '@/slices/auth/auth-form-schemas'
 import { AuthFormField } from '@/slices/auth/components/auth-form-field'
-import { useResetPassword } from '@/slices/auth/hooks/use-auth'
+import { useResetPassword } from '@/slices/auth/hooks/use-account-emails'
 import { Button } from '@/ui/button'
 
-export interface ResetPasswordSearch {
-	token?: string
-	/** Invited members land here to set their first password. */
-	invited?: boolean
-}
-
-const passwordSchema = resetPasswordInputSchema.pick({ password: true })
-type PasswordInput = z.infer<typeof passwordSchema>
-
 export const Route = createFileRoute('/reset-password')({
-	validateSearch: (search: Record<string, unknown>): ResetPasswordSearch => ({
-		...(typeof search.token === 'string' ? { token: search.token } : {}),
-		...(String(search.invited) === '1' ? { invited: true } : {}),
-	}),
+	validateSearch: (search: Record<string, unknown>): { token?: string } =>
+		typeof search.token === 'string' ? { token: search.token } : {},
 	component: ResetPasswordPage,
 })
 
 function ResetPasswordPage() {
-	const { token, invited } = Route.useSearch()
+	const { token } = Route.useSearch()
 	const resetPassword = useResetPassword()
 	const {
 		register,
 		handleSubmit,
+		setError,
 		formState: { errors },
-	} = useForm<PasswordInput>({
-		resolver: zodResolver(passwordSchema),
+	} = useForm<NewPasswordForm>({
+		resolver: zodResolver(newPasswordFormSchema),
 	})
 
-	const onSubmit = ({ password }: PasswordInput) => {
-		if (token) resetPassword.mutate({ token, password })
+	const onSubmit = ({ password }: NewPasswordForm) => {
+		if (!token) return
+		resetPassword.mutate(
+			{ token, password },
+			{
+				// A leaked or too-short password belongs under the field, not only in the toast.
+				onError: (error) => {
+					if (authErrorField(error) === 'password') {
+						setError('password', { message: authErrorMessage(error) })
+					}
+				},
+			},
+		)
 	}
 
 	return (
 		<PublicLayout
-			title={invited ? 'Crea tu contraseña' : 'Nueva contraseña'}
-			description={
-				invited
-					? 'Elige la contraseña con la que entrarás a tu equipo.'
-					: 'Elige una nueva contraseña para tu cuenta.'
-			}
+			title="Nueva contraseña"
+			description="Elige una nueva contraseña para tu cuenta."
 			onSubmit={handleSubmit(onSubmit)}
 			footer={
 				token ? (
 					<Button type="submit" className="w-full" loading={resetPassword.isPending}>
-						{invited ? 'Crear contraseña' : 'Guardar contraseña'}
+						Guardar contraseña
 					</Button>
 				) : (
 					<p className="text-center text-sm">
-						<Link to="/forgot-password" className="text-primary underline-offset-4 hover:underline">
+						<Link
+							to="/forgot-password"
+							className="rounded-control text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+						>
 							Pedir un enlace nuevo
 						</Link>
 					</p>
@@ -68,7 +68,7 @@ function ResetPasswordPage() {
 					id="password"
 					label="Contraseña"
 					type="password"
-					placeholder={`Mínimo ${resetPasswordInputSchema.shape.password.minLength} caracteres`}
+					placeholder={`Mínimo ${newPasswordFormSchema.shape.password.minLength} caracteres`}
 					registration={register('password')}
 					hasError={!!errors.password}
 					errorMessage={errors.password?.message}

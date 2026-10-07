@@ -1,10 +1,12 @@
-import type { MemberRole, TeamMember, UpdateMemberRole } from '@repo/shared'
+import { assignableRoleSchema, type MemberRole, type TeamMember } from '@repo/shared'
+import { MEMBER_ROLE_LABELS } from '@/constants/roles'
 import { Badge } from '@/ui/badge'
 import { Button } from '@/ui/button'
 import type { Column } from '@/ui/data-table'
 import { Shield, Trash } from '@/ui/icons'
 import { Select } from '@/ui/select'
 import { formatDate } from '@/utils/format-date'
+import type { AssignableRole } from '../team-form-schema'
 
 const ROLE_VARIANTS: Record<MemberRole, 'default' | 'success' | 'secondary'> = {
 	owner: 'default',
@@ -12,18 +14,14 @@ const ROLE_VARIANTS: Record<MemberRole, 'default' | 'success' | 'secondary'> = {
 	user: 'secondary',
 }
 
-const ROLE_LABELS: Record<MemberRole, string> = {
-	owner: 'Propietario',
-	admin: 'Administrador',
-	user: 'Miembro',
-}
-
 interface MemberColumnsOptions {
-	onRoleChange: (id: string, role: UpdateMemberRole['role']) => void
-	onDelete: (id: string) => void
+	onRoleChange: (member: TeamMember, role: AssignableRole) => void
+	onDelete: (member: TeamMember) => void
 	/** Your role grants `team:write`; without it every member is read-only. */
 	canManage: boolean
 	currentUserId: string | undefined
+	/** The member whose role change is in flight: their select waits for it. */
+	roleChangePendingFor: string | undefined
 }
 
 /** The owner and yourself are never edited or removed from this table. */
@@ -36,6 +34,7 @@ export function buildMemberColumns({
 	onDelete,
 	canManage,
 	currentUserId,
+	roleChangePendingFor,
 }: MemberColumnsOptions): Column<TeamMember>[] {
 	return [
 		{
@@ -59,19 +58,22 @@ export function buildMemberColumns({
 					return (
 						<Badge variant={ROLE_VARIANTS[member.role]}>
 							{member.role === 'owner' && <Shield className="mr-1 h-3 w-3" />}
-							{ROLE_LABELS[member.role]}
+							{MEMBER_ROLE_LABELS[member.role]}
 						</Badge>
 					)
 				}
 				return (
 					<Select
 						value={member.role}
-						onChange={(e) => onRoleChange(member.id, e.target.value as UpdateMemberRole['role'])}
+						onChange={(event) =>
+							onRoleChange(member, assignableRoleSchema.parse(event.target.value))
+						}
+						disabled={member.id === roleChangePendingFor}
 						className="h-7 w-32 text-xs"
 						aria-label={`Rol de ${member.name}`}
 					>
-						<option value="admin">{ROLE_LABELS.admin}</option>
-						<option value="user">{ROLE_LABELS.user}</option>
+						<option value="admin">{MEMBER_ROLE_LABELS.admin}</option>
+						<option value="user">{MEMBER_ROLE_LABELS.user}</option>
 					</Select>
 				)
 			},
@@ -107,9 +109,9 @@ export function buildMemberColumns({
 						size="icon"
 						className="h-8 w-8 text-muted-foreground hover:text-destructive"
 						type="button"
-						onClick={(e) => {
-							e.stopPropagation()
-							onDelete(member.id)
+						onClick={(event) => {
+							event.stopPropagation()
+							onDelete(member)
 						}}
 						aria-label={`Quitar a ${member.name}`}
 					>

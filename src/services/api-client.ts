@@ -33,6 +33,9 @@ async function request(path: string, options?: RequestInit): Promise<Response> {
 	)
 	if (signal?.aborted) controller.abort(signal.reason)
 	signal?.addEventListener('abort', () => controller.abort(signal.reason), { once: true })
+	// WHY: a Headers instance (Better Auth's client sends one) does not spread into an object.
+	const headers = new Headers(customHeaders)
+	if (body != null && !headers.has('Content-Type')) headers.set('Content-Type', 'application/json')
 	let res: Response
 	try {
 		res = await fetch(path, {
@@ -40,10 +43,7 @@ async function request(path: string, options?: RequestInit): Promise<Response> {
 			...rest,
 			signal: controller.signal,
 			...(body != null && { body }),
-			headers: {
-				...(body != null && { 'Content-Type': 'application/json' }),
-				...customHeaders,
-			},
+			headers,
 		})
 	} catch (error) {
 		// A caller's cancellation (e.g. TanStack Query unmounting) is not a failure.
@@ -83,4 +83,7 @@ export const api = {
 			method: 'DELETE',
 			...(body != null && { body: JSON.stringify(body) }),
 		}),
+
+	/** A request a client library already built (Better Auth's): same time limit and errors. */
+	send: (url: string, init?: RequestInit) => request(url, init),
 }
