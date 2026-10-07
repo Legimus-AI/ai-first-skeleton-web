@@ -123,6 +123,7 @@ const MESSAGE_BY_CODE: Partial<Record<ErrorCode, string>> = {
 	NOT_FOUND: 'No encontramos lo que buscas. Puede que ya se haya eliminado.',
 	UNAUTHORIZED: 'Tu sesión terminó. Inicia sesión de nuevo.',
 	FORBIDDEN: 'No tienes permiso para hacer esto.',
+	EMAIL_NOT_VERIFIED: 'Confirma tu email para continuar: revisa tu bandeja de entrada.',
 	CONFLICT:
 		'Este cambio no está permitido con los datos actuales. Actualiza la página y revisa antes de intentarlo de nuevo.',
 	RATE_LIMITED: 'Hiciste demasiadas solicitudes. Espera un momento e inténtalo de nuevo.',

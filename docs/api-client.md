@@ -40,7 +40,7 @@ const res = await api.get('/api/v1/todos')
 await throwIfNotOk(res) // throws ApiError { code, message, requestId, fields }
 ```
 
-Error codes from `@repo/shared`: `VALIDATION_ERROR`, `NOT_FOUND`, `UNAUTHORIZED`, `FORBIDDEN`, `CONFLICT`, `RATE_LIMITED`, `INTERNAL_ERROR`.
+Error codes from `@repo/shared`: `VALIDATION_ERROR`, `NOT_FOUND`, `UNAUTHORIZED`, `FORBIDDEN`, `EMAIL_NOT_VERIFIED`, `CONFLICT`, `RATE_LIMITED`, `INTERNAL_ERROR`.
 
 For granular error handling:
 
