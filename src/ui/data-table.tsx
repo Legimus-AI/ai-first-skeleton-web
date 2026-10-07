@@ -4,7 +4,6 @@ import {
 	type ColumnDef,
 	flexRender,
 	getCoreRowModel,
-	type SortingState,
 	useReactTable,
 } from '@tanstack/react-table'
 import type { ReactNode } from 'react'
@@ -68,6 +67,9 @@ const CHECKBOX_CLASS =
 function isBaseVisible<T>(col: Column<T>): boolean {
 	return !/(^|\s)hidden(\s|$)/.test(col.className ?? '')
 }
+
+// No TanStack sorting: the server sorts, and a header click only asks onSortChange for the order.
+type DataTableMeta = { className?: string | undefined; sortable?: boolean }
 
 const selectAnyRow = () => true
 const genericRowLabel = () => 'fila'
@@ -142,8 +144,7 @@ function toColumnDefs<T>(
 			id: col.key,
 			header: col.label,
 			cell: ({ row }) => col.render(row.original),
-			enableSorting: col.sortable ?? false,
-			meta: { className: col.className },
+			meta: { className: col.className, sortable: col.sortable ?? false } satisfies DataTableMeta,
 		})
 	}
 
@@ -181,28 +182,15 @@ export function DataTable<T>({
 		[columns, hasSelection, selection],
 	)
 
-	const sortingState: SortingState = useMemo(
-		() => (sort ? [{ id: sort, desc: order === 'desc' }] : []),
-		[sort, order],
-	)
-
 	const table = useReactTable<T>({
 		data,
 		columns: columnDefs,
 		getRowId: getId,
 		getCoreRowModel: getCoreRowModel(),
-		manualSorting: true,
-		// asc ⇄ desc only: a third "unsorted" click would leave the URL sort unchanged (a dead click).
-		enableSortingRemoval: false,
-		onSortingChange: (updater) => {
-			const next = typeof updater === 'function' ? updater(sortingState) : updater
-			const first = next[0]
-			if (first && onSortChange) {
-				onSortChange(first.id, first.desc ? 'desc' : 'asc')
-			}
-		},
-		state: { sorting: sortingState },
 	})
+	// asc ⇄ desc only: an "unsorted" third click would leave the URL sort unchanged (a dead click).
+	const toggleSort = (columnKey: string) =>
+		onSortChange?.(columnKey, sort === columnKey && order === 'asc' ? 'desc' : 'asc')
 
 	// ── Loading skeleton ──────────────────────────────────────────────────────
 
@@ -266,18 +254,26 @@ export function DataTable<T>({
 						{table.getHeaderGroups().map((headerGroup) => (
 							<TableRow key={headerGroup.id} className="hover:bg-transparent">
 								{headerGroup.headers.map((header) => {
-									const meta = header.column.columnDef.meta as { className?: string } | undefined
-									const canSort = header.column.getCanSort()
+									const meta = header.column.columnDef.meta as DataTableMeta | undefined
+									const canSort = meta?.sortable === true && onSortChange !== undefined
+									const columnId = header.column.id
+									// Without an order the server sorts descending, as the icon shows.
+									const ariaSort =
+										canSort && sort === columnId
+											? order === 'asc'
+												? 'ascending'
+												: 'descending'
+											: undefined
 									return (
-										<TableHead key={header.id} className={meta?.className}>
+										<TableHead key={header.id} className={meta?.className} aria-sort={ariaSort}>
 											{header.isPlaceholder ? null : canSort ? (
 												<button
 													type="button"
-													onClick={header.column.getToggleSortingHandler()}
+													onClick={() => toggleSort(columnId)}
 													className="inline-flex items-center gap-1 transition-colors duration-150 hover:text-foreground"
 												>
 													{flexRender(header.column.columnDef.header, header.getContext())}
-													<SortIcon sort={sort} order={order} columnKey={header.id} />
+													<SortIcon sort={sort} order={order} columnKey={columnId} />
 												</button>
 											) : (
 												flexRender(header.column.columnDef.header, header.getContext())
@@ -299,7 +295,7 @@ export function DataTable<T>({
 									onClick={() => onRowClick?.(row.original)}
 								>
 									{row.getVisibleCells().map((cell) => {
-										const meta = cell.column.columnDef.meta as { className?: string } | undefined
+										const meta = cell.column.columnDef.meta as DataTableMeta | undefined
 										return (
 											<TableCell key={cell.id} className={meta?.className}>
 												{flexRender(cell.column.columnDef.cell, cell.getContext())}
