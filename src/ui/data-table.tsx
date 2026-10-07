@@ -3,8 +3,9 @@
 import {
 	type ColumnDef,
 	flexRender,
-	getCoreRowModel,
-	useReactTable,
+	type RowData,
+	tableFeatures,
+	useTable,
 } from '@tanstack/react-table'
 import type { ReactNode } from 'react'
 import { useMemo } from 'react'
@@ -69,6 +70,8 @@ function isBaseVisible<T>(col: Column<T>): boolean {
 }
 
 // No TanStack sorting: the server sorts, and a header click only asks onSortChange for the order.
+const features = tableFeatures({})
+type Features = typeof features
 type DataTableMeta = { className?: string | undefined; sortable?: boolean }
 
 const selectAnyRow = () => true
@@ -104,13 +107,13 @@ function RowCheckbox<T>({ item, selection }: { item: T; selection: Selection<T> 
 	)
 }
 
-/** Convert our public Column<T> to TanStack ColumnDef<T>. */
-function toColumnDefs<T>(
+/** Convert our public Column<T> to TanStack's ColumnDef. */
+function toColumnDefs<T extends RowData>(
 	cols: Column<T>[],
 	hasSelection: boolean,
 	selection: Selection<T>,
-): ColumnDef<T>[] {
-	const defs: ColumnDef<T>[] = []
+): ColumnDef<Features, T>[] {
+	const defs: ColumnDef<Features, T>[] = []
 
 	if (hasSelection) {
 		defs.push({
@@ -153,7 +156,7 @@ function toColumnDefs<T>(
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function DataTable<T>({
+export function DataTable<T extends RowData>({
 	data,
 	columns,
 	getId,
@@ -182,12 +185,7 @@ export function DataTable<T>({
 		[columns, hasSelection, selection],
 	)
 
-	const table = useReactTable<T>({
-		data,
-		columns: columnDefs,
-		getRowId: getId,
-		getCoreRowModel: getCoreRowModel(),
-	})
+	const table = useTable<Features, T>({ features, data, columns: columnDefs, getRowId: getId })
 	// asc ⇄ desc only: an "unsorted" third click would leave the URL sort unchanged (a dead click).
 	const toggleSort = (columnKey: string) =>
 		onSortChange?.(columnKey, sort === columnKey && order === 'asc' ? 'desc' : 'asc')
@@ -294,7 +292,7 @@ export function DataTable<T>({
 									className={cn(onRowClick && 'cursor-pointer')}
 									onClick={() => onRowClick?.(row.original)}
 								>
-									{row.getVisibleCells().map((cell) => {
+									{row.getAllCells().map((cell) => {
 										const meta = cell.column.columnDef.meta as DataTableMeta | undefined
 										return (
 											<TableCell key={cell.id} className={meta?.className}>
