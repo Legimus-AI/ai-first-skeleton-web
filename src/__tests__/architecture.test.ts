@@ -175,6 +175,24 @@ describe('Architecture rules (INVARIANTS.md)', () => {
 		}
 	})
 
+	// --- INVARIANT #7, named exception (ADR 0022): one Better Auth import site ---
+	// Better Auth's client sends its own requests to /api/auth/*; only auth-client.ts may use it,
+	// so every other call still goes through the api-client.
+
+	it('Only slices/auth/auth-client.ts imports Better Auth (INVARIANT #7 named exception)', () => {
+		const betterAuthImport = /from ['"](?:better-auth|@better-auth\/)/
+		const violations = allTsFiles
+			.filter((file) => !file.endsWith(join('slices', 'auth', 'auth-client.ts')))
+			.filter((file) => betterAuthImport.test(readFileSync(file, 'utf-8')))
+			.map((file) => relative(SRC_DIR, file))
+
+		if (violations.length > 0) {
+			expect.fail(
+				`Better Auth imported outside slices/auth/auth-client.ts (INVARIANT #7):\n${violations.map((v) => `  - ${v}`).join('\n')}\n\nFix: add a typed function to auth-client.ts and call that.`,
+			)
+		}
+	})
+
 	// --- INVARIANT #15: No dangerouslySetInnerHTML ---
 
 	it('No dangerouslySetInnerHTML usage', () => {

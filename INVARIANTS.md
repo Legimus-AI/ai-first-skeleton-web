@@ -32,7 +32,7 @@ AGENTS.md "Layout Reasoning" for how to pick or design a layout per product arch
 
 ## Data Fetching
 
-7. **No raw `fetch()` calls.** All API calls go through `@/services/api-client`. Never use raw `fetch()`.
+7. **No raw `fetch()` calls.** All API calls go through `@/services/api-client`. Never use raw `fetch()`. Named exception (INV-030 in the TypeScript skeleton (rule 3 of the spec's frontend table), ADR 0022): `src/slices/auth/auth-client.ts` calls Better Auth's endpoints (`/api/auth/*`) through Better Auth's client, only because that client owns its own requests (paths, bodies, error shape). Its transport is still the api-client (`api.send`), and it is the only file that imports `better-auth` or `@better-auth/*`.
 8. **No `useEffect` for data fetching.** Use TanStack Query hooks.
 9. **No local state for server data.** Use TanStack Query for all server state.
 10. **CRUD hooks must export a `queryOptions` factory.** *(PATTERN: CRUD)* Every list query must be extractable via `queryOptions()` from `@tanstack/react-query`. The hook wraps it: `useX = (params) => useQuery(xQueryOptions(params))`. This enables route loaders and prefetching outside React.

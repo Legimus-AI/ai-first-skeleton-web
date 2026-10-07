@@ -44,6 +44,11 @@ const CODE_BY_STATUS: Record<number, ErrorCode> = {
 	429: 'RATE_LIMITED',
 }
 
+/** The skeleton error code an HTTP status stands for, when the body names none. */
+export function codeForStatus(status: number): ErrorCode {
+	return CODE_BY_STATUS[status] ?? 'INTERNAL_ERROR'
+}
+
 export async function parseApiError(res: Response): Promise<ApiError> {
 	const retryAfter = Number(res.headers?.get('Retry-After')) || undefined
 	const details = {
@@ -51,7 +56,7 @@ export async function parseApiError(res: Response): Promise<ApiError> {
 		retryAfter,
 		path: res.url ? new URL(res.url).pathname : undefined,
 	}
-	const fallbackCode = CODE_BY_STATUS[res.status] ?? 'INTERNAL_ERROR'
+	const fallbackCode = codeForStatus(res.status)
 	try {
 		const json = await res.json()
 
@@ -131,7 +136,8 @@ export function isServerUnreachable(error: unknown): boolean {
 	return error instanceof ApiError && UNREACHABLE_STATUSES.has(error.status ?? -1)
 }
 
-function formatWait(seconds: number): string {
+/** "30 segundos", "15 minutos": how long a 429 asks to wait. */
+export function formatWait(seconds: number): string {
 	if (seconds < 60) return `${seconds} segundo${seconds === 1 ? '' : 's'}`
 	const minutes = Math.ceil(seconds / 60)
 	return `${minutes} minuto${minutes === 1 ? '' : 's'}`
