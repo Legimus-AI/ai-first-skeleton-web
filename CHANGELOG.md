@@ -3,6 +3,21 @@
 Versions of this web skeleton, newest first. Before 3.0.0 the history lives only in the commits on `main`.
 Architecture decisions are in the [spec changelog](https://github.com/Legimus-AI/ai-first-architecture/blob/main/CHANGELOG.md).
 
+## 3.1.0 — 2026-10-07: the latest toolchain
+
+TypeScript 7, the native compiler: the web typechecks in 1.11 s instead of 4.49 s
+(`tsc --extendedDiagnostics`, same code). Every dependency moves to its latest version.
+
+- **Majors:** TypeScript 7.0, Vitest 5, commitlint 21, jsdom 30, tailwind-merge 3, TanStack Table 9.
+- **Minors:** React 19.3, Vite 8.3, TanStack Router and Query, Tailwind 4.3, Biome 2.5, Zod 4.6, the
+  Radix primitives.
+- **TypeScript 7** no longer adds every installed `@types` package: `tsconfig.json` names `node`.
+- **TanStack Table 9:** the DataTable builds the table with `useTable` and an empty feature set.
+  Its public `Column` API is unchanged.
+- **Fixed:** a column marked `sortable` is a header button again that toggles asc ⇄ desc. TanStack
+  sorts only accessor columns, so no header had ever become a button; the server sorts, so the
+  header now calls `onSortChange` directly, and the sorted column carries `aria-sort`.
+
 ## 3.0.0 — 2026-10-07: the agentic era
 
 Every agent can now connect to a product built from the skeletons, and this app is where a person lets
