@@ -12,10 +12,10 @@ const apiProxy = {
 }
 
 export default defineConfig({
-	plugins: [TanStackRouterVite(), react(), tailwindcss()],
+	plugins: [TanStackRouterVite({ routeFileIgnorePattern: '__tests__' }), react(), tailwindcss()],
 	resolve: {
 		alias: {
-			'@': resolve(__dirname, 'src'),
+			'@': resolve(import.meta.dirname, 'src'),
 		},
 	},
 	server: {
