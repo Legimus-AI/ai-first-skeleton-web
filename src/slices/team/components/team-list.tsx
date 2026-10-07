@@ -1,10 +1,10 @@
-import { grantsPermission, rolePermissions, type UpdateMemberRole } from '@repo/shared'
+import { grantsPermission, rolePermissions, type TeamMember } from '@repo/shared'
 import { useNavigate, useSearch } from '@tanstack/react-router'
 import { useCallback, useMemo, useState } from 'react'
 import { usePageInRange } from '@/hooks/use-page-in-range'
 import type { ListParams } from '@/hooks/use-query-params'
 import { useRowSelection } from '@/hooks/use-row-selection'
-import { setFieldErrors } from '@/services/api-error'
+import { authErrorField, authErrorMessage } from '@/slices/auth/auth-error'
 import { useCurrentUser } from '@/slices/auth/hooks/use-auth'
 import { Button } from '@/ui/button'
 import { ConfirmDelete } from '@/ui/confirm-delete'
@@ -22,6 +22,7 @@ import {
 	useTeamMembers,
 	useUpdateMemberRole,
 } from '../hooks/use-team'
+import type { AssignableRole } from '../team-form-schema'
 import { buildMemberColumns, isManageableMember } from './member-columns'
 import { TeamForm } from './team-form'
 
@@ -50,24 +51,26 @@ export function TeamList() {
 	const bulkRemove = useBulkRemoveMembers()
 
 	const [showInvite, setShowInvite] = useState(false)
-	const [deleteId, setDeleteId] = useState<string | null>(null)
+	const [memberToRemove, setMemberToRemove] = useState<TeamMember | null>(null)
 	const [showBulkDelete, setShowBulkDelete] = useState(false)
 	const [selectedIds, setSelectedIds] = useRowSelection(JSON.stringify(params))
 
 	const onRoleChange = useCallback(
-		(id: string, role: UpdateMemberRole['role']) => updateRole.mutate({ id, role }),
+		(member: TeamMember, role: AssignableRole) => updateRole.mutate({ member, role }),
 		[updateRole],
 	)
 
+	const roleChangePendingFor = updateRole.isPending ? updateRole.variables.member.id : undefined
 	const columns = useMemo(
 		() =>
 			buildMemberColumns({
 				onRoleChange,
-				onDelete: setDeleteId,
+				onDelete: setMemberToRemove,
 				canManage,
 				currentUserId: currentUser?.id,
+				roleChangePendingFor,
 			}),
-		[onRoleChange, canManage, currentUser?.id],
+		[onRoleChange, canManage, currentUser?.id, roleChangePendingFor],
 	)
 	const setPage = useCallback((page: number) => setParams({ page }), [setParams])
 	const movingToLastPage = usePageInRange(data?.meta, setPage)
@@ -77,10 +80,18 @@ export function TeamList() {
 	}
 
 	const handleBulkDelete = () => {
-		bulkRemove.mutate([...selectedIds], {
-			onSuccess: () => setSelectedIds(new Set()),
-			onSettled: () => setShowBulkDelete(false),
-		})
+		// Better Auth removes a member by email; the selection holds user ids.
+		const emailById = new Map(data?.data.map((member) => [member.id, member.email]))
+		bulkRemove.mutate(
+			[...selectedIds].flatMap((id) => emailById.get(id) ?? []),
+			{
+				// The list refetches either way; a member that could not be removed shows up again.
+				onSettled: () => {
+					setSelectedIds(new Set())
+					setShowBulkDelete(false)
+				},
+			},
+		)
 	}
 
 	const inviteButton = canManage && (
@@ -140,24 +151,24 @@ export function TeamList() {
 				open={showInvite}
 				onOpenChange={setShowInvite}
 				onSubmit={(input, setError) => {
-					inviteMember.mutate(
-						{ ...input, role: input.role ?? 'user' },
-						{
-							onSuccess: () => setShowInvite(false),
-							onError: (error) => setFieldErrors(error, setError),
+					inviteMember.mutate(input, {
+						onSuccess: () => setShowInvite(false),
+						onError: (error) => {
+							if (authErrorField(error) === 'email')
+								setError('email', { message: authErrorMessage(error) })
 						},
-					)
+					})
 				}}
 				isPending={inviteMember.isPending}
 			/>
 
 			<ConfirmDelete
-				open={deleteId !== null}
-				onOpenChange={() => setDeleteId(null)}
+				open={memberToRemove !== null}
+				onOpenChange={() => setMemberToRemove(null)}
 				onConfirm={() => {
-					if (deleteId)
-						removeMember.mutate(deleteId, {
-							onSettled: () => setDeleteId(null),
+					if (memberToRemove)
+						removeMember.mutate(memberToRemove, {
+							onSettled: () => setMemberToRemove(null),
 						})
 				}}
 				title="¿Quitar a este miembro?"

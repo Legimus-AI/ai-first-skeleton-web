@@ -6,10 +6,12 @@ import { PublicLayout } from '@/layouts/public-layout'
 import { type LoginForm, loginFormSchema } from '@/slices/auth/auth-form-schemas'
 import { AuthFormField } from '@/slices/auth/components/auth-form-field'
 import { GoogleOAuthButton } from '@/slices/auth/components/google-oauth-button'
-import { TurnstileWidget } from '@/slices/auth/components/turnstile-widget'
-import { useCurrentUser, useLogin } from '@/slices/auth/hooks/use-auth'
+import { NoTeamPage } from '@/slices/auth/components/no-team-page'
+import { CAPTCHA_STATUS_ID, TurnstileWidget } from '@/slices/auth/components/turnstile-widget'
+import { useAuthSession, useCurrentUser, useLogin } from '@/slices/auth/hooks/use-auth'
 import { useCaptcha } from '@/slices/auth/hooks/use-captcha'
 import { Button } from '@/ui/button'
+import { nonEmptyText } from '@/utils/non-empty-text'
 import { safeRedirectPath } from '@/utils/safe-redirect'
 
 // WHY: Better Auth links Google to an existing account only once its email is confirmed; a password
@@ -25,16 +27,13 @@ export interface LoginSearch {
 	oauth_query?: string | undefined
 }
 
-const optionalText = (value: unknown) =>
-	typeof value === 'string' && value !== '' ? value : undefined
-
 export const Route = createFileRoute('/login')({
 	// WHY: the router merges the raw query with this result, so an unsafe redirect must be
 	// overwritten with undefined; leaving the key out lets the raw value through.
 	validateSearch: (search: Record<string, unknown>): LoginSearch => ({
 		redirect: safeRedirectPath(search.redirect),
-		error: optionalText(search.error),
-		oauth_query: optionalText(search.oauth_query),
+		error: nonEmptyText(search.error),
+		oauth_query: nonEmptyText(search.oauth_query),
 	}),
 	component: LoginPage,
 })
@@ -46,6 +45,7 @@ function LoginPage() {
 		oauthQuery: search.oauth_query,
 	}
 	const { data: user } = useCurrentUser()
+	const session = useAuthSession()
 	const captcha = useCaptcha()
 	const login = useLogin(target)
 	const {
@@ -59,6 +59,10 @@ function LoginPage() {
 	// Already signed in: `href` (a full path with its search) takes precedence over `to`. An OAuth
 	// request still asks for the password here (Better Auth sends `prompt=login` this way).
 	if (user && !target.oauthQuery) return <Navigate to="." href={target.redirectTo} replace />
+	// A session the API refuses (/me is null): an invited person who has not accepted yet.
+	if (user === null && session.data && !target.oauthQuery) {
+		return <NoTeamPage email={session.data.email} />
+	}
 
 	const onSubmit = (data: LoginForm) =>
 		login.mutate({ ...data, captchaToken: captcha.token }, { onError: captcha.renew })
@@ -78,6 +82,7 @@ function LoginPage() {
 						className="w-full"
 						loading={login.isPending}
 						disabled={!captcha.ready}
+						aria-describedby={captcha.ready ? undefined : CAPTCHA_STATUS_ID}
 					>
 						Iniciar sesión
 					</Button>

@@ -10,6 +10,7 @@ import { OAUTH_QUERY_PARAM } from '@/utils/signed-oauth-query'
 import {
 	type AuthRedirect,
 	followAuthRedirect,
+	getSession,
 	signInWithEmail,
 	signInWithGoogle,
 	signOut,
@@ -42,8 +43,17 @@ export const authQueryOptions = queryOptions({
 	refetchOnWindowFocus: true,
 })
 
+/** The signed-in user with a team (REST /me); null without a session or without a team. */
 export function useCurrentUser() {
 	return useQuery(authQueryOptions)
+}
+
+/**
+ * Who holds the session cookie (Better Auth's session), team or not; null when nobody is signed in.
+ * WHY: an invited person may have a session but no team yet, and /me answers them 401.
+ */
+export function useAuthSession() {
+	return useQuery({ queryKey: ['auth', 'session'], queryFn: getSession, retry: false })
 }
 
 export interface SignInTarget {
@@ -129,6 +139,7 @@ export function useGoogleSignIn(target: SignInTarget) {
 	})
 }
 
+/** Saves the profile name (Better Auth's update-user) and refreshes the signed-in user. */
 export function useUpdateProfile() {
 	const queryClient = useQueryClient()
 	return useMutation({
