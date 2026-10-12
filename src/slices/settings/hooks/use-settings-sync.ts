@@ -45,7 +45,7 @@ export function useSettingsSync(accountKey: string | null): void {
 			warnedTimeZoneRef.current = unsupportedTimeZone
 			toast.warning(unsupportedTimeZoneMessage(unsupportedTimeZone))
 		}
-		// Leaving the signed-in shell (login, `_session/*` pages): the build locale and browser zone.
+		// Leaving the signed-in shell (login, email links): the build locale and browser zone.
 		return resetDateFormatPreferences
 	}, [userSettings, organizationSettings])
 

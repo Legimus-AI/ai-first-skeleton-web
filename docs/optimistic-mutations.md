@@ -15,6 +15,8 @@ const toggle = useOptimisticMutation({
 })
 ```
 
+On success it toasts `successMessage` (default "Guardado"). Pass `successMessage: false` when the change on screen is the feedback, as the theme does (`useSaveTheme`); a failure still rolls back and toasts. Pass `scope: { id }` when saves of one value must reach the server one after another, in the order they were made (the theme uses `save-theme`).
+
 ## When to Use
 
 - **Yes:** Toggles, status changes, inline edits — anything where waiting 200ms for the server feels sluggish

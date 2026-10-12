@@ -9,7 +9,7 @@ interface DateFormatPreferences {
 const BUILD_PREFERENCES: DateFormatPreferences = { locale: buildLocale, timeZone: undefined }
 
 // WHY: the signed-in shell replaces these with the account's settings before its pages render;
-// pages outside it (login, sign-up, `_session/*`) keep the build locale and the browser's zone.
+// pages outside it (login, register, email links) keep the build locale and the browser's zone.
 let preferences = BUILD_PREFERENCES
 let unsupportedTimeZone: string | null = null
 const preferenceListeners = new Set<() => void>()

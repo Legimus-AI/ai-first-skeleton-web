@@ -15,9 +15,9 @@ Session-based auth with login, register, and logout flows. Protected routes redi
 | `/verify-email?token=` | One click confirms the email (`POST /api/v1/auth/verify-email`); opening the link alone changes nothing |
 | `/` | Protected; redirects to `HOME_PATH` (and to `/login` if not authenticated) |
 | `/profile` | Protected; user info and edit form |
-| `/settings/*` | Protected; general, notifications, security, team, API keys |
+| `/settings/*` | Protected; `general` (the organization's time zone and date format: owner and admin edit it, members see it read-only), `team`, `preferences` (the person's theme and time zone), `security`, `notifications`, `api-keys`, `webhooks` (owner and admin) |
 
-Auth state is managed via TanStack Query (`useCurrentUser`, `authQueryOptions` in `src/slices/auth/hooks/use-auth.ts`), re-checked after 60 s and on window focus, because a session can end server-side at any time. Login and register clear the whole cache first, so one account never sees another's data. A 401 anywhere else sends the user to `/login?redirect=…` (see [api-client.md](api-client.md)). The `_authed` layout route (`src/routes/_authed.tsx`) checks auth in `beforeLoad` before rendering any child route and shows a skeleton while it waits. Auth state lives only in TanStack Query; there is no React Context for it.
+Auth state is managed via TanStack Query (`useCurrentUser`, `authQueryOptions` in `src/slices/auth/hooks/use-auth.ts`), re-checked after 60 s and on window focus, because a session can end server-side at any time. Login and register clear the whole cache first, so one account never sees another's data; when the re-check finds another account (signed in from another tab, or another organization), `_authed` resets every query and reloads the page's data (`useReloadOnAccountSwitch`). A 401 anywhere else sends the user to `/login?redirect=…` (see [api-client.md](api-client.md)). The `_authed` layout route (`src/routes/_authed.tsx`) checks auth in `beforeLoad` before rendering any child route, loads the organization's and the person's settings in its `loader` (dates use them, see [i18n.md](i18n.md)) and shows a skeleton while it waits. Auth state lives only in TanStack Query; there is no React Context for it.
 
 ## API Key Management
 
