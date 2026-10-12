@@ -1,9 +1,9 @@
 import type { PendingInvitation } from '@repo/shared'
 import { MEMBER_ROLE_LABELS } from '@/constants/roles'
+import { formatDate } from '@/services/date-format-service'
 import { Button } from '@/ui/button'
 import type { Column } from '@/ui/data-table'
 import { X } from '@/ui/icons'
-import { formatDate } from '@/utils/format-date'
 
 /** Better Auth keeps an expired invitation pending; its link no longer works. */
 function expiryLabel(expiresAt: string): string {

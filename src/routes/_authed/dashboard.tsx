@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { formatDate } from '@/services/date-format-service'
 import { useCompletedTodosCount, useTodos } from '@/slices/todos/hooks/use-todos'
 import { Card, CardContent, CardHeader, CardTitle } from '@/ui/card'
 import { CrudPageHeader } from '@/ui/crud-page-header'
@@ -7,7 +8,6 @@ import { CheckCircle, Clock, ListTodo } from '@/ui/icons'
 import { InlineError } from '@/ui/inline-error'
 import { Skeleton } from '@/ui/skeleton'
 import { cn } from '@/utils/cn'
-import { formatDate } from '@/utils/format-date'
 
 export const Route = createFileRoute('/_authed/dashboard')({
 	component: DashboardPage,

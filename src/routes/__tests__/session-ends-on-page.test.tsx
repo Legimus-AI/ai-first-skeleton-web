@@ -4,6 +4,10 @@ import { act, cleanup, render, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { routeTree } from '@/routeTree.gen'
 import { authQueryOptions } from '@/slices/auth/hooks/use-auth'
+import {
+	organizationSettingsQueryOptions,
+	userSettingsQueryOptions,
+} from '@/slices/settings/hooks/use-settings'
 
 // WHY: a redirect that wraps itself never settles; past this many navigations the app is stopped.
 const NAVIGATION_LOOP_LIMIT = 5
@@ -36,6 +40,12 @@ describe('a session that ends while a page is open', () => {
 		}))
 		const queryClient = new QueryClient()
 		queryClient.setQueryData(authQueryOptions.queryKey, signedInUser)
+		// The signed-in shell renders once the settings are loaded.
+		queryClient.setQueryData(userSettingsQueryOptions.queryKey, { theme: 'system', timeZone: null })
+		queryClient.setQueryData(organizationSettingsQueryOptions.queryKey, {
+			timeZone: 'America/Lima',
+			locale: 'es-PE',
+		})
 		const router = createRouter({
 			routeTree,
 			context: { queryClient },

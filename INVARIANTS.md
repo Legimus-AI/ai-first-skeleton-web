@@ -54,7 +54,7 @@ AGENTS.md "Layout Reasoning" for how to pick or design a layout per product arch
 
 ## Lib Reuse
 
-112. **No local redefinitions of `utils/` exports.** If `utils/` exports a function, slices must import it — never redefine locally. Duplicating utilities causes drift and bloat.
+112. **No local redefinitions of `utils/` exports or the date formatters.** If `utils/` or `services/date-format-service.ts` (`formatDate`, `formatDateTime`, `formatRelative`) exports a function, slices must import it — never redefine locally. Duplicating utilities causes drift and bloat.
 
 ## Security
 
