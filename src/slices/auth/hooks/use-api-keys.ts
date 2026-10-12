@@ -11,20 +11,23 @@ import { toast } from 'sonner'
 import { api } from '@/services/api-client'
 import { safeParseResponse, throwIfNotOk, toUserMessage } from '@/services/api-error'
 
-/** What a new key may do. `*:action` never covers team, API keys, webhooks or audit. */
+/**
+ * What a new key may do. `*:action` never covers team, organization, API keys, webhooks or audit,
+ * so the presets name `organization:read`: an agent reads the organization's time zone and locale.
+ */
 export const API_KEY_SCOPE_PRESETS = [
 	{
 		id: 'read',
 		label: 'Solo lectura',
 		description: 'Puede leer tus datos; no crea, cambia ni borra nada.',
-		scopes: ['*:read'],
+		scopes: ['*:read', 'organization:read'],
 	},
 	{
 		id: 'read-write',
 		label: 'Lectura y escritura',
 		description:
 			'Puede leer, crear, cambiar y borrar datos. No gestiona el equipo ni otras claves.',
-		scopes: ['*:read', '*:write'],
+		scopes: ['*:read', '*:write', 'organization:read'],
 	},
 	{
 		id: 'full',

@@ -36,11 +36,11 @@ The form offers three presets and the table shows each key's permissions:
 
 | Preset | Scopes | Who sees it |
 |--------|--------|-------------|
-| Solo lectura | `*:read` | everyone (default) |
-| Lectura y escritura | `*:read`, `*:write` | everyone |
+| Solo lectura | `*:read`, `organization:read` | everyone (default) |
+| Lectura y escritura | `*:read`, `*:write`, `organization:read` | everyone |
 | Acceso total | `full` | roles that hold `full` (owner, admin) |
 
-`*:action` never covers the reserved resources (team, API keys, webhooks, audit). A key never exceeds its creator's role, and with the TypeScript backend skeleton it reaches only the routes marked for agents (`x-agent`). A key with `*:write` deletes data in one call, with no approval. A key never changes who has access or where data is sent: inviting, changing roles and removing members, creating and revoking API keys, and creating, changing and deleting webhook destinations are refused to every key, `full` included, and stay in this web app.
+`*:action` never covers the reserved resources (team, organization, API keys, webhooks, audit), so both presets name `organization:read`: the organization's time zone and locale, read only (without it an agent's "get organization settings" answers 403). A key never exceeds its creator's role, and with the TypeScript backend skeleton it reaches only the routes marked for agents (`x-agent`). A key with `*:write` deletes data in one call, with no approval. A key never changes who has access or where data is sent: inviting, changing roles and removing members, creating and revoking API keys, and creating, changing and deleting webhook destinations are refused to every key, `full` included, and stay in this web app.
 
 For other scope combinations, create the key through the API with a session cookie, never another key (`POST /api/v1/auth/api-keys` with `scopes`), or with the backend's agent CLI, whose login you approve in the browser:
 
