@@ -44,6 +44,11 @@ export function resetDateFormatPreferences(): void {
 	setDateFormatPreferences(BUILD_PREFERENCES)
 }
 
+/** The locale dates use; number and money formatters in slices read it so amounts follow it too. */
+export function getFormatLocale(): string {
+	return preferences.locale
+}
+
 /** The account's zone this browser could not format (dates show in the browser's zone), or null. */
 export function getUnsupportedTimeZone(): string | null {
 	return unsupportedTimeZone

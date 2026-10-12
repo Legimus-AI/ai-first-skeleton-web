@@ -33,6 +33,8 @@ saved through the API so they follow the account to any device. Implements
 - When the session's account changes in another tab, the shell drops the cached data and reloads it.
 - `useOptimisticMutation` takes `successMessage: false` (no success toast) and `scope` (saves run one at
   a time).
+- `getFormatLocale()` in `@/services/date-format-service`: the locale the dates use, for a product's
+  number and money formatters, so amounts follow the same setting as dates.
 
 ### Changed
 
