@@ -935,13 +935,16 @@ describe('Architecture rules (INVARIANTS.md)', () => {
 		}
 	})
 
-	// --- INV-112: No local redefinitions of utils/ exports ---
+	// --- INV-112: No local redefinitions of utils/ exports or the date formatters ---
 
-	it('Slices do not redefine functions exported by utils/ (INV-112)', () => {
+	it('Slices do not redefine functions exported by utils/ or the date formatters (INV-112)', () => {
 		const LIB_DIR = join(SRC_DIR, 'utils')
-		const libFiles = collectFiles(LIB_DIR, ['.ts', '.tsx'], ['node_modules', '__tests__'])
+		const libFiles = [
+			...collectFiles(LIB_DIR, ['.ts', '.tsx'], ['node_modules', '__tests__']),
+			join(SRC_DIR, 'services', 'date-format-service.ts'),
+		]
 
-		// Collect all exported function/const names from utils/ (skip comments)
+		// Collect all exported function/const names from those files (skip comments)
 		const libExports = new Set<string>()
 		for (const file of libFiles) {
 			const content = readFileSync(file, 'utf-8')
@@ -994,7 +997,7 @@ describe('Architecture rules (INVARIANTS.md)', () => {
 
 		if (violations.length > 0) {
 			expect.fail(
-				`Local redefinitions of utils/ exports (INV-112):\n${violations.map((v) => `  - ${v}`).join('\n')}\n\nFix: Import the function from utils/ instead of redefining it locally.`,
+				`Local redefinitions of utils/ or date formatter exports (INV-112):\n${violations.map((v) => `  - ${v}`).join('\n')}\n\nFix: Import the function from utils/ or @/services/date-format-service instead of redefining it locally.`,
 			)
 		}
 	})
