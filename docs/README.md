@@ -11,7 +11,7 @@ Every guide in `docs/`, one line each. New here? Read [AGENTS.md](../AGENTS.md) 
 | [pagination.md](pagination.md) | List hooks with `ListQuery` params and the `meta` they return |
 | [optimistic-mutations.md](optimistic-mutations.md) | `useOptimisticMutation` for toggles and inline edits, and when not to use it |
 | [motion.md](motion.md) | CSS-only motion primitives, timing and reduced-motion rules |
-| [i18n.md](i18n.md) | Locale-aware date and number formatting with `Intl` |
+| [i18n.md](i18n.md) | Locale-aware date formatting with `Intl`, in the account's locale and time zone; the theme saved to the account |
 | [auth-and-api-keys.md](auth-and-api-keys.md) | Better Auth's client (`auth-client.ts`), sign-in, sign-up, password reset, email verification and invitation routes, OAuth consent and CLI approval pages, the `_authed` and `_session` guards, the session policy, team changes, API key scopes and connected apps |
 
 ## 🤖 Agents
@@ -48,6 +48,7 @@ Every guide in `docs/`, one line each. New here? Read [AGENTS.md](../AGENTS.md) 
 | [plans/world-class-ui-components.md](plans/world-class-ui-components.md) | Plan behind the command palette, optimistic UI, motion and undo toast |
 | [plans/ui-archetypes-shell-primitives.md](plans/ui-archetypes-shell-primitives.md) | Plan behind the product archetypes and shell presets (ADR 0014) |
 | [plans/scroll-safe-floating-listbox.md](plans/scroll-safe-floating-listbox.md) | Plan behind the scroll-safe, body-portaled floating listbox |
+| [plans/settings-module.md](plans/settings-module.md) | Plan behind the settings pages and the account's locale, time zone and theme (ADR 0024) |
 
 ## 📌 At the repo root
 

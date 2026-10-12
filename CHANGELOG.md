@@ -3,6 +3,37 @@
 Versions of this web skeleton, newest first. Before 3.0.0 the history lives only in the commits on `main`.
 Architecture decisions are in the [spec changelog](https://github.com/Legimus-AI/ai-first-architecture/blob/main/CHANGELOG.md).
 
+## Unreleased: settings that follow the account
+
+The organization chooses its time zone and date format, and each person their theme and time zone,
+saved through the API so they follow the account to any device. Implements
+[ADR 0024](https://github.com/Legimus-AI/ai-first-architecture/blob/main/docs/decisions/0024-runtime-settings-per-organization-and-user.md).
+
+### Breaking
+
+- **The signed-in shell needs the settings endpoints:** `_authed` loads `GET /api/v1/me/settings` and
+  `GET /api/v1/organization/settings` before any page renders, and the pages `PATCH` them. They need the
+  TypeScript backend with the `settings` slice, and every member role must hold `organization:read`.
+- **`@/utils/format-date` is now `@/services/date-format-service`:** `formatDate`, `formatDateTime` and
+  `formatRelative` hold the runtime locale and time zone, and `utils/` stays pure. Update the imports.
+- **The `Theme` type moved from `@/providers/theme-provider` to `@repo/shared`** (with `themeSchema` and
+  `THEMES`): `import type { Theme } from '@repo/shared'` (e.g. a product's `ui/theme-segmented.tsx`).
+
+### Added
+
+- `/settings/general`: the organization's time zone and date format (owner and admin edit them, members
+  see them read-only), each field restorable to its default. `/settings/preferences`: the person's theme
+  and time zone, which can follow the organization's. Every form page under Configuración (general,
+  preferences, security, notifications) uses the `narrow` layout.
+- Dates show in the organization's locale, in the person's time zone or else the organization's. Pages
+  outside the signed-in shell keep `VITE_LOCALE` and the browser's zone. A zone the browser cannot format
+  falls back to the device's zone, with a warning once in the shell and on both settings pages.
+- The theme is saved to the account: the account's theme wins on the first load of a session, and every
+  later toggle is saved once; a failed save puts the last confirmed theme back.
+- When the session's account changes in another tab, the shell drops the cached data and reloads it.
+- `useOptimisticMutation` takes `successMessage: false` (no success toast) and `scope` (saves run one at
+  a time).
+
 ## 3.1.0 — 2026-10-07: the latest toolchain
 
 TypeScript 7, the native compiler: the web typechecks in 1.11 s instead of 4.49 s
