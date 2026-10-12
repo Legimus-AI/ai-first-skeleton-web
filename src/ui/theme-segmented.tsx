@@ -1,4 +1,4 @@
-import type { Theme } from '@/providers/theme-provider'
+import type { Theme } from '@repo/shared'
 import { Monitor, Moon, Sun } from '@/ui/icons'
 import { Segmented, type SegmentedOption } from '@/ui/segmented'
 

@@ -1,6 +1,6 @@
+import { type Theme, themeSchema } from '@repo/shared'
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 
-export type Theme = 'light' | 'dark' | 'system'
 type ResolvedTheme = 'light' | 'dark'
 
 interface ThemeContextValue {
@@ -11,9 +11,20 @@ interface ThemeContextValue {
 
 const ThemeContext = createContext<ThemeContextValue | null>(null)
 
+/** Runs a localStorage access, or returns `fallback` when storage is blocked (private mode). */
+function withStorage<T>(access: () => T, fallback: T): T {
+	try {
+		return access()
+	} catch (error) {
+		if (error instanceof DOMException) return fallback
+		throw error
+	}
+}
+
 function getStoredTheme(): Theme {
 	if (typeof window === 'undefined') return 'system'
-	return (localStorage.getItem('theme') as Theme) ?? 'system'
+	const storedTheme = themeSchema.safeParse(withStorage(() => localStorage.getItem('theme'), null))
+	return storedTheme.success ? storedTheme.data : 'system'
 }
 
 function resolveTheme(theme: Theme): ResolvedTheme {
@@ -33,14 +44,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
 	const setTheme = useCallback((next: Theme) => {
 		setThemeState(next)
-		if (next === 'system') {
-			localStorage.removeItem('theme')
-		} else {
-			localStorage.setItem('theme', next)
-		}
-		const r = resolveTheme(next)
-		setResolved(r)
-		applyToDOM(r)
+		// Blocked storage only loses the first-paint cache; the theme still applies.
+		withStorage(() => {
+			if (next === 'system') localStorage.removeItem('theme')
+			else localStorage.setItem('theme', next)
+		}, undefined)
+		const nextResolvedTheme = resolveTheme(next)
+		setResolved(nextResolvedTheme)
+		applyToDOM(nextResolvedTheme)
 	}, [])
 
 	// Apply on mount
@@ -50,16 +61,16 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
 	// Listen for OS preference changes when in system mode
 	useEffect(() => {
-		const mq = window.matchMedia('(prefers-color-scheme: dark)')
+		const darkSchemeQuery = window.matchMedia('(prefers-color-scheme: dark)')
 		const handler = () => {
 			if (getStoredTheme() === 'system') {
-				const r = resolveTheme('system')
-				setResolved(r)
-				applyToDOM(r)
+				const systemResolvedTheme = resolveTheme('system')
+				setResolved(systemResolvedTheme)
+				applyToDOM(systemResolvedTheme)
 			}
 		}
-		mq.addEventListener('change', handler)
-		return () => mq.removeEventListener('change', handler)
+		darkSchemeQuery.addEventListener('change', handler)
+		return () => darkSchemeQuery.removeEventListener('change', handler)
 	}, [])
 
 	const value = useMemo(
@@ -71,7 +82,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 }
 
 export function useTheme(): ThemeContextValue {
-	const ctx = useContext(ThemeContext)
-	if (!ctx) throw new Error('useTheme must be used within ThemeProvider')
-	return ctx
+	const themeContext = useContext(ThemeContext)
+	if (!themeContext) throw new Error('useTheme must be used within ThemeProvider')
+	return themeContext
 }
