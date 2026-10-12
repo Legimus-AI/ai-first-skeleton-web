@@ -77,7 +77,9 @@ export const navItems: NavItem[] = [
 		icon: Settings,
 		group: 'Sistema',
 		children: [
+			{ label: 'General', to: '/settings/general', permission: 'organization:write' },
 			{ label: 'Equipo', to: '/settings/team', search: DEFAULT_LIST_PARAMS },
+			{ label: 'Preferencias', to: '/settings/preferences' },
 			{ label: 'Seguridad', to: '/settings/security' },
 			{ label: 'Notificaciones', to: '/settings/notifications' },
 			{ label: 'Claves API', to: '/settings/api-keys' },
