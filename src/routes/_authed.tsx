@@ -8,7 +8,15 @@ import {
 } from '@tanstack/react-router'
 import { RouteError } from '@/components/route-error'
 import { AuthedLayout } from '@/layouts/authed-layout'
+import { ignoreCancelled } from '@/services/query-client'
+import { useReloadOnAccountSwitch } from '@/slices/auth/hooks/use-account-switch'
 import { authQueryOptions, useCurrentUser } from '@/slices/auth/hooks/use-auth'
+import {
+	applyDatePreferences,
+	organizationSettingsQueryOptions,
+	userSettingsQueryOptions,
+} from '@/slices/settings/hooks/use-settings'
+import { useSettingsSync } from '@/slices/settings/hooks/use-settings-sync'
 import { Skeleton } from '@/ui/skeleton'
 
 export const Route = createFileRoute('/_authed')({
@@ -20,6 +28,16 @@ export const Route = createFileRoute('/_authed')({
 		})
 		if (!user) throw redirect({ to: '/login', search: { redirect: location.href } })
 	},
+	// Pages render only once dates carry the account's locale and time zone.
+	loader: ({ context }) =>
+		Promise.all([
+			context.queryClient.ensureQueryData(userSettingsQueryOptions),
+			context.queryClient.ensureQueryData(organizationSettingsQueryOptions),
+		])
+			.then(([userSettings, organizationSettings]) =>
+				applyDatePreferences(userSettings, organizationSettings),
+			)
+			.catch(ignoreCancelled),
 	pendingMs: 200,
 	pendingMinMs: 500,
 	pendingComponent: AuthedPending,
@@ -49,6 +67,10 @@ function AuthedError(props: ErrorComponentProps) {
 
 function AuthedPage() {
 	const { data: user } = useCurrentUser()
+	const accountKey = user ? `${user.id}:${user.organizationId}` : null
+	const loadedAccountKey = useReloadOnAccountSwitch(accountKey)
+	// Here, outside the layout whose content remounts on every navigation: one sync per session.
+	useSettingsSync(loadedAccountKey)
 	// WHY: the page on screen, not a navigation in flight; while the login redirect is pending,
 	// `location` already points at /login and each re-render would nest it into `redirect` again.
 	const href = useRouterState({ select: (s) => (s.resolvedLocation ?? s.location).href })
