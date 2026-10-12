@@ -1,9 +1,9 @@
 import type { Todo } from '@repo/shared'
+import { formatDateTime } from '@/services/date-format-service'
 import { Button } from '@/ui/button'
 import type { Column } from '@/ui/data-table'
 import { ArrowDown, ArrowRight, ArrowUp, CheckCircle, Circle, Pencil, Trash } from '@/ui/icons'
 import { cn } from '@/utils/cn'
-import { formatDateTime } from '@/utils/format-date'
 
 interface TodoColumnsOptions {
 	onToggle: (item: Todo) => void

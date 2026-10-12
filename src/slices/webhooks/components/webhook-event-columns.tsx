@@ -1,9 +1,9 @@
 import type { WebhookEvent } from '@repo/shared'
+import { formatDateTime } from '@/services/date-format-service'
 import { Badge } from '@/ui/badge'
 import { Button } from '@/ui/button'
 import type { Column } from '@/ui/data-table'
 import { RefreshCw } from '@/ui/icons'
-import { formatDateTime } from '@/utils/format-date'
 import { type DeliveryState, summarizeDeliveries } from '../delivery-summary'
 import { eventTypeLabel } from '../event-labels'
 

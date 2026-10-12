@@ -1,8 +1,8 @@
 import type { WebhookDestination } from '@repo/shared'
+import { formatDate } from '@/services/date-format-service'
 import { Button } from '@/ui/button'
 import type { Column } from '@/ui/data-table'
 import { Trash } from '@/ui/icons'
-import { formatDate } from '@/utils/format-date'
 import { eventTypeLabel } from '../event-labels'
 
 export function buildWebhookDestinationColumns(

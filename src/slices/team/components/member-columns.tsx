@@ -1,11 +1,11 @@
 import { assignableRoleSchema, type MemberRole, type TeamMember } from '@repo/shared'
 import { MEMBER_ROLE_LABELS } from '@/constants/roles'
+import { formatDate } from '@/services/date-format-service'
 import { Badge } from '@/ui/badge'
 import { Button } from '@/ui/button'
 import type { Column } from '@/ui/data-table'
 import { Shield, Trash } from '@/ui/icons'
 import { Select } from '@/ui/select'
-import { formatDate } from '@/utils/format-date'
 import type { AssignableRole } from '../team-form-schema'
 
 const ROLE_VARIANTS: Record<MemberRole, 'default' | 'success' | 'secondary'> = {

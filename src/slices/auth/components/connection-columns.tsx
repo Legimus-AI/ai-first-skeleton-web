@@ -1,8 +1,8 @@
 import type { OAuthConnection } from '@repo/shared'
+import { formatDate, formatRelative } from '@/services/date-format-service'
 import { Button } from '@/ui/button'
 import type { Column } from '@/ui/data-table'
 import { Trash } from '@/ui/icons'
-import { formatDate, formatRelative } from '@/utils/format-date'
 import { describeScope } from '../oauth-request'
 
 /** The connected apps table: the app, its permissions, its dates and the disconnect action. */
