@@ -1,12 +1,23 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { timeZoneGroups, timeZoneLabel, utcOffsetLabel } from '../time-zone-options'
 
 const NOW = new Date('2026-10-12T12:00:00.000Z')
 
 describe('time zone options', () => {
+	afterEach(() => {
+		vi.restoreAllMocks()
+	})
+
 	it('labels each zone with its offset today', () => {
 		expect(utcOffsetLabel('America/Lima', NOW)).toBe('UTC−5')
 		expect(utcOffsetLabel('Asia/Kolkata', NOW)).toBe('UTC+5:30')
+		expect(utcOffsetLabel('UTC', NOW)).toBe('UTC')
+	})
+
+	it('labels UTC the same whether ICU writes it as GMT or GMT+0', () => {
+		vi.spyOn(Intl.DateTimeFormat.prototype, 'formatToParts').mockReturnValue([
+			{ type: 'timeZoneName', value: 'GMT+0' },
+		])
 		expect(utcOffsetLabel('UTC', NOW)).toBe('UTC')
 	})
 
