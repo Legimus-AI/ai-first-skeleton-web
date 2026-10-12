@@ -34,6 +34,13 @@ saved through the API so they follow the account to any device. Implements
 - `useOptimisticMutation` takes `successMessage: false` (no success toast) and `scope` (saves run one at
   a time).
 
+### Changed
+
+- The API key presets Solo lectura and Lectura y escritura also grant `organization:read` (read only: the
+  organization's time zone and locale), so an agent using one can read the organization's settings. The
+  OAuth consent page names it "Ver la configuración de la organización". Keys made before keep their
+  scopes, and the table lists them as they are.
+
 ## 3.1.0 — 2026-10-07: the latest toolchain
 
 TypeScript 7, the native compiler: the web typechecks in 1.11 s instead of 4.49 s

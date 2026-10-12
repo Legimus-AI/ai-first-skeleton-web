@@ -60,6 +60,7 @@ const SCOPE_DESCRIPTIONS: Readonly<Record<string, ScopeDescription>> = {
 		label: 'Hacer lo mismo que tú',
 		detail: 'Menos gestionar el equipo, las claves y los webhooks.',
 	},
+	'organization:read': { label: 'Ver la configuración de la organización' },
 	offline_access: {
 		label: 'Seguir conectada',
 		detail: 'Sin volver a pedirte permiso, hasta que la desconectes.',
