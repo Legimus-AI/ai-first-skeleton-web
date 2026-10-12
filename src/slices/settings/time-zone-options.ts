@@ -29,8 +29,9 @@ export function utcOffsetLabel(timeZone: string, now: Date): string {
 		.formatToParts(now)
 		.find((part) => part.type === 'timeZoneName')?.value
 	if (!offset) throw new Error(`Intl gave no offset for the time zone ${timeZone}`)
-	// "GMT-5" → "UTC−5" (a real minus sign); "GMT" alone is UTC itself.
-	return offset.replace('GMT', 'UTC').replace('-', '−')
+	// "GMT-5" → "UTC−5" (a real minus sign). WHY: ICU versions write UTC itself as "GMT" or "GMT+0".
+	const utcOffset = offset.replace('GMT', 'UTC').replace('-', '−')
+	return utcOffset === 'UTC+0' ? 'UTC' : utcOffset
 }
 
 /** `America/Lima (UTC−5)`, or the bare name when this browser cannot format the zone. */
