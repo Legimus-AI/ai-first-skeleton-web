@@ -11,6 +11,7 @@ import { InfoTooltip } from '@/ui/info-tooltip'
 import { isMac } from '@/utils/platform'
 
 export const Route = createFileRoute('/_authed/settings/notifications')({
+	context: () => ({ layout: 'narrow' as const }),
 	component: SettingsNotificationsPage,
 })
 
@@ -97,7 +98,7 @@ function SettingsNotificationsPage() {
 	}, [pushTestSent])
 
 	return (
-		<div className="max-w-2xl space-y-6">
+		<div className="space-y-6">
 			<div>
 				<h1 className="text-2xl font-semibold tracking-tight">Notificaciones</h1>
 				<p className="text-sm text-muted-foreground">Elige cómo y cuándo recibir avisos.</p>

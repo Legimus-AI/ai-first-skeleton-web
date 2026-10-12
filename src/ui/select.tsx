@@ -6,7 +6,7 @@ export function Select({ className, children, ...props }: ComponentPropsWithoutR
 		<div className="relative">
 			<select
 				className={cn(
-					'flex h-(--control-height) w-full appearance-none rounded-control border border-input bg-background px-3 py-2 text-sm transition-[border-color,box-shadow] duration-150 ease-standard hover:border-ring/50 focus-visible:border-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50',
+					'flex h-(--control-height) w-full appearance-none rounded-control border border-input bg-background py-2 pl-3 pr-9 text-sm transition-[border-color,box-shadow] duration-150 ease-standard hover:border-ring/50 focus-visible:border-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50',
 					className,
 				)}
 				{...props}

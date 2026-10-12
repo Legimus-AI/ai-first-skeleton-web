@@ -8,14 +8,18 @@ function settingsEntriesFor(role: string): string[] {
 }
 
 describe('navigation by role', () => {
-	it('shows webhooks to owners and admins', () => {
-		expect(settingsEntriesFor('owner')).toContain('/settings/webhooks')
-		expect(settingsEntriesFor('admin')).toContain('/settings/webhooks')
+	it('shows webhooks and the organization settings to owners and admins', () => {
+		for (const role of ['owner', 'admin']) {
+			expect(settingsEntriesFor(role)).toContain('/settings/webhooks')
+			expect(settingsEntriesFor(role)).toContain('/settings/general')
+		}
 	})
 
-	it('hides webhooks from members, who cannot use them', () => {
+	it('hides webhooks and the organization settings from members, who cannot change them', () => {
 		const entries = settingsEntriesFor('user')
 		expect(entries).not.toContain('/settings/webhooks')
+		expect(entries).not.toContain('/settings/general')
 		expect(entries).toContain('/settings/api-keys')
+		expect(entries).toContain('/settings/preferences')
 	})
 })
