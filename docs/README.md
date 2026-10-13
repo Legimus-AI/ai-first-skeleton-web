@@ -11,7 +11,7 @@ Every guide in `docs/`, one line each. New here? Read [AGENTS.md](../AGENTS.md) 
 | [pagination.md](pagination.md) | List hooks with `ListQuery` params and the `meta` they return |
 | [optimistic-mutations.md](optimistic-mutations.md) | `useOptimisticMutation` for toggles and inline edits, and when not to use it |
 | [motion.md](motion.md) | CSS-only motion primitives, timing and reduced-motion rules |
-| [i18n.md](i18n.md) | Locale-aware date and number formatting with `Intl` |
+| [i18n.md](i18n.md) | Locale-aware date formatting with `Intl`, in the account's locale and time zone; the theme saved to the account |
 | [auth-and-api-keys.md](auth-and-api-keys.md) | Sign-in, password reset and email verification routes, the `_authed` guard, the session policy and API key scopes |
 
 ## 🤖 Agents
@@ -48,7 +48,8 @@ Every guide in `docs/`, one line each. New here? Read [AGENTS.md](../AGENTS.md) 
 | [plans/world-class-ui-components.md](plans/world-class-ui-components.md) | Plan behind the command palette, optimistic UI, motion and undo toast |
 | [plans/ui-archetypes-shell-primitives.md](plans/ui-archetypes-shell-primitives.md) | Plan behind the product archetypes and shell presets (ADR 0014) |
 | [plans/scroll-safe-floating-listbox.md](plans/scroll-safe-floating-listbox.md) | Plan behind the scroll-safe, body-portaled floating listbox |
+| [plans/settings-module.md](plans/settings-module.md) | Plan behind the settings pages and the account's locale, time zone and theme (ADR 0024) |
 
 ## 📌 At the repo root
 
-[README.md](../README.md) (overview and commands), [AGENTS.md](../AGENTS.md) (agent instructions), [INVARIANTS.md](../INVARIANTS.md) (rules the architecture test enforces), [DESIGN_SYSTEM.md](../DESIGN_SYSTEM.md) (the design spec and the Suave identity), [DESIGN_BRIEF.md](../DESIGN_BRIEF.md) (who the product is for; Layer 0 picks the archetype).
+[README.md](../README.md) (overview and commands), [CHANGELOG.md](../CHANGELOG.md) (what each version changed, from 2.10.0 on), [AGENTS.md](../AGENTS.md) (agent instructions), [INVARIANTS.md](../INVARIANTS.md) (rules the architecture test enforces), [DESIGN_SYSTEM.md](../DESIGN_SYSTEM.md) (the design spec and the Suave identity), [DESIGN_BRIEF.md](../DESIGN_BRIEF.md) (who the product is for; Layer 0 picks the archetype).

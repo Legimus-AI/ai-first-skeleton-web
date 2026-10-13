@@ -28,7 +28,7 @@ pnpm install
 - [ai-first-skeleton-typescript](https://github.com/Legimus-AI/ai-first-skeleton-typescript) (TypeScript — PostgreSQL/Drizzle or MongoDB/Mongoose), the reference implementation
 - [ai-first-skeleton-fastapi](https://github.com/Legimus-AI/ai-first-skeleton-fastapi) (Python — FastAPI/SQLAlchemy or Beanie)
 
-Any backend that follows the AI-First API contract works: `/api/v1/<slice>` paths, `{ data, meta }` for lists, `{ data }` for one record, `{ error: { code, message, requestId } }` for errors.
+Any backend that follows the AI-First API contract works: `/api/v1/<slice>` paths, `{ data, meta }` for lists, `{ data }` for one record, `{ error: { code, message, requestId } }` for errors. The signed-in shell also needs the settings endpoints (`GET`/`PATCH /api/v1/me/settings` and `/api/v1/organization/settings`, [ADR 0024](https://github.com/Legimus-AI/ai-first-architecture/blob/main/docs/decisions/0024-runtime-settings-per-organization-and-user.md)) and does not render without them.
 
 ## 🧰 What you get
 
@@ -36,16 +36,17 @@ Any backend that follows the AI-First API contract works: `/api/v1/<slice>` path
 |---|---|---|---|
 | 🔐 | Auth flows | Login, register, optional Google button, an `_authed` route guard with a pending skeleton, profile and settings pages | [Auth and API keys](docs/auth-and-api-keys.md) |
 | 🔑 | API key page | Create (token shown once, with copy) and revoke keys at `/settings/api-keys`, with scope presets (read only, read and write, full access for owner/admin) shown in the table, and how to connect an agent (MCP URL and CLI variables) | [Auth and API keys](docs/auth-and-api-keys.md#what-a-key-created-here-can-do) |
+| ⚙️ | Settings pages | `/settings/general`: the organization's time zone and date format (owner and admin edit, members read); `/settings/preferences`: the person's theme and time zone. Saved through the API (`organization_settings`, `user_settings`), so they follow the account to any device | [i18n](docs/i18n.md) |
 | 🪝 | Webhooks page | Destinations (signing secret shown once), sent events with delivery state, attempts and resend at `/settings/webhooks`, for owner and admin | [Auth and API keys](docs/auth-and-api-keys.md#webhooks) |
 | 🧭 | Layout archetypes | Four shell presets (sidebar, navbar, focused, split) picked by the product archetype in `DESIGN_BRIEF.md`, plus a governed `custom` escape hatch | [Layouts](docs/layouts.md) |
-| 🗂️ | Reference slices | `todos` (admin CRUD), `chat` (conversational), `editor` (focused tool), `board` (custom, full-bleed kanban), `team` | [AGENTS.md](AGENTS.md) |
+| 🗂️ | Reference slices | `todos` (admin CRUD), `chat` (conversational), `editor` (focused tool), `board` (custom, full-bleed kanban), `team`, `settings` (forms over two settings documents) | [AGENTS.md](AGENTS.md) |
 | 📋 | CRUD view contract | DataTable with server pagination, search, sort, bulk delete, `FormDialog` create/edit, `ConfirmDelete`, skeleton and empty states | [INVARIANTS.md](INVARIANTS.md) |
 | 🔌 | API client | Backend-agnostic fetch wrapper with timeout, typed errors, Zod response validation, one session policy (401 → login and back) and Spanish user messages | [API client](docs/api-client.md) |
 | ⚡ | Optimistic mutations | `useOptimisticMutation` for toggles and inline edits | [Optimistic mutations](docs/optimistic-mutations.md) |
 | 📄 | URL-driven lists | `page`, `search`, `sort`, `order` live in the URL; route loaders prefetch with `queryOptions` | [Pagination](docs/pagination.md) |
 | 🎨 | Design system | Suave identity in one swappable token block (OKLCH colors, Onest, radii, elevation, density, motion), Phosphor icons behind `@/ui/icons`, owned shadcn/ui-style primitives | [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md) |
 | ✨ | Motion | CSS-only fade, page and list primitives that respect reduced motion | [Motion](docs/motion.md) |
-| 🌍 | Locale formatting | `Intl` formatting from `VITE_LOCALE` | [i18n](docs/i18n.md) |
+| 🌍 | Locale formatting | `Intl` date formatting (`src/services/date-format-service.ts`) in the organization's locale and the person's time zone (or the organization's), loaded before any signed-in page renders; `VITE_LOCALE` and the browser's zone before sign-in | [i18n](docs/i18n.md) |
 | 📈 | Integration recipes | Sentry, Microsoft Clarity and OpenTelemetry for observability; browser push notifications (`use-push-notifications`) | [Recipes](docs/recipes/) |
 | 🧪 | Architecture test | `INVARIANTS.md` as code: CORE vs PATTERN: CRUD layers, archetype-to-shell gate, folder contracts | [INVARIANTS.md](INVARIANTS.md) |
 | 🛡️ | Guardrails for coding agents | `AGENTS.md` for every agent; a Claude Code stop hook, path-scoped rules and a `.env` read deny | [Agent guardrails](docs/agent-guardrails.md) |
@@ -121,4 +122,4 @@ Start at [docs/README.md](docs/README.md): it lists every guide, grouped by task
 
 ## 📝 Changelog
 
-This repo keeps no changelog file. The history lives in the commits on `main`, design decisions in [docs/DECISIONS.ndjson](docs/DECISIONS.ndjson), and versioned architecture changes in the [spec changelog](https://github.com/Legimus-AI/ai-first-architecture/blob/main/CHANGELOG.md). The latest round, on 2026-10-04 (WEB-RESILIENCE-261007), made the app say what happened instead of breaking: a lost session goes to login and back, errors render inside the layout with a working retry, Spanish copy and validation everywhere, lists that clamp bad URLs and never show a false empty page, honest dashboard and demos, team actions by permission, password reset and email verification pages, mobile cards and no dark-mode flash. The same day (SUAVE-IDENTITY) the default look became the Suave identity: one token block re-skins the app, components carry no `dark:` or rgba values, icons go through `@/ui/icons`, and the design guard bans the generic template tells.
+[CHANGELOG.md](CHANGELOG.md) lists each 2.x version from 2.10.0 on (2026-10-12, settings that follow the account). Older history lives in the commits up to `v2.9.0`, design decisions in [docs/DECISIONS.ndjson](docs/DECISIONS.ndjson), and versioned architecture changes in the [spec changelog](https://github.com/Legimus-AI/ai-first-architecture/blob/main/CHANGELOG.md). An earlier round, on 2026-10-04 (WEB-RESILIENCE-261007), made the app say what happened instead of breaking: a lost session goes to login and back, errors render inside the layout with a working retry, Spanish copy and validation everywhere, lists that clamp bad URLs and never show a false empty page, honest dashboard and demos, team actions by permission, password reset and email verification pages, mobile cards and no dark-mode flash. The same day (SUAVE-IDENTITY) the default look became the Suave identity: one token block re-skins the app, components carry no `dark:` or rgba values, icons go through `@/ui/icons`, and the design guard bans the generic template tells.

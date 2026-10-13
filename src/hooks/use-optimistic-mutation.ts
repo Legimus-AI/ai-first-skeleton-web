@@ -1,4 +1,9 @@
-import { type QueryKey, useMutation, useQueryClient } from '@tanstack/react-query'
+import {
+	type MutationScope,
+	type QueryKey,
+	useMutation,
+	useQueryClient,
+} from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { toUserMessage } from '@/services/api-error'
 
@@ -10,10 +15,15 @@ interface OptimisticMutationOptions<TData, TVariables> {
 	mutationFn: (variables: TVariables) => Promise<unknown>
 	/** Produces the optimistic state from the current cache + mutation variables. */
 	optimisticUpdate: (current: TData, variables: TVariables) => TData
-	/** Toast message on success. Defaults to "Guardado". */
-	successMessage?: string
+	/**
+	 * Toast message on success. Defaults to "Guardado"; `false` shows none, when the change on
+	 * screen is the feedback.
+	 */
+	successMessage?: string | false
 	/** Toast message on error. Defaults to `toUserMessage(error)`. */
 	errorMessage?: string
+	/** Mutations of one scope id reach the server one after another, in the order they started. */
+	scope?: MutationScope
 }
 
 /**
@@ -38,11 +48,13 @@ export function useOptimisticMutation<TData, TVariables>({
 	optimisticUpdate,
 	successMessage = 'Guardado',
 	errorMessage,
+	scope,
 }: OptimisticMutationOptions<TData, TVariables>) {
 	const queryClient = useQueryClient()
 
 	return useMutation({
 		mutationFn,
+		...(scope && { scope }),
 		onMutate: async (variables) => {
 			// Cancel in-flight queries so they don't overwrite our optimistic update
 			await queryClient.cancelQueries({ queryKey })
@@ -62,7 +74,7 @@ export function useOptimisticMutation<TData, TVariables>({
 			toast.error(errorMessage ?? toUserMessage(_error))
 		},
 		onSuccess: () => {
-			toast.success(successMessage)
+			if (successMessage !== false) toast.success(successMessage)
 		},
 		onSettled: () => {
 			// Always refetch to ensure cache is in sync with server

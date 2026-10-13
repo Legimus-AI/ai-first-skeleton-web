@@ -23,13 +23,16 @@ interface HintProps {
 	children: ReactNode
 	variant?: HintVariant
 	className?: string
+	/** Lets a control point at the hint with `aria-describedby`. */
+	id?: string
 }
 
 /** Contextual hint block for inline help, tips, and warnings. */
-export function Hint({ children, variant = 'info', className }: HintProps) {
+export function Hint({ children, variant = 'info', className, id }: HintProps) {
 	const { icon: Icon, classes } = variants[variant]
 	return (
 		<div
+			id={id}
 			className={cn('flex gap-2.5 rounded-control border px-4 py-3 text-xs', classes, className)}
 		>
 			<Icon className="mt-0.5 h-3.5 w-3.5 shrink-0" />
