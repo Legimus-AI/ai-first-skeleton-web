@@ -14,7 +14,7 @@ Identity is Better Auth's ([ADR 0022](https://github.com/Legimus-AI/ai-first-arc
 | `/reset-password?token=` | Sets a new password; Better Auth ends the account's other sessions | `POST /reset-password` |
 | `/verify-email?token=` | One click confirms the email; opening the link alone changes nothing | `GET /verify-email` |
 | `/accept-invitation?token=` | The invitation email's link: sign in or create the account with that email, then accept or reject. Better Auth asks for a confirmed email first; the page offers to resend the link | `GET /get-session`, `GET /organization/get-invitation`, `POST /organization/accept-invitation`, `POST /organization/reject-invitation`, `POST /send-verification-email` |
-| `/oauth/consent?oauth_query=` | Signed in only. An MCP client asks for access: its name, the host that receives the access, a warning when that host is this computer (localhost, 127.x, `::1`), and the requested scopes in plain Spanish (`*:read` "Leer tus datos", `*:write` "Crear y modificar datos"). Permitir or Rechazar sends the browser back to the app | `GET /oauth2/public-client`, `POST /oauth2/consent` |
+| `/oauth/consent?oauth_query=` | Signed in only. An MCP client asks for access: its name, the host that receives the access, a warning when that host is this computer (localhost, 127.x, `::1`), and the requested scopes in plain Spanish (`*:read` "Leer tus datos", `*:write` "Crear y modificar datos", `organization:read` "Ver la configuración de la organización"). Permitir or Rechazar sends the browser back to the app | `GET /oauth2/public-client`, `POST /oauth2/consent` |
 | `/device?user_code=` | Signed in only. The CLI's login (OAuth device grant): the person types or sees the code, checks the app and scopes, and approves or denies | `GET /device`, `POST /device/approve`, `POST /device/deny` |
 | `/` | Protected; redirects to `HOME_PATH` (and to `/login` if not authenticated) | |
 | `/profile` | Protected; user info and the name form | `POST /update-user` |
@@ -45,11 +45,11 @@ The form offers three presets and the table shows each key's permissions:
 
 | Preset | Scopes | Who sees it |
 |--------|--------|-------------|
-| Solo lectura | `*:read` | everyone (default) |
-| Lectura y escritura | `*:read`, `*:write` | everyone |
+| Solo lectura | `*:read`, `organization:read` | everyone (default) |
+| Lectura y escritura | `*:read`, `*:write`, `organization:read` | everyone |
 | Acceso total | `full` | roles that hold `full` (owner, admin) |
 
-`*:action` never covers the reserved resources (team, API keys, webhooks, audit). A key never exceeds its creator's role, and with the TypeScript backend skeleton it reaches only the routes marked for agents (`x-agent`). A key with `*:write` deletes data in one call, with no approval. A key never changes who has access or where data is sent: inviting, changing roles and removing members, creating and revoking API keys, and creating, changing and deleting webhook destinations are refused to every key, `full` included, and stay in this web app.
+`*:action` never covers the reserved resources (team, organization, API keys, webhooks, audit), so both presets name `organization:read`: the organization's time zone and locale, read only (without it an agent's "get organization settings" answers 403). A key never exceeds its creator's role, and with the TypeScript backend skeleton it reaches only the routes marked for agents (`x-agent`). A key with `*:write` deletes data in one call, with no approval. A key never changes who has access or where data is sent: inviting, changing roles and removing members, creating and revoking API keys, and creating, changing and deleting webhook destinations are refused to every key, `full` included, and stay in this web app.
 
 For other scope combinations, create the key through the API with a session cookie, never another key (`POST /api/v1/auth/api-keys` with `scopes`). The backend's agent CLI needs no key: `pnpm agent login` is approved in the browser at `/device`, and the CLI then acts with `*:read` and `*:write` within the person's role.
 

@@ -1,7 +1,9 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { locale as buildLocale } from '@/env'
 import {
 	formatDate,
 	formatDateTime,
+	getFormatLocale,
 	getUnsupportedTimeZone,
 	resetDateFormatPreferences,
 	setDateFormatPreferences,
@@ -62,5 +64,13 @@ describe('date formatting preferences', () => {
 
 		expect(formatDate(EVENING_IN_UTC, { month: 'long', year: 'numeric' })).toBe('octubre de 2026')
 		expect(getUnsupportedTimeZone()).toBeNull()
+	})
+
+	it('hands the locale it formats in to other formatters, the build locale after a reset', () => {
+		setDateFormatPreferences({ locale: 'en-US', timeZone: 'America/Lima' })
+		expect(getFormatLocale()).toBe('en-US')
+
+		resetDateFormatPreferences()
+		expect(getFormatLocale()).toBe(buildLocale)
 	})
 })
