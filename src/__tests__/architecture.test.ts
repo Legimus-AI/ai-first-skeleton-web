@@ -150,6 +150,8 @@ describe('Architecture rules (INVARIANTS.md)', () => {
 
 		for (const file of allTsFiles) {
 			if (file.endsWith('api-client.ts')) continue
+			// Named exception: the presigned PUT to the storage bucket (another origin, no session).
+			if (file.endsWith(join('services', 'upload-service.ts'))) continue
 			if (file.includes('__tests__')) continue
 
 			const content = readFileSync(file, 'utf-8')

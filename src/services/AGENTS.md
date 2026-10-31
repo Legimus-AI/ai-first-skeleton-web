@@ -9,6 +9,7 @@ fetch/HTTP + SSE/WebSocket + browser Web API wrappers.
 - ❌ Grab-bag: `utils.ts`, `helpers.ts`, `common.ts`, `misc.ts`, `shared.ts`
 - ✅ Name: `<target>-service.ts` (flat) or `<target>/` (multi-file SDK)
 - ✅ Init/get pattern when holding state
+- ✅ HTTP goes through `api-client.ts`; the one other `fetch` is `upload-service.ts`, the presigned PUT to the storage bucket (INVARIANTS #7): signed headers minus `content-length`, the `File` as body, `credentials: 'omit'`
 
 ## Example
 
