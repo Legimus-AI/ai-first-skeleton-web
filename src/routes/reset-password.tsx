@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { PublicLayout } from '@/layouts/public-layout'
 import { authErrorField, authErrorMessage } from '@/slices/auth/auth-error'
@@ -15,7 +16,14 @@ export const Route = createFileRoute('/reset-password')({
 })
 
 function ResetPasswordPage() {
-	const { token } = Route.useSearch()
+	const { token: tokenInUrl } = Route.useSearch()
+	const navigate = Route.useNavigate()
+	// WHY: the token is a credential; once read it leaves the URL (and so history and the Referer)
+	// but stays here for the submit.
+	const [token] = useState(tokenInUrl)
+	useEffect(() => {
+		if (tokenInUrl) void navigate({ search: {}, replace: true })
+	}, [tokenInUrl, navigate])
 	const resetPassword = useResetPassword()
 	const {
 		register,

@@ -1,16 +1,16 @@
-import type { OrganizationSettings, User, UserSettings } from '@repo/shared'
+import type { OrganizationSettings, UserSettings } from '@repo/shared'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createMemoryHistory, createRouter, RouterProvider } from '@tanstack/react-router'
 import { act, cleanup, render, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { routeTree } from '@/routeTree.gen'
-import { authQueryOptions } from '@/slices/auth/hooks/use-auth'
+import { authQueryOptions, type CurrentUser } from '@/slices/auth/hooks/use-auth'
 import {
 	organizationSettingsQueryOptions,
 	userSettingsQueryOptions,
 } from '@/slices/settings/hooks/use-settings'
 
-const firstAccount: User = {
+const firstAccount: CurrentUser = {
 	id: '01a10a08-6d2c-7c18-9258-cf67ae98801f',
 	organizationId: '01a10a08-6d1a-7666-8844-238460107859',
 	email: 'demo@example.com',
@@ -20,8 +20,10 @@ const firstAccount: User = {
 	emailVerifiedAt: '2026-10-05T01:56:42.021Z',
 	createdAt: '2026-10-05T01:56:42.021Z',
 	updatedAt: '2026-10-05T01:56:42.021Z',
+	organizationName: 'Demo Org',
+	isPlatformAdmin: false,
 }
-const secondAccount: User = {
+const secondAccount: CurrentUser = {
 	...firstAccount,
 	id: '01a10a08-7e3d-7c18-9258-cf67ae98802a',
 	email: 'other@example.com',

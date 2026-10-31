@@ -1,5 +1,6 @@
 import { PublicLayout } from '@/layouts/public-layout'
 import { Button } from '@/ui/button'
+import { Hint } from '@/ui/hint'
 import { InlineError } from '@/ui/inline-error'
 import { Skeleton } from '@/ui/skeleton'
 import { authErrorMessage } from '../auth-error'
@@ -15,7 +16,7 @@ import { SignedInAsNotice } from './signed-in-as-notice'
 
 interface DeviceApprovalPageProps {
 	userCode: string
-	/** Clears the code from the URL so another one can be typed. */
+	/** Goes back to the code form so another one can be typed. */
 	onChangeCode: () => void
 }
 
@@ -120,6 +121,7 @@ export function DeviceApprovalPage({ userCode, onChangeCode }: DeviceApprovalPag
 				<p className="text-sm font-medium text-foreground">Podrá:</p>
 				<OAuthScopes scopes={scopesOf(scope)} />
 			</div>
+			<Hint variant="warning">Aprueba solo si tú iniciaste este acceso desde tu terminal.</Hint>
 			<SignedInAsNotice />
 		</PublicLayout>
 	)

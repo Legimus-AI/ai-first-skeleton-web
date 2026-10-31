@@ -22,4 +22,17 @@ describe('navigation by role', () => {
 		expect(entries).toContain('/settings/api-keys')
 		expect(entries).toContain('/settings/preferences')
 	})
+
+	it('shows the audit log to owners and admins only', () => {
+		expect(settingsEntriesFor('owner')).toContain('/settings/audit')
+		expect(settingsEntriesFor('admin')).toContain('/settings/audit')
+		expect(settingsEntriesFor('user')).not.toContain('/settings/audit')
+	})
+
+	it('shows the platform admin page only to platform admins', () => {
+		const topLevelEntries = (isPlatformAdmin: boolean) =>
+			navItemsFor(rolePermissions('owner'), isPlatformAdmin).map((item) => item.to)
+		expect(topLevelEntries(true)).toContain('/admin')
+		expect(topLevelEntries(false)).not.toContain('/admin')
+	})
 })

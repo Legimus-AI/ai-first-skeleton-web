@@ -33,7 +33,7 @@ Before generating any new view, page, or component with visual/interaction decis
 
 - **Functional components only.** No class components.
 - Use TanStack Query for all server state (no local state for API data).
-- Use `api` from `@/services/api-client` for all API calls. See [`docs/api-client.md`](docs/api-client.md) for examples. The one exception: Better Auth's endpoints (`/api/auth/*`: sign-in, sign-up, email flows, team changes, invitations, OAuth consent, CLI approval) are called only through the typed functions of `src/slices/auth/auth-client.ts`, the single file that imports `better-auth` (INVARIANTS #7 named exception). Need another Better Auth endpoint? Add a function there and ask for it in the API's allowlist (`apps/api/src/slices/auth/handler.ts`).
+- Use `api` from `@/services/api-client` for all API calls. See [`docs/api-client.md`](docs/api-client.md) for examples. The one exception: Better Auth's endpoints (`/api/auth/*`: sign-in, sign-up, email flows, team changes, invitations, OAuth consent, CLI approval) are called only through the typed functions of `src/slices/auth/auth-client.ts`, the single file that imports `better-auth` (INVARIANTS #7 named exception). Need another Better Auth endpoint? Add a function there and ask for it in the API's allowlist (`apps/api/src/slices/auth/handler.ts`). That file is the only one over 300 lines (architecture test allows 800): the client instance cannot be exported, so its functions stay beside it.
 - Import types from `@repo/shared` for forms (React Hook Form + Zod).
 - Tailwind CSS only — no CSS files, no CSS-in-JS.
 - Use CVA (`class-variance-authority`) for component variants.

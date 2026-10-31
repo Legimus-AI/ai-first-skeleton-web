@@ -3,7 +3,7 @@ import { MEMBER_ROLE_LABELS } from '@/constants/roles'
 import { formatDate } from '@/services/date-format-service'
 import { Button } from '@/ui/button'
 import type { Column } from '@/ui/data-table'
-import { X } from '@/ui/icons'
+import { Send, X } from '@/ui/icons'
 
 /** Better Auth keeps an expired invitation pending; its link no longer works. */
 function expiryLabel(expiresAt: string): string {
@@ -11,10 +11,19 @@ function expiryLabel(expiresAt: string): string {
 	return Date.parse(expiresAt) < Date.now() ? `Venció el ${date}` : `Vence el ${date}`
 }
 
-/** Pending invitations: who, which role, until when, and the cancel action. */
-export function buildInvitationColumns(
-	onCancel: (invitation: PendingInvitation) => void,
-): Column<PendingInvitation>[] {
+interface InvitationColumnsOptions {
+	onCancel: (invitation: PendingInvitation) => void
+	onResend: (invitation: PendingInvitation) => void
+	/** The invitation being re-sent: its button waits for it. */
+	resendPendingFor: string | undefined
+}
+
+/** Pending invitations: who, which role, until when, and the resend and cancel actions. */
+export function buildInvitationColumns({
+	onCancel,
+	onResend,
+	resendPendingFor,
+}: InvitationColumnsOptions): Column<PendingInvitation>[] {
 	return [
 		{
 			key: 'email',
@@ -47,18 +56,31 @@ export function buildInvitationColumns(
 		{
 			key: 'actions',
 			label: '',
-			className: 'w-12 text-right',
+			className: 'w-24 text-right',
 			render: (invitation) => (
-				<Button
-					variant="ghost"
-					size="icon"
-					className="h-8 w-8 text-muted-foreground hover:text-destructive"
-					type="button"
-					onClick={() => onCancel(invitation)}
-					aria-label={`Anular la invitación de ${invitation.email}`}
-				>
-					<X className="h-4 w-4" />
-				</Button>
+				<div className="flex justify-end">
+					<Button
+						variant="ghost"
+						size="icon"
+						className="h-8 w-8 text-muted-foreground hover:text-foreground"
+						type="button"
+						disabled={invitation.id === resendPendingFor}
+						onClick={() => onResend(invitation)}
+						aria-label={`Reenviar la invitación a ${invitation.email}`}
+					>
+						<Send className="h-4 w-4" />
+					</Button>
+					<Button
+						variant="ghost"
+						size="icon"
+						className="h-8 w-8 text-muted-foreground hover:text-destructive"
+						type="button"
+						onClick={() => onCancel(invitation)}
+						aria-label={`Anular la invitación de ${invitation.email}`}
+					>
+						<X className="h-4 w-4" />
+					</Button>
+				</div>
 			),
 		},
 	]

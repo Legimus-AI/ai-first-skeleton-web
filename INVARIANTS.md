@@ -47,7 +47,7 @@ AGENTS.md "Layout Reasoning" for how to pick or design a layout per product arch
 ## Components
 
 15. **One component per file.** File name = component name. Every component declared in the file counts, exported or file-private (enforced in `slices/` by the architecture test).
-16. **One file = one responsibility.** Soft cap ~300 lines (add file-level comment justifying cohesion if exceeded). Hard cap 800 lines (split mandatory). Never split artificially — cross-file navigation costs more than a long cohesive file for AI agents.
+16. **One file = one responsibility.** Soft cap ~300 lines (add file-level comment justifying cohesion if exceeded). Hard cap 800 lines (split mandatory). Named exception: `slices/auth/auth-client.ts` (the Better Auth client cannot be exported, so every endpoint's function lives beside it; the architecture test allows it up to 800). Never split artificially — cross-file navigation costs more than a long cohesive file for AI agents.
 17. **No `dangerouslySetInnerHTML`.** Never use without DOMPurify sanitization. XSS is a blocking vulnerability.
 18. **No array index as `key`.** Biome enforces `noArrayIndexKey: "error"`. Always use unique IDs (`key={item.id}`).
 19. **No derived state in `useState`.** If a value can be computed from props or query data, derive it inline.
@@ -59,7 +59,9 @@ AGENTS.md "Layout Reasoning" for how to pick or design a layout per product arch
 ## Security
 
 20. **No secrets in frontend code.** All env vars exposed to the browser are PUBLIC — never store API keys, tokens, or credentials.
-21. **Validate user-provided URLs** before rendering in `href`/`src` — block `javascript:` protocol.
+21. **Validate user-provided URLs** before rendering in `href`/`src` — block `javascript:` protocol. Use `safeUrl` from `@/utils/safe-url`.
+
+Route guards, the `_authed` redirect and role-based UI (menus, hidden buttons, `/admin`) are cosmetic: they save a person a 403 and are never a boundary. The API enforces every permission, and no page may rely on being unreachable.
 
 ## UI States
 

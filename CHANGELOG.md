@@ -3,6 +3,46 @@
 Versions of this web skeleton, newest first. Before 3.0.0 the history lives only in the commits on `main`.
 Architecture decisions are in the [spec changelog](https://github.com/Legimus-AI/ai-first-architecture/blob/main/CHANGELOG.md).
 
+## Unreleased: account lifecycle
+
+### Added
+
+- `/settings/security`: change password (current one required), change email (approved from the current address, then confirmed from the new one), the
+  list of sessions with "close" and "close the others", export your data (JSON) and delete the account
+  (password confirmation; a 409 for the last owner of a shared organization is explained).
+- Team: an owner can pick `Propietario` for a member (confirmation), resend a pending invitation, and
+  leave the organization (the API ends their sessions and creates a fresh personal one; the page goes to
+  `/login`). Resending an expired invitation replaces it. `/settings/general`: rename the
+  organization (owner and admin).
+- `/settings/audit` for owners and admins, and `/admin` (platform admins only: list users, ban, unban).
+  The menu shows `/admin` when `GET /api/v1/auth/me` answers `isPlatformAdmin: true`. These need the
+  TypeScript backend's matching endpoints.
+
+### Changed
+
+- The architecture test allows `auth-client.ts` up to 800 lines (INVARIANTS #16): the Better Auth client
+  cannot be exported, so every endpoint's function lives beside it.
+- `updateMemberRole` accepts `owner`; the architecture test lets `settings` import from `auth`.
+- `navItemsFor(grants, isPlatformAdmin)` takes the platform-admin flag; the architecture test lets
+  `admin` import from `auth`.
+
+## Unreleased: security hardening
+
+### Added
+
+- `safeUrl` (`utils/safe-url.ts`), used by the breadcrumb for any `href`.
+- `dependabot.yml` (npm and github-actions); the CI workflow has `permissions: contents: read`, actions
+  pinned by commit SHA and the Biome binary checked against its SHA-256.
+
+### Changed
+
+- **`/device` no longer reads `?user_code=`:** the person types the code and the page warns to approve
+  only a code started from their own terminal (device-code phishing). Backends that print a link with
+  the code still work: the link opens the empty form.
+- The reset-password page removes the token from the URL once read.
+- The service worker opens only same-origin URLs, and signing out removes the device's push subscription.
+- The Clarity recipe sets `content: false` (it masked nothing before).
+
 ## Unreleased: settings that follow the account
 
 The organization chooses its time zone and date format, and each person their theme and time zone,

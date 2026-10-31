@@ -66,7 +66,8 @@ await sendPushToUser(userId, {
 2. If allowed → service worker registers + gets push subscription
 3. Subscription sent to backend → saved in `push_subscriptions` table
 4. Backend calls `sendPushToUser(userId, payload)` → native notification appears
-5. User clicks notification → opens the specified URL
+5. User clicks notification → the service worker (`public/sw.js`) opens the specified URL, but only when it is on this site: a payload naming another origin opens nothing
+6. Signing out removes the device's subscription (`unsubscribeFromPush`, called by `useLogout`), so the next person on the browser gets nothing
 
 ## API Endpoints
 

@@ -34,6 +34,23 @@ async function readSubscription(): Promise<boolean> {
 	return subscription !== null
 }
 
+/** Removes this device's push subscription (server and browser): the next person on it gets nothing. */
+export async function unsubscribeFromPush(): Promise<void> {
+	if (!isPushSupported()) return
+	const registration = await navigator.serviceWorker.getRegistration('/sw.js')
+	const subscription = await registration?.pushManager.getSubscription()
+	if (!subscription) return
+	// WHY: the server delete needs the session, so it runs before sign-out; the browser side always runs.
+	try {
+		const deleteResponse = await api.delete('/api/v1/push/subscribe', {
+			endpoint: subscription.endpoint,
+		})
+		await throwIfNotOk(deleteResponse)
+	} finally {
+		await subscription.unsubscribe()
+	}
+}
+
 /**
  * Hook for managing browser push notifications.
  *
@@ -107,17 +124,7 @@ export function usePushNotifications(): UsePushNotifications {
 	})
 
 	const unsubscribeMutation = useMutation({
-		mutationFn: async () => {
-			const registration = await navigator.serviceWorker.ready
-			const subscription = await registration.pushManager.getSubscription()
-
-			if (subscription) {
-				// Remove from backend
-				await api.delete('/api/v1/push/subscribe', { endpoint: subscription.endpoint })
-				// Unsubscribe browser
-				await subscription.unsubscribe()
-			}
-		},
+		mutationFn: unsubscribeFromPush,
 		onSuccess: () => {
 			queryClient.setQueryData(SUBSCRIPTION_KEY, false)
 			toast.success('Notificaciones desactivadas')

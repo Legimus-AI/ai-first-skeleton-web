@@ -50,6 +50,11 @@ describe('Better Auth error messages', () => {
 		expect(authErrorMessage(gone)).toContain('La invitación no existe o ya venció')
 	})
 
+	it('says a banned account is suspended', () => {
+		const banned = failed(403, { code: 'BANNED_USER', message: 'You have been banned' })
+		expect(authErrorMessage(banned)).toContain('suspendida')
+	})
+
 	it('says the last owner stays', () => {
 		const lastOwner = failed(400, {
 			code: 'YOU_CANNOT_LEAVE_THE_ORGANIZATION_AS_THE_ONLY_OWNER',

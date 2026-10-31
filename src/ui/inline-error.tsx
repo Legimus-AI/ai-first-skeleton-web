@@ -8,7 +8,7 @@ interface InlineErrorProps {
 	/** What the user reads; by default the api-client's message for `error`. */
 	message?: string
 	/** Re-run what failed without reloading the page (`refetch`, `router.invalidate`). */
-	onRetry?: () => void
+	onRetry?: (() => void) | undefined
 }
 
 /** What support needs to trace the failure; never cookies or tokens. */

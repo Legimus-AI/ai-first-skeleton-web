@@ -17,3 +17,12 @@ export type EmailForm = z.infer<typeof emailFormSchema>
 
 export const newPasswordFormSchema = registerFormSchema.pick({ password: true })
 export type NewPasswordForm = z.infer<typeof newPasswordFormSchema>
+
+/** `password` is the new one; the current one proves the person is at the keyboard. */
+export const changePasswordFormSchema = newPasswordFormSchema.extend({
+	currentPassword: loginFormSchema.shape.password,
+})
+export type ChangePasswordForm = z.infer<typeof changePasswordFormSchema>
+
+export const deleteAccountFormSchema = loginFormSchema.pick({ password: true })
+export type DeleteAccountForm = z.infer<typeof deleteAccountFormSchema>

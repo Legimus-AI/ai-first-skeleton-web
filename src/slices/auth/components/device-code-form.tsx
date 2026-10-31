@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { PublicLayout } from '@/layouts/public-layout'
 import { Button } from '@/ui/button'
+import { Hint } from '@/ui/hint'
 import { Input } from '@/ui/input'
 
 interface DeviceCodeFormProps {
@@ -8,7 +9,7 @@ interface DeviceCodeFormProps {
 	onSubmit: (userCode: string) => void
 }
 
-/** For a CLI login opened without its code in the link: the person types what the terminal shows. */
+/** The CLI login's first step: the person types what their terminal shows (the link never carries it). */
 export function DeviceCodeForm({ onSubmit }: DeviceCodeFormProps) {
 	const [code, setCode] = useState('')
 	const userCode = code.trim().toUpperCase()
@@ -43,6 +44,10 @@ export function DeviceCodeForm({ onSubmit }: DeviceCodeFormProps) {
 					className="font-mono uppercase tracking-widest"
 				/>
 			</div>
+			<Hint variant="warning">
+				Aprueba solo un código que tú iniciaste desde tu propia terminal. Si alguien más te lo envió
+				o te pidió escribirlo, no lo uses: te daría acceso a tu cuenta.
+			</Hint>
 		</PublicLayout>
 	)
 }

@@ -214,7 +214,10 @@ function SidebarNav() {
 
 	const { data: user } = useCurrentUser()
 	const groups = new Map<string, NavItem[]>()
-	for (const item of navItemsFor(user ? rolePermissions(user.role) : [])) {
+	for (const item of navItemsFor(
+		user ? rolePermissions(user.role) : [],
+		user?.isPlatformAdmin === true,
+	)) {
 		const group = groups.get(item.group) ?? []
 		group.push(item)
 		groups.set(item.group, group)

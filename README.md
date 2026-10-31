@@ -38,10 +38,10 @@ Any backend that follows the AI-First API contract works for the data pages: `/a
 
 | | Capability | What you get | Guide |
 |---|---|---|---|
-| 🔐 | Auth flows | Better Auth through one client file (`src/slices/auth/auth-client.ts`): login, register, optional Google button and Turnstile captcha, password reset, email verification, invitation acceptance, an `_authed` route guard with a pending skeleton, profile and settings pages | [Auth and API keys](docs/auth-and-api-keys.md) |
+| 🔐 | Auth flows | Better Auth through one client file (`src/slices/auth/auth-client.ts`): login, register, optional Google button and Turnstile captcha, password reset, email verification, invitation acceptance, an `_authed` route guard with a pending skeleton, profile and settings pages, and the account's own security at `/settings/security` (change password and email, sessions, data export, delete account), owner transfer, leave and rename for the organization, an audit page and a platform-admin page | [Auth and API keys](docs/auth-and-api-keys.md) |
 | 🤝 | OAuth for agents | `/oauth/consent` for MCP clients (app name, the host that receives the access, a loopback warning, scopes in plain Spanish) and `/device` to approve a CLI login; the login resumes an app's OAuth request | [Auth and API keys](docs/auth-and-api-keys.md#authentication) |
 | 🔑 | API key page | Create (token shown once, with copy) and revoke keys at `/settings/api-keys`, with scope presets (read only, read and write, full access for owner/admin) shown in the table, how to connect an agent (MCP URL and CLI variables), and "Apps conectadas": the OAuth apps signed in with the account, each one revocable | [Auth and API keys](docs/auth-and-api-keys.md#what-a-key-created-here-can-do) |
-| ⚙️ | Settings pages | `/settings/general`: the organization's time zone and date format (owner and admin edit, members read); `/settings/preferences`: the person's theme and time zone. Saved through the API (`organization_settings`, `user_settings`), so they follow the account to any device | [i18n](docs/i18n.md) |
+| ⚙️ | Settings pages | `/settings/general`: the organization's name, time zone and date format (owner and admin edit, members read the zone and format); `/settings/preferences`: the person's theme and time zone. Saved through the API (`organization_settings`, `user_settings`), so they follow the account to any device | [i18n](docs/i18n.md) |
 | 🪝 | Webhooks page | Destinations (signing secret shown once), sent events with delivery state, attempts and resend at `/settings/webhooks`, for owner and admin | [Auth and API keys](docs/auth-and-api-keys.md#webhooks) |
 | 🧭 | Layout archetypes | Four shell presets (sidebar, navbar, focused, split) picked by the product archetype in `DESIGN_BRIEF.md`, plus a governed `custom` escape hatch | [Layouts](docs/layouts.md) |
 | 🗂️ | Reference slices | `todos` (admin CRUD), `chat` (conversational), `editor` (focused tool), `board` (custom, full-bleed kanban), `team`, `settings` (forms over two settings documents) | [AGENTS.md](AGENTS.md) |
@@ -68,7 +68,7 @@ Agents that use the product never drive this UI: they call the backend's `/mcp` 
 | Grok Bot | OAuth (DCR) or an API key | Approves at `/oauth/consent`, or creates a key at `/settings/api-keys` |
 | Claude Code | OAuth (CIMD) or an API key | Approves at `/oauth/consent` (the page warns that the redirect is this computer), or creates a key |
 | Codex | API key | Creates a key at `/settings/api-keys`; the page shows the MCP URL and header to paste |
-| The backend's CLI | OAuth device grant, speaks `/mcp` | Opens `/device?user_code=…`, checks the code matches the terminal, approves |
+| The backend's CLI | OAuth device grant, speaks `/mcp` | Opens `/device`, types the code the terminal printed, checks the app and scopes, approves |
 
 How each client is configured on its side: the backend's README ([TypeScript](https://github.com/Legimus-AI/ai-first-skeleton-typescript#-every-agent-connects)) and [agent surface guide](https://github.com/Legimus-AI/ai-first-skeleton-typescript/blob/main/docs/agent-surface.md). The key page offers read-only, read-and-write and (for owner/admin) full-access keys; other scope sets go through the API (`POST /api/v1/auth/api-keys` with `scopes`, from a session).
 

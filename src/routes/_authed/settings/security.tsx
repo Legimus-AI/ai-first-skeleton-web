@@ -1,6 +1,9 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
-import { buttonVariants } from '@/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/ui/card'
+import { createFileRoute } from '@tanstack/react-router'
+import { ChangeEmailCard } from '@/slices/auth/components/change-email-card'
+import { ChangePasswordCard } from '@/slices/auth/components/change-password-card'
+import { DeleteAccountCard } from '@/slices/auth/components/delete-account-card'
+import { ExportDataCard } from '@/slices/auth/components/export-data-card'
+import { SessionsCard } from '@/slices/auth/components/sessions-card'
 
 export const Route = createFileRoute('/_authed/settings/security')({
 	context: () => ({ layout: 'narrow' as const }),
@@ -15,19 +18,11 @@ function SettingsSecurityPage() {
 				<p className="text-sm text-muted-foreground">Cómo proteges el acceso a tu cuenta.</p>
 			</div>
 
-			<Card>
-				<CardHeader>
-					<CardTitle>Contraseña</CardTitle>
-					<CardDescription>
-						Te enviaremos un enlace a tu email para crear una contraseña nueva.
-					</CardDescription>
-				</CardHeader>
-				<CardContent>
-					<Link to="/forgot-password" className={buttonVariants({ variant: 'outline' })}>
-						Cambiar contraseña
-					</Link>
-				</CardContent>
-			</Card>
+			<ChangePasswordCard />
+			<ChangeEmailCard />
+			<SessionsCard />
+			<ExportDataCard />
+			<DeleteAccountCard />
 		</div>
 	)
 }

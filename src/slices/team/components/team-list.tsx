@@ -1,4 +1,4 @@
-import { grantsPermission, rolePermissions, type TeamMember } from '@repo/shared'
+import { grantsPermission, type MemberRole, rolePermissions, type TeamMember } from '@repo/shared'
 import { useNavigate, useSearch } from '@tanstack/react-router'
 import { useCallback, useMemo, useState } from 'react'
 import { usePageInRange } from '@/hooks/use-page-in-range'
@@ -22,7 +22,7 @@ import {
 	useTeamMembers,
 	useUpdateMemberRole,
 } from '../hooks/use-team'
-import type { AssignableRole } from '../team-form-schema'
+import { LeaveOrganization } from './leave-organization'
 import { buildMemberColumns, isManageableMember } from './member-columns'
 import { PendingInvitations } from './pending-invitations'
 import { TeamForm } from './team-form'
@@ -53,11 +53,16 @@ export function TeamList() {
 
 	const [showInvite, setShowInvite] = useState(false)
 	const [memberToRemove, setMemberToRemove] = useState<TeamMember | null>(null)
+	const [memberToMakeOwner, setMemberToMakeOwner] = useState<TeamMember | null>(null)
 	const [showBulkDelete, setShowBulkDelete] = useState(false)
 	const [selectedIds, setSelectedIds] = useRowSelection(JSON.stringify(params))
 
 	const onRoleChange = useCallback(
-		(member: TeamMember, role: AssignableRole) => updateRole.mutate({ member, role }),
+		(member: TeamMember, role: MemberRole) => {
+			// Handing over ownership asks first; every other role applies at once.
+			if (role === 'owner') setMemberToMakeOwner(member)
+			else updateRole.mutate({ member, role })
+		},
 		[updateRole],
 	)
 
@@ -67,11 +72,12 @@ export function TeamList() {
 			buildMemberColumns({
 				onRoleChange,
 				onDelete: setMemberToRemove,
+				canGrantOwner: currentUser?.role === 'owner',
 				canManage,
 				currentUserId: currentUser?.id,
 				roleChangePendingFor,
 			}),
-		[onRoleChange, canManage, currentUser?.id, roleChangePendingFor],
+		[onRoleChange, canManage, currentUser?.id, currentUser?.role, roleChangePendingFor],
 	)
 	const setPage = useCallback((page: number) => setParams({ page }), [setParams])
 	const setInvitationsPage = useCallback(
@@ -173,6 +179,24 @@ export function TeamList() {
 					})
 				}}
 				isPending={inviteMember.isPending}
+			/>
+
+			<LeaveOrganization />
+
+			<ConfirmDelete
+				open={memberToMakeOwner !== null}
+				onOpenChange={() => setMemberToMakeOwner(null)}
+				onConfirm={() => {
+					if (memberToMakeOwner)
+						updateRole.mutate(
+							{ member: memberToMakeOwner, role: 'owner' },
+							{ onSettled: () => setMemberToMakeOwner(null) },
+						)
+				}}
+				title={memberToMakeOwner ? `¿Hacer propietario a ${memberToMakeOwner.name}?` : ''}
+				description="Podrá gestionar el equipo, las claves y los webhooks, y quitarte el acceso a ti. Solo otro propietario puede revertirlo."
+				confirmLabel="Hacer propietario"
+				isPending={updateRole.isPending}
 			/>
 
 			<ConfirmDelete
