@@ -3,6 +3,19 @@
 Versions of this web skeleton, newest first. Before 3.0.0 the history lives only in the commits on `main`.
 Architecture decisions are in the [spec changelog](https://github.com/Legimus-AI/ai-first-architecture/blob/main/CHANGELOG.md).
 
+## Unreleased: account lifecycle
+
+### Added
+
+- `/settings/security`: change password (current one required), change email (approved from the current address, then confirmed from the new one), the
+  list of sessions with "close" and "close the others", export your data (JSON) and delete the account
+  (password confirmation; a 409 for the last owner of a shared organization is explained).
+
+### Changed
+
+- The architecture test allows `auth-client.ts` up to 800 lines (INVARIANTS #16): the Better Auth client
+  cannot be exported, so every endpoint's function lives beside it.
+
 ## Unreleased: security hardening
 
 ### Added

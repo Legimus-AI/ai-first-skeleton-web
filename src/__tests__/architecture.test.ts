@@ -289,14 +289,18 @@ describe('Architecture rules (INVARIANTS.md)', () => {
 		const sliceFiles = collectFiles(SLICES_DIR, ['.ts', '.tsx'])
 		const violations: string[] = []
 		const MAX_LINES = 300
+		// WHY: the Better Auth client instance cannot be exported (TS2883), so all its functions live in
+		// auth-client.ts (INVARIANT #7); INVARIANT #16 allows a justified cohesive file up to 800.
+		const COHESIVE_FILES = new Map([[join('slices', 'auth', 'auth-client.ts'), 800]])
 
 		for (const file of sliceFiles) {
 			const content = readFileSync(file, 'utf-8')
 			const lineCount = content.split('\n').length
 			const relPath = relative(SRC_DIR, file)
+			const maxLines = COHESIVE_FILES.get(relPath) ?? MAX_LINES
 
-			if (lineCount > MAX_LINES) {
-				violations.push(`${relPath} — ${lineCount} lines (max ${MAX_LINES})`)
+			if (lineCount > maxLines) {
+				violations.push(`${relPath} — ${lineCount} lines (max ${maxLines})`)
 			}
 		}
 

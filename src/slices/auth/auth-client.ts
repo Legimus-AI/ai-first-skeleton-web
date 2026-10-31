@@ -1,4 +1,8 @@
-/** The app's only Better Auth import (ADR 0022): one function per /api/auth endpoint it calls. */
+/**
+ * The app's only Better Auth import (ADR 0022): one function per /api/auth endpoint it calls.
+ * WHY over 300 lines: the client instance cannot be exported (TS2883), so every endpoint's
+ * function must live beside it.
+ */
 import {
 	oauthDeviceAuthorizationClient,
 	oauthProviderClient,
@@ -8,6 +12,7 @@ import { createAuthClient } from 'better-auth/client'
 import { organizationClient } from 'better-auth/client/plugins'
 import { adminAc, memberAc, ownerAc } from 'better-auth/plugins/organization/access'
 import { api } from '@/services/api-client'
+import { nonEmptyText } from '@/utils/non-empty-text'
 import { OAUTH_QUERY_PARAM } from '@/utils/signed-oauth-query'
 import { authApiErrorFrom } from './auth-error'
 import { redirectOf } from './auth-redirect'
@@ -271,4 +276,59 @@ export async function decideDeviceRequest(input: {
 }): Promise<void> {
 	if (input.approve) await betterAuthClient.device.approve({ userCode: input.userCode })
 	else await betterAuthClient.device.deny({ userCode: input.userCode })
+}
+
+// --- Account (the signed-in person's own security) ---
+
+/** POST /change-password: ends every other session. */
+export async function changePassword(input: {
+	currentPassword: string
+	newPassword: string
+}): Promise<void> {
+	await betterAuthClient.changePassword({ ...input, revokeOtherSessions: true })
+}
+
+/** POST /change-email: the API mails the current address first, then the new one; `callbackURL` is where the links end. */
+export async function changeEmail(input: { newEmail: string; callbackURL: string }): Promise<void> {
+	await betterAuthClient.changeEmail(input)
+}
+
+/** One of the person's sessions: the browser or device that signed in. */
+export interface SessionView {
+	token: string
+	userAgent: string | undefined
+	ipAddress: string | undefined
+	createdAt: string
+	isCurrent: boolean
+}
+
+/** GET /list-sessions, with the one in use marked (compared by token). */
+export async function listSessions(): Promise<SessionView[]> {
+	const [sessions, current] = await Promise.all([
+		betterAuthClient.listSessions(),
+		betterAuthClient.getSession(),
+	])
+	return sessions.map((session) => ({
+		token: session.token,
+		userAgent: nonEmptyText(session.userAgent),
+		ipAddress: nonEmptyText(session.ipAddress),
+		// WHY: the client revives ISO strings into Dates on some paths; both read the same here.
+		createdAt: new Date(session.createdAt).toISOString(),
+		isCurrent: session.token === current?.session.token,
+	}))
+}
+
+/** POST /revoke-session */
+export async function revokeSession(token: string): Promise<void> {
+	await betterAuthClient.revokeSession({ token })
+}
+
+/** POST /revoke-other-sessions: every session but this one. */
+export async function revokeOtherSessions(): Promise<void> {
+	await betterAuthClient.revokeOtherSessions()
+}
+
+/** POST /delete-user: with the password; the API answers a coded 409 for the last owner of a shared team. */
+export async function deleteAccount(password: string): Promise<void> {
+	await betterAuthClient.deleteUser({ password })
 }

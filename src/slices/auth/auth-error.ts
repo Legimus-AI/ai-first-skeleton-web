@@ -62,6 +62,9 @@ const MESSAGE_BY_AUTH_CODE: Readonly<Record<string, string>> = {
 	ALREADY_IN_A_TEAM: 'Tu cuenta ya es parte de un equipo; no puedes unirte a otro.',
 	INVITER_EMAIL_NOT_VERIFIED: 'Confirma tu email antes de invitar a alguien.',
 	ROLE_NOT_ASSIGNABLE: 'Ese rol no se puede asignar. Elige Administrador o Miembro.',
+	INVALID_PASSWORD: 'La contraseña no es correcta.',
+	PASSWORD_REQUIRED: 'Escribe tu contraseña para confirmar.',
+	BANNED_USER: 'Tu cuenta está suspendida. Escríbenos si crees que es un error.',
 	PASSWORD_COMPROMISED: 'Esta contraseña apareció en una filtración de datos. Elige otra.',
 	PASSWORD_TOO_SHORT: PASSWORD_LENGTH,
 	PASSWORD_TOO_LONG: PASSWORD_LENGTH,
@@ -123,4 +126,9 @@ const FIELD_BY_AUTH_CODE: Readonly<Record<string, 'email' | 'password'>> = {
 /** The form field a failure belongs under (a taken or invited email, a leaked password), if any. */
 export function authErrorField(error: unknown): 'email' | 'password' | undefined {
 	return error instanceof AuthApiError ? FIELD_BY_AUTH_CODE[error.authCode ?? ''] : undefined
+}
+
+/** True when the password typed to confirm an action is not the account's. */
+export function isWrongPassword(error: unknown): boolean {
+	return error instanceof AuthApiError && error.authCode === 'INVALID_PASSWORD'
 }
