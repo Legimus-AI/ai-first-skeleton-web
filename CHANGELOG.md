@@ -3,6 +3,13 @@
 Versions of this web skeleton, newest first. Before 3.0.0 the history lives only in the commits on `main`.
 Architecture decisions are in the [spec changelog](https://github.com/Legimus-AI/ai-first-architecture/blob/main/CHANGELOG.md).
 
+## Unreleased — 2026-10-31: file uploads
+
+- **`src/services/upload-service.ts`:** PUTs a `File` to the presigned storage URL the API returns, with the signed headers minus `content-length` and without cookies. The second named exception to INVARIANTS #7 (raw `fetch`); the architecture test allows it.
+- **`src/slices/files/hooks/use-files.ts`:** `useUploadFile` (create the upload, PUT the bytes, let the API verify them; a rejected file is an error), `useFiles`, `useDeleteFile`, `useDownloadFile` (asks for a short-lived URL and opens it). No page or dropzone: the UI is product-specific. Needs the TypeScript backend's `/api/v1/files` and the bucket origin in the CSP `connect-src`.
+  - Assumes `STORAGE_CONDITIONAL_PUT=true` (the default). With it off, `complete` answers 409 until twice the upload URL expiry has passed since the upload was created (clock-skew slack); a product that turns it off needs a "retry complete(fileId)" path, because a new upload adds a second pending row to the quota.
+  - Sends `contentType` as the browser reports it. Windows often labels a `.csv` `application/vnd.ms-excel` and an unknown extension `''`, so the API refuses it as a type it does not allow; map extensions in the product if that matters.
+
 ## Unreleased — 2026-10-31: dependencies
 
 - **Dependencies** moved to the latest releases published at least 7 days ago (a compromised release is usually pulled within hours to days); `lefthook` stays pinned at 2.2.1, whose successor was published by hand without provenance.
