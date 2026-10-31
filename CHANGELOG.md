@@ -3,6 +3,10 @@
 Versions of this web skeleton, newest first. Before 3.0.0 the history lives only in the commits on `main`.
 Architecture decisions are in the [spec changelog](https://github.com/Legimus-AI/ai-first-architecture/blob/main/CHANGELOG.md).
 
+## Unreleased — 2026-10-31: dependencies
+
+- **Biome 2.6.3** (CI binary and its SHA-256 too) now also formats the Markdown under `src/` and flags component factories in tests; the four `AGENTS.md` examples use tabs and the two test wrappers carry a documented ignore.
+
 ## Unreleased — 2026-10-31: no junk tests
 
 - **`AGENTS.md` Tests:** value gate, what never to test (copy, layout, styling, class names, static rendering, library behaviour) and a test audit before finishing.
