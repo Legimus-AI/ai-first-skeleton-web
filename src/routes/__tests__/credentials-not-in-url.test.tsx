@@ -15,6 +15,8 @@ const signedInUser = {
 	emailVerifiedAt: '2026-10-05T01:56:42.021Z',
 	createdAt: '2026-10-05T01:56:42.021Z',
 	updatedAt: '2026-10-05T01:56:42.021Z',
+	organizationName: 'Demo Org',
+	isPlatformAdmin: false,
 }
 
 afterEach(() => {

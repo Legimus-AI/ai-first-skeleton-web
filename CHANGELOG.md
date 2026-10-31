@@ -14,12 +14,17 @@ Architecture decisions are in the [spec changelog](https://github.com/Legimus-AI
   leave the organization (the API ends their sessions and creates a fresh personal one; the page goes to
   `/login`). Resending an expired invitation replaces it. `/settings/general`: rename the
   organization (owner and admin).
+- `/settings/audit` for owners and admins, and `/admin` (platform admins only: list users, ban, unban).
+  The menu shows `/admin` when `GET /api/v1/auth/me` answers `isPlatformAdmin: true`. These need the
+  TypeScript backend's matching endpoints.
 
 ### Changed
 
 - The architecture test allows `auth-client.ts` up to 800 lines (INVARIANTS #16): the Better Auth client
   cannot be exported, so every endpoint's function lives beside it.
 - `updateMemberRole` accepts `owner`; the architecture test lets `settings` import from `auth`.
+- `navItemsFor(grants, isPlatformAdmin)` takes the platform-admin flag; the architecture test lets
+  `admin` import from `auth`.
 
 ## Unreleased: security hardening
 

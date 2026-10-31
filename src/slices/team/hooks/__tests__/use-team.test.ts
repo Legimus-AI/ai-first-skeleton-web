@@ -1,4 +1,3 @@
-import type { User } from '@repo/shared'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { act, renderHook } from '@testing-library/react'
 import { createElement, type ReactNode } from 'react'
@@ -13,7 +12,7 @@ import {
 	updateMemberRole,
 } from '@/slices/auth/auth-client'
 import { AuthApiError } from '@/slices/auth/auth-error'
-import { authQueryOptions } from '@/slices/auth/hooks/use-auth'
+import { authQueryOptions, type CurrentUser } from '@/slices/auth/hooks/use-auth'
 import {
 	useBulkRemoveMembers,
 	useLeaveOrganization,
@@ -38,7 +37,7 @@ vi.mock('sonner', () => ({
 	toast: { success: vi.fn(), error: vi.fn() },
 }))
 
-const signedInUser: User = {
+const signedInUser: CurrentUser = {
 	id: '01a10a08-6d2c-7c18-9258-cf67ae98801f',
 	organizationId: '01a10a08-6d1a-7666-8844-238460107859',
 	email: 'owner@example.com',
@@ -48,6 +47,8 @@ const signedInUser: User = {
 	emailVerifiedAt: '2026-10-05T01:56:42.021Z',
 	createdAt: '2026-10-05T01:56:42.021Z',
 	updatedAt: '2026-10-05T01:56:42.021Z',
+	organizationName: 'Demo Org',
+	isPlatformAdmin: false,
 }
 
 /** The hook, with the signed-in user cached: it names the organization every team call needs. */

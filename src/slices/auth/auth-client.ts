@@ -9,7 +9,7 @@ import {
 } from '@better-auth/oauth-provider/client'
 import type { MemberRole } from '@repo/shared'
 import { createAuthClient } from 'better-auth/client'
-import { organizationClient } from 'better-auth/client/plugins'
+import { adminClient, organizationClient } from 'better-auth/client/plugins'
 import { adminAc, memberAc, ownerAc } from 'better-auth/plugins/organization/access'
 import { api } from '@/services/api-client'
 import { nonEmptyText } from '@/utils/non-empty-text'
@@ -41,6 +41,8 @@ const betterAuthClient = createAuthClient({
 		organizationClient({ roles: { owner: ownerAc, admin: adminAc, user: memberAc } }),
 		oauthProviderClient(),
 		oauthDeviceAuthorizationClient(),
+		// Platform admins only (list, ban, unban); the API answers 403 to anyone else.
+		adminClient(),
 	],
 })
 
@@ -349,4 +351,38 @@ export async function revokeOtherSessions(): Promise<void> {
 /** POST /delete-user: with the password; the API answers a coded 409 for the last owner of a shared team. */
 export async function deleteAccount(password: string): Promise<void> {
 	await betterAuthClient.deleteUser({ password })
+}
+
+// --- Platform admin ---
+
+/** A user as the platform admin page lists them. */
+export interface PlatformUserView {
+	id: string
+	name: string
+	email: string
+	banned: boolean
+}
+
+/** GET /admin/list-users: one page, most recently updated first. */
+export async function listPlatformUsers(input: { limit: number; offset: number }) {
+	const { users, total } = await betterAuthClient.admin.listUsers({
+		query: { ...input, sortBy: 'updatedAt', sortDirection: 'desc' },
+	})
+	return {
+		total,
+		users: users.map(
+			(user): PlatformUserView => ({
+				id: user.id,
+				name: user.name,
+				email: user.email,
+				banned: user.banned === true,
+			}),
+		),
+	}
+}
+
+/** POST /admin/ban-user or /admin/unban-user */
+export async function setUserBanned(input: { userId: string; banned: boolean }): Promise<void> {
+	if (input.banned) await betterAuthClient.admin.banUser({ userId: input.userId })
+	else await betterAuthClient.admin.unbanUser({ userId: input.userId })
 }

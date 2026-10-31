@@ -9,6 +9,7 @@ import {
 	LayoutGrid,
 	MessageSquare,
 	Settings,
+	Shield,
 } from '@/ui/icons'
 
 // ─── Navigation Config ───────────────────────────────────────────────────────
@@ -29,6 +30,8 @@ export interface NavItem {
 	demo?: boolean
 	/** Grant needed to see the entry (e.g. `webhooks:manage`); the API enforces it either way. */
 	permission?: string
+	/** Only people the API lists as platform admins see the entry; the API enforces it either way. */
+	platformAdmin?: boolean
 	/** Optional sub-items for nested navigation. */
 	children?: Omit<NavItem, 'group' | 'icon'>[]
 }
@@ -84,14 +87,29 @@ export const navItems: NavItem[] = [
 			{ label: 'Notificaciones', to: '/settings/notifications' },
 			{ label: 'Claves API', to: '/settings/api-keys' },
 			{ label: 'Webhooks', to: '/settings/webhooks', permission: 'webhooks:manage' },
+			{
+				label: 'Auditoría',
+				to: '/settings/audit',
+				search: DEFAULT_LIST_PARAMS,
+				permission: 'audit:read',
+			},
 		],
+	},
+	{
+		label: 'Administración',
+		to: '/admin',
+		icon: Shield,
+		group: 'Sistema',
+		search: DEFAULT_LIST_PARAMS,
+		platformAdmin: true,
 	},
 ]
 
 /** The navigation a user holding `grants` may use: entries needing a grant they lack are left out. */
-export function navItemsFor(grants: readonly string[]): NavItem[] {
-	const isAllowed = (entry: { permission?: string }) =>
-		!entry.permission || grantsPermission(grants, entry.permission)
+export function navItemsFor(grants: readonly string[], isPlatformAdmin = false): NavItem[] {
+	const isAllowed = (entry: { permission?: string; platformAdmin?: boolean }) =>
+		(!entry.permission || grantsPermission(grants, entry.permission)) &&
+		(!entry.platformAdmin || isPlatformAdmin)
 	return navItems
 		.filter(isAllowed)
 		.map((item) => (item.children ? { ...item, children: item.children.filter(isAllowed) } : item))

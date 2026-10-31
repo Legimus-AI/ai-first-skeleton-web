@@ -316,10 +316,12 @@ describe('Architecture rules (INVARIANTS.md)', () => {
 	describe('No cross-slice imports', () => {
 		const sliceNames = getSliceNames()
 		// Allowed cross-slice imports: team and settings read currentUser from auth and write through
-		// slices/auth/auth-client.ts (Better Auth's organization endpoints)
+		// slices/auth/auth-client.ts (Better Auth's organization endpoints); admin lists and bans
+		// users through the same client (Better Auth's admin plugin)
 		const allowedCrossImports: Record<string, Set<string>> = {
 			team: new Set(['auth']),
 			settings: new Set(['auth']),
+			admin: new Set(['auth']),
 		}
 
 		for (const sliceName of sliceNames) {

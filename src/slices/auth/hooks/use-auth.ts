@@ -1,4 +1,4 @@
-import { type AuthResponse, authResponseSchema, type UpdateProfile, type User } from '@repo/shared'
+import { type AuthResponse, authResponseSchema, type UpdateProfile } from '@repo/shared'
 import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { toast } from 'sonner'
@@ -24,17 +24,20 @@ import { type AuthRedirect, followAuthRedirect } from '../auth-redirect'
 // localhost app replacing the cookie), so the cached user must be re-checked, not trusted forever.
 const AUTH_STALE_TIME_MS = 60_000
 
+/** The signed-in person: `isPlatformAdmin` says whether the platform admin page is theirs. */
+export type CurrentUser = AuthResponse['data']
+
 /** The signed-in user with the role and organization of their live membership (REST, not Better Auth). */
 export const authQueryOptions = queryOptions({
 	queryKey: ['auth', 'me'],
 	// WHY: the _authed beforeLoad awaits this same fetch. With a `signal` (or a fetch paused offline),
 	// a pending screen that unmounts mid-request cancels it and the guard fails with CancelledError.
-	queryFn: async (): Promise<User | null> => {
+	queryFn: async (): Promise<CurrentUser | null> => {
 		const res = await api.get('/api/v1/auth/me')
 		if (res.status === 401) return null
 		await throwIfNotOk(res)
 		const json: unknown = await res.json()
-		const parsed: AuthResponse = safeParseResponse(authResponseSchema, json)
+		const parsed = safeParseResponse(authResponseSchema, json)
 		return parsed.data
 	},
 	retry: false,

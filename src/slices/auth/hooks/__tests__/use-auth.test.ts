@@ -21,6 +21,8 @@ const signedInUser = {
 	emailVerifiedAt: null,
 	createdAt: '2026-10-05T01:56:42.021Z',
 	updatedAt: '2026-10-05T01:56:42.021Z',
+	organizationName: 'Demo Org',
+	isPlatformAdmin: false,
 }
 
 /** Runs the _authed guard's session check while a pending screen observes the query and unmounts. */
