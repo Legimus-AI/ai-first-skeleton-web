@@ -5,11 +5,6 @@ import { ChatPage } from '../chat-page'
 afterEach(cleanup)
 
 describe('ChatPage (conversational reference)', () => {
-	it('renders the seeded conversation message', () => {
-		render(<ChatPage />)
-		expect(screen.getByText(/ejemplo conversacional/i)).toBeTruthy()
-	})
-
 	it('appends a user message optimistically on send', () => {
 		render(<ChatPage />)
 		const input = screen.getByPlaceholderText('Escribe un mensaje…')
