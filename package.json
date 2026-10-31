@@ -41,7 +41,7 @@
 		"clsx": "^2.1.1",
 		"cmdk": "^1.1.1",
 		"react": "19.3.0",
-		"react-dom": "19.3.0",
+		"react-dom": "19.3.1",
 		"react-error-boundary": "^6.1.6",
 		"react-hook-form": "^7.89.0",
 		"react-remove-scroll": "^2.7.2",
