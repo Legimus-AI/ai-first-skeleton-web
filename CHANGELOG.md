@@ -9,6 +9,14 @@ Architecture decisions are in the [spec changelog](https://github.com/Legimus-AI
 - **`pnpm install`** no longer fails when a global `core.hooksPath` makes `lefthook install` refuse: `prepare` warns.
 - **Removed tests that proved nothing:** `split-pane.test.tsx` (rendered text, tag names, class names), `board-page.test.tsx` (static column titles and seed data) and the chat page's seeded-message check.
 
+## Unreleased: disabled webhook destinations
+
+### Added
+
+- `/settings/webhooks` marks a destination the backend disabled with a Desactivado badge and the date,
+  plus a hint that explains why and says to delete it and create it again. Needs the TypeScript
+  backend's `disabledAt` on the destination list.
+
 ## Unreleased: account lifecycle
 
 ### Added

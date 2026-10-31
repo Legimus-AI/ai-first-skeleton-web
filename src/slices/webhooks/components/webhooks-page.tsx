@@ -16,6 +16,7 @@ import { WebhookSecretNotice } from './webhook-secret-notice'
 export function WebhooksPage() {
 	const { data: destinationList, isLoading, error, refetch } = useWebhookDestinations()
 	const eventsOff = destinationList?.eventsEnabled === false
+	const hasDisabledDestination = destinationList?.data.some((destination) => destination.disabledAt)
 	const deleteDestination = useDeleteWebhookDestination()
 	const [showCreate, setShowCreate] = useState(false)
 	const [deleteId, setDeleteId] = useState<string | null>(null)
@@ -43,6 +44,14 @@ export function WebhooksPage() {
 					<Hint variant="warning">
 						Los eventos están apagados en este servidor, así que no se pueden crear destinos ni
 						reenviar eventos. Para activarlos, define EVENTS_ENABLED=true en la API y reiníciala.
+					</Hint>
+				)}
+
+				{hasDisabledDestination && (
+					<Hint>
+						El sistema desactiva un destino cuando todas sus entregas fallan durante varios días. Un
+						destino desactivado ya no recibe eventos y no se puede reactivar: elimínalo y crea otro
+						con la misma URL.
 					</Hint>
 				)}
 
