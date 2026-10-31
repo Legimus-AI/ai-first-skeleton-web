@@ -35,6 +35,7 @@ function createWrapper() {
 		},
 	})
 
+	// biome-ignore lint/correctness/noComponentHookFactories: called once per test, so the wrapper identity is stable for the whole render
 	return function Wrapper({ children }: { children: ReactNode }) {
 		return createElement(QueryClientProvider, { client: queryClient }, children)
 	}

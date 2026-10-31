@@ -16,12 +16,12 @@ fetch/HTTP + SSE/WebSocket + browser Web API wrappers.
 let client: StripeClient | null = null
 
 export function initStripeService() {
-  client = new StripeClient(import.meta.env.VITE_STRIPE_KEY)
+	client = new StripeClient(import.meta.env.VITE_STRIPE_KEY)
 }
 
 export async function chargeCard(req: ChargeRequest): Promise<ChargeResponse> {
-  if (!client) throw new Error('stripe service not initialized')
-  return client.charge(req)
+	if (!client) throw new Error('stripe service not initialized')
+	return client.charge(req)
 }
 ```
 

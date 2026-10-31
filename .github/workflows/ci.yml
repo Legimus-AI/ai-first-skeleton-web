@@ -24,9 +24,9 @@ jobs:
       # Neither pnpm nor npm can install with workspace:* deps, so download Biome directly.
       - name: Install Biome
         env:
-          BIOME_VERSION: "2.4.7"
+          BIOME_VERSION: "2.6.3"
           # SHA-256 of biome-linux-x64 for BIOME_VERSION: bump both together.
-          BIOME_SHA256: "a9bd4061269214c965b468867c1098996d6b1b250b7e2cea7d0b25a29b0de2b0"
+          BIOME_SHA256: "1e5134625f00231035bfb14c12141cdc8fcab69b8275f354287808bb5d86d3ae"
         run: |
           curl -sSfL "https://github.com/biomejs/biome/releases/download/%40biomejs%2Fbiome%40${BIOME_VERSION}/biome-linux-x64" -o biome
           echo "${BIOME_SHA256}  biome" | sha256sum -c -
@@ -55,7 +55,8 @@ jobs:
         run: |
           mv package.json .package.json.bak
           npm init -y >/dev/null 2>&1
-          npm install --no-audit --no-fund vitest@3.2.4 >/dev/null 2>&1
+          # WHY: npm ignores pnpm's minimumReleaseAge, so --before keeps vitest's transitive deps at least 7 days old too.
+          npm install --no-audit --no-fund --ignore-scripts --before="$(date -u -d '7 days ago' +%Y-%m-%dT%H:%M:%SZ)" vitest@5.0.5 >/dev/null 2>&1
           mv -f .package.json.bak package.json
           npx vitest run --config vitest.config.arch.ts
 
