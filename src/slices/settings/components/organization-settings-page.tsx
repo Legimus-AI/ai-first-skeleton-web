@@ -2,6 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/ui/
 import { InlineError } from '@/ui/inline-error'
 import { Skeleton } from '@/ui/skeleton'
 import { useOrganizationSettings } from '../hooks/use-settings'
+import { OrganizationNameForm } from './organization-name-form'
 import { OrganizationSettingsForm } from './organization-settings-form'
 import { UnsupportedTimeZoneHint } from './unsupported-time-zone-hint'
 
@@ -21,6 +22,18 @@ export function OrganizationSettingsPage({ canEdit }: OrganizationSettingsPagePr
 			</div>
 
 			<UnsupportedTimeZoneHint />
+
+			{canEdit && (
+				<Card>
+					<CardHeader>
+						<CardTitle>Nombre</CardTitle>
+						<CardDescription>Cómo se llama tu organización para todo el equipo.</CardDescription>
+					</CardHeader>
+					<CardContent>
+						<OrganizationNameForm />
+					</CardContent>
+				</Card>
+			)}
 
 			<Card>
 				<CardHeader>

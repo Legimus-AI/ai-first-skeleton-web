@@ -18,6 +18,9 @@ import {
 	setDateFormatPreferences,
 	subscribeToDateFormatPreferences,
 } from '@/services/date-format-service'
+import { renameOrganization } from '@/slices/auth/auth-client'
+import { authErrorMessage } from '@/slices/auth/auth-error'
+import { authQueryOptions } from '@/slices/auth/hooks/use-auth'
 
 export const SETTINGS_KEY = ['settings'] as const
 
@@ -139,6 +142,25 @@ export function useUpdateOrganizationSettings() {
 		},
 		onError: (error) => {
 			toast.error('No pudimos guardar la configuración', { description: toUserMessage(error) })
+		},
+	})
+}
+
+/** Renames the organization (owner and admin); Better Auth names it by the person's organization id. */
+export function useRenameOrganization() {
+	const queryClient = useQueryClient()
+	return useMutation({
+		mutationFn: async (name: string) => {
+			const user = await queryClient.ensureQueryData(authQueryOptions)
+			if (!user) throw new Error('Renaming the organization needs a signed-in user')
+			await renameOrganization({ organizationId: user.organizationId, name })
+		},
+		onSuccess: () => {
+			void queryClient.invalidateQueries({ queryKey: authQueryOptions.queryKey })
+			toast.success('Nombre guardado')
+		},
+		onError: (error) => {
+			toast.error('No pudimos cambiar el nombre', { description: authErrorMessage(error) })
 		},
 	})
 }

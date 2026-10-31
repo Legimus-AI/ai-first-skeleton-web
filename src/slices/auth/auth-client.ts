@@ -155,6 +155,8 @@ export async function inviteMember(input: {
 	email: string
 	role: Exclude<MemberRole, 'owner'>
 	organizationId: string
+	/** Sends the pending invitation again instead of failing as already invited. */
+	resend?: boolean
 }): Promise<void> {
 	await betterAuthClient.organization.inviteMember(input)
 }
@@ -174,10 +176,10 @@ export async function membershipIdOf(input: {
 	return members[0]?.id
 }
 
-/** POST /organization/update-member-role (by membership id) */
+/** POST /organization/update-member-role (by membership id). Only an owner may grant `owner`. */
 export async function updateMemberRole(input: {
 	memberId: string
-	role: Exclude<MemberRole, 'owner'>
+	role: MemberRole
 	organizationId: string
 }): Promise<void> {
 	await betterAuthClient.organization.updateMemberRole(input)
@@ -197,6 +199,22 @@ export async function removeMember(input: {
 /** POST /organization/cancel-invitation: the emailed link stops working. */
 export async function cancelInvitation(invitationId: string): Promise<void> {
 	await betterAuthClient.organization.cancelInvitation({ invitationId })
+}
+
+/** POST /organization/update: renames it (owner and admin). */
+export async function renameOrganization(input: {
+	organizationId: string
+	name: string
+}): Promise<void> {
+	await betterAuthClient.organization.update({
+		organizationId: input.organizationId,
+		data: { name: input.name },
+	})
+}
+
+/** POST /organization/leave: the API refuses the last owner and gives the leaver a fresh personal team. */
+export async function leaveOrganization(organizationId: string): Promise<void> {
+	await betterAuthClient.organization.leave({ organizationId })
 }
 
 /** An invitation as its recipient sees it. */

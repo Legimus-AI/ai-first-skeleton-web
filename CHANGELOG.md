@@ -10,11 +10,16 @@ Architecture decisions are in the [spec changelog](https://github.com/Legimus-AI
 - `/settings/security`: change password (current one required), change email (approved from the current address, then confirmed from the new one), the
   list of sessions with "close" and "close the others", export your data (JSON) and delete the account
   (password confirmation; a 409 for the last owner of a shared organization is explained).
+- Team: an owner can pick `Propietario` for a member (confirmation), resend a pending invitation, and
+  leave the organization (the API ends their sessions and creates a fresh personal one; the page goes to
+  `/login`). Resending an expired invitation replaces it. `/settings/general`: rename the
+  organization (owner and admin).
 
 ### Changed
 
 - The architecture test allows `auth-client.ts` up to 800 lines (INVARIANTS #16): the Better Auth client
   cannot be exported, so every endpoint's function lives beside it.
+- `updateMemberRole` accepts `owner`; the architecture test lets `settings` import from `auth`.
 
 ## Unreleased: security hardening
 

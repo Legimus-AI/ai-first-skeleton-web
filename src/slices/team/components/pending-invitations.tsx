@@ -8,7 +8,7 @@ import { DataTable } from '@/ui/data-table'
 import { Mail, Plus } from '@/ui/icons'
 import { InlineError } from '@/ui/inline-error'
 import { Pagination } from '@/ui/pagination'
-import { useCancelInvitation, usePendingInvitations } from '../hooks/use-team'
+import { useCancelInvitation, usePendingInvitations, useResendInvitation } from '../hooks/use-team'
 import { buildInvitationColumns } from './invitation-columns'
 
 interface PendingInvitationsProps {
@@ -25,7 +25,17 @@ export function PendingInvitations({ page, onPageChange, onInvite }: PendingInvi
 	const movingToLastPage = usePageInRange(data?.meta, onPageChange)
 	const cancelInvitation = useCancelInvitation()
 	const [toCancel, setToCancel] = useState<PendingInvitation | null>(null)
-	const columns = useMemo(() => buildInvitationColumns(setToCancel), [])
+	const resendInvitation = useResendInvitation()
+	const resendPendingFor = resendInvitation.isPending ? resendInvitation.variables.id : undefined
+	const columns = useMemo(
+		() =>
+			buildInvitationColumns({
+				onCancel: setToCancel,
+				onResend: resendInvitation.mutate,
+				resendPendingFor,
+			}),
+		[resendInvitation.mutate, resendPendingFor],
+	)
 
 	return (
 		<section aria-labelledby="pending-invitations-title" className="space-y-4">
@@ -34,7 +44,8 @@ export function PendingInvitations({ page, onPageChange, onInvite }: PendingInvi
 					Invitaciones pendientes
 				</h2>
 				<p className="text-sm text-muted-foreground">
-					Personas que invitaste y aún no se unen. Anula una invitación si ya no debe entrar.
+					Personas que invitaste y aún no se unen. Reenvía una invitación si no la recibieron o
+					venció, o anúlala si ya no debe entrar.
 				</p>
 			</div>
 

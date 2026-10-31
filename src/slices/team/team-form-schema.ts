@@ -2,9 +2,7 @@
 import { assignableRoleSchema, teamMemberSchema } from '@repo/shared'
 import type { z } from 'zod'
 
-/** Ownership is never given from the team page. */
-export type AssignableRole = z.infer<typeof assignableRoleSchema>
-
+// WHY: an invitation never grants ownership; an owner hands it over later, in the role select.
 export const inviteMemberFormSchema = teamMemberSchema
 	.pick({ email: true })
 	.extend({ role: assignableRoleSchema })

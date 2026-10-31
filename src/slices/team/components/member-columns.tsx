@@ -1,4 +1,4 @@
-import { assignableRoleSchema, type MemberRole, type TeamMember } from '@repo/shared'
+import { type MemberRole, memberRoleSchema, type TeamMember } from '@repo/shared'
 import { MEMBER_ROLE_LABELS } from '@/constants/roles'
 import { formatDate } from '@/services/date-format-service'
 import { Badge } from '@/ui/badge'
@@ -6,7 +6,6 @@ import { Button } from '@/ui/button'
 import type { Column } from '@/ui/data-table'
 import { Shield, Trash } from '@/ui/icons'
 import { Select } from '@/ui/select'
-import type { AssignableRole } from '../team-form-schema'
 
 const ROLE_VARIANTS: Record<MemberRole, 'default' | 'success' | 'secondary'> = {
 	owner: 'default',
@@ -15,8 +14,10 @@ const ROLE_VARIANTS: Record<MemberRole, 'default' | 'success' | 'secondary'> = {
 }
 
 interface MemberColumnsOptions {
-	onRoleChange: (member: TeamMember, role: AssignableRole) => void
+	onRoleChange: (member: TeamMember, role: MemberRole) => void
 	onDelete: (member: TeamMember) => void
+	/** You are an owner: the role select offers `owner`, which hands ownership over. */
+	canGrantOwner: boolean
 	/** Your role grants `team:write`; without it every member is read-only. */
 	canManage: boolean
 	currentUserId: string | undefined
@@ -32,6 +33,7 @@ export function isManageableMember(member: TeamMember, currentUserId: string | u
 export function buildMemberColumns({
 	onRoleChange,
 	onDelete,
+	canGrantOwner,
 	canManage,
 	currentUserId,
 	roleChangePendingFor,
@@ -65,15 +67,14 @@ export function buildMemberColumns({
 				return (
 					<Select
 						value={member.role}
-						onChange={(event) =>
-							onRoleChange(member, assignableRoleSchema.parse(event.target.value))
-						}
+						onChange={(event) => onRoleChange(member, memberRoleSchema.parse(event.target.value))}
 						disabled={member.id === roleChangePendingFor}
 						className="h-7 w-32 text-xs"
 						aria-label={`Rol de ${member.name}`}
 					>
 						<option value="admin">{MEMBER_ROLE_LABELS.admin}</option>
 						<option value="user">{MEMBER_ROLE_LABELS.user}</option>
+						{canGrantOwner && <option value="owner">{MEMBER_ROLE_LABELS.owner}</option>}
 					</Select>
 				)
 			},
