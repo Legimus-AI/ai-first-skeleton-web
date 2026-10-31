@@ -1,5 +1,6 @@
 import type { WebhookDestination } from '@repo/shared'
 import { formatDate } from '@/services/date-format-service'
+import { Badge } from '@/ui/badge'
 import { Button } from '@/ui/button'
 import type { Column } from '@/ui/data-table'
 import { Trash } from '@/ui/icons'
@@ -13,7 +14,15 @@ export function buildWebhookDestinationColumns(
 			key: 'url',
 			label: 'Destino',
 			render: (destination) => (
-				<p className="font-mono text-sm text-foreground break-all">{destination.url}</p>
+				<div className="space-y-1">
+					<p className="font-mono text-sm text-foreground break-all">{destination.url}</p>
+					{destination.disabledAt && (
+						<div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+							<Badge variant="secondary">Desactivado</Badge>
+							{formatDate(destination.disabledAt)}
+						</div>
+					)}
+				</div>
 			),
 		},
 		{
