@@ -3,6 +3,7 @@ import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/r
 import { useNavigate } from '@tanstack/react-router'
 import { toast } from 'sonner'
 import { HOME_PATH } from '@/constants/routes'
+import { unsubscribeFromPush } from '@/hooks/use-push-notifications'
 import { api } from '@/services/api-client'
 import { safeParseResponse, throwIfNotOk } from '@/services/api-error'
 import { safeRedirectPath } from '@/utils/safe-redirect'
@@ -158,7 +159,13 @@ export function useLogout(redirectTo?: string) {
 	const queryClient = useQueryClient()
 	const navigate = useNavigate()
 	return useMutation({
-		mutationFn: signOut,
+		mutationFn: async () => {
+			// WHY: a failed push cleanup must not keep the person signed in.
+			await unsubscribeFromPush().catch((error: unknown) =>
+				console.warn('Push unsubscribe on sign-out failed', error),
+			)
+			await signOut()
+		},
 		onSuccess: () => {
 			queryClient.clear()
 			toast.success('Cerraste sesión')

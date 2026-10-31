@@ -59,7 +59,9 @@ AGENTS.md "Layout Reasoning" for how to pick or design a layout per product arch
 ## Security
 
 20. **No secrets in frontend code.** All env vars exposed to the browser are PUBLIC — never store API keys, tokens, or credentials.
-21. **Validate user-provided URLs** before rendering in `href`/`src` — block `javascript:` protocol.
+21. **Validate user-provided URLs** before rendering in `href`/`src` — block `javascript:` protocol. Use `safeUrl` from `@/utils/safe-url`.
+
+Route guards, the `_authed` redirect and role-based UI (menus, hidden buttons, `/admin`) are cosmetic: they save a person a 403 and are never a boundary. The API enforces every permission, and no page may rely on being unreachable.
 
 ## UI States
 

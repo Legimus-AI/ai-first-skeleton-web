@@ -1,5 +1,6 @@
 import { ChevronRight } from '@/ui/icons'
 import { cn } from '@/utils/cn'
+import { safeUrl } from '@/utils/safe-url'
 
 interface BreadcrumbItem {
 	label: string
@@ -20,6 +21,7 @@ export function Breadcrumb({ items, className }: BreadcrumbProps) {
 		>
 			{items.map((item, index) => {
 				const isLast = index === items.length - 1
+				const href = safeUrl(item.href)
 				return (
 					<span key={item.label} className="flex items-center gap-1">
 						{index > 0 && <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />}
@@ -33,9 +35,9 @@ export function Breadcrumb({ items, className }: BreadcrumbProps) {
 							>
 								{item.label}
 							</button>
-						) : item.href ? (
+						) : href ? (
 							<a
-								href={item.href}
+								href={href}
 								className="text-muted-foreground transition-colors duration-150 hover:text-foreground"
 							>
 								{item.label}

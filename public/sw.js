@@ -2,7 +2,18 @@
 
 // Push notification service worker.
 // Receives push events from the server and displays native browser notifications.
-// Handles notification clicks by opening the specified URL.
+// Handles notification clicks by opening the specified URL, only when it is on this site.
+
+/** The URL when it stays on this site; a push payload naming another origin opens nothing. */
+function sameOriginUrl(url) {
+	if (typeof url !== 'string' || url === '') return null
+	try {
+		const parsed = new URL(url, self.location.origin)
+		return parsed.origin === self.location.origin ? parsed.href : null
+	} catch {
+		return null
+	}
+}
 
 self.addEventListener('push', (event) => {
 	if (!event.data) return
@@ -23,7 +34,7 @@ self.addEventListener('push', (event) => {
 self.addEventListener('notificationclick', (event) => {
 	event.notification.close()
 
-	const url = event.notification.data?.url
+	const url = sameOriginUrl(event.notification.data?.url)
 	if (!url) return
 
 	event.waitUntil(

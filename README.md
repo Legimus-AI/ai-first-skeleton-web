@@ -68,7 +68,7 @@ Agents that use the product never drive this UI: they call the backend's `/mcp` 
 | Grok Bot | OAuth (DCR) or an API key | Approves at `/oauth/consent`, or creates a key at `/settings/api-keys` |
 | Claude Code | OAuth (CIMD) or an API key | Approves at `/oauth/consent` (the page warns that the redirect is this computer), or creates a key |
 | Codex | API key | Creates a key at `/settings/api-keys`; the page shows the MCP URL and header to paste |
-| The backend's CLI | OAuth device grant, speaks `/mcp` | Opens `/device?user_code=…`, checks the code matches the terminal, approves |
+| The backend's CLI | OAuth device grant, speaks `/mcp` | Opens `/device`, types the code the terminal printed, checks the app and scopes, approves |
 
 How each client is configured on its side: the backend's README ([TypeScript](https://github.com/Legimus-AI/ai-first-skeleton-typescript#-every-agent-connects)) and [agent surface guide](https://github.com/Legimus-AI/ai-first-skeleton-typescript/blob/main/docs/agent-surface.md). The key page offers read-only, read-and-write and (for owner/admin) full-access keys; other scope sets go through the API (`POST /api/v1/auth/api-keys` with `scopes`, from a session).
 

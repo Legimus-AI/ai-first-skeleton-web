@@ -23,7 +23,7 @@ if (clarityId) {
     projectId: clarityId,
     upload: 'https://m.clarity.ms/collect',
     track: true,
-    content: true,
+    content: false,
   })
 }
 
@@ -43,6 +43,10 @@ if (clarityId) {
   document.head.appendChild(script)
 }
 ```
+
+`content: false` makes Clarity mask the text of every page. Keep it: the app shows API keys, webhook
+secrets and one-time tokens (reset links) that a replay would otherwise record. With the script tag
+(Option B), set the project's masking mode to **Strict** in the Clarity dashboard (Settings > Masking).
 
 ## 3. Enable in `main.tsx`
 

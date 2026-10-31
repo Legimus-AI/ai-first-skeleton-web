@@ -3,6 +3,23 @@
 Versions of this web skeleton, newest first. Before 3.0.0 the history lives only in the commits on `main`.
 Architecture decisions are in the [spec changelog](https://github.com/Legimus-AI/ai-first-architecture/blob/main/CHANGELOG.md).
 
+## Unreleased: security hardening
+
+### Added
+
+- `safeUrl` (`utils/safe-url.ts`), used by the breadcrumb for any `href`.
+- `dependabot.yml` (npm and github-actions); the CI workflow has `permissions: contents: read`, actions
+  pinned by commit SHA and the Biome binary checked against its SHA-256.
+
+### Changed
+
+- **`/device` no longer reads `?user_code=`:** the person types the code and the page warns to approve
+  only a code started from their own terminal (device-code phishing). Backends that print a link with
+  the code still work: the link opens the empty form.
+- The reset-password page removes the token from the URL once read.
+- The service worker opens only same-origin URLs, and signing out removes the device's push subscription.
+- The Clarity recipe sets `content: false` (it masked nothing before).
+
 ## Unreleased: settings that follow the account
 
 The organization chooses its time zone and date format, and each person their theme and time zone,
