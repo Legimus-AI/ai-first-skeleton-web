@@ -5,7 +5,9 @@ Architecture decisions are in the [spec changelog](https://github.com/Legimus-AI
 
 ## Unreleased — 2026-10-31: dependencies
 
+- **Dependencies** moved to the latest releases published at least 7 days ago (a compromised release is usually pulled within hours to days); `lefthook` stays pinned at 2.2.1, whose successor was published by hand without provenance.
 - **Biome 2.6.3** (CI binary and its SHA-256 too) now also formats the Markdown under `src/` and flags component factories in tests; the four `AGENTS.md` examples use tabs and the two test wrappers carry a documented ignore.
+- **`vitest` 5.0.5** in the architecture job, installed with `npm install --before` 7 days ago and no install scripts; no code changes needed.
 
 ## Unreleased — 2026-10-31: no junk tests
 

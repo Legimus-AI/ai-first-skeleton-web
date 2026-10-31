@@ -74,7 +74,7 @@ How each client is configured on its side: the backend's README ([TypeScript](ht
 
 ## 🔐 Auth in a few lines
 
-- **Better Auth (MIT, 1.7.7) owns identity on the API**, behind an endpoint allowlist; the API keeps authorization (permissions, the agent gate, audit) behind one seam, `principal.ts` ([ADR 0022](https://github.com/Legimus-AI/ai-first-architecture/blob/main/docs/decisions/0022-better-auth-identity-skeleton-authorization-mcp-oauth.md)).
+- **Better Auth (MIT, 1.7.12) owns identity on the API**, behind an endpoint allowlist; the API keeps authorization (permissions, the agent gate, audit) behind one seam, `principal.ts` ([ADR 0022](https://github.com/Legimus-AI/ai-first-architecture/blob/main/docs/decisions/0022-better-auth-identity-skeleton-authorization-mcp-oauth.md)).
 - **`src/slices/auth/auth-client.ts` is this app's only Better Auth import.** One typed function per `/api/auth/*` endpoint it calls, so the file is also the list the API's allowlist must serve. It is the named exception to INVARIANTS #7 (INV-030 in the spec): Better Auth's client builds those requests, but they still travel through the api-client.
 - **Who is signed in stays on REST** (`GET /api/v1/auth/me`): the app needs the role of the live membership, which Better Auth's session does not carry.
 - **Security the person sees:** the Turnstile captcha on login, sign-up and reset (when `VITE_TURNSTILE_SITE_KEY` is set), breached passwords refused, the per-email lockout message with its wait, CSRF (cookie writes only from the allowed origins), a revoke that stops the app's next call, and a removed member sent back to login on the next request.
