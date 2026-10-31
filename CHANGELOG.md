@@ -3,6 +3,12 @@
 Versions of this web skeleton, newest first. Before 3.0.0 the history lives only in the commits on `main`.
 Architecture decisions are in the [spec changelog](https://github.com/Legimus-AI/ai-first-architecture/blob/main/CHANGELOG.md).
 
+## Unreleased — 2026-10-31: no junk tests
+
+- **`AGENTS.md` Tests:** value gate, what never to test (copy, layout, styling, class names, static rendering, library behaviour) and a test audit before finishing.
+- **`pnpm install`** no longer fails when a global `core.hooksPath` makes `lefthook install` refuse: `prepare` warns.
+- **Removed tests that proved nothing:** `split-pane.test.tsx` (rendered text, tag names, class names), `board-page.test.tsx` (static column titles and seed data) and the chat page's seeded-message check.
+
 ## Unreleased: account lifecycle
 
 ### Added

@@ -98,6 +98,11 @@ All env vars via `import.meta.env.VITE_*` (never `process.env`). Use a centraliz
 
 See the `AGENTS.md` in each folder for the full contract + examples.
 
+### Tests
+
+- **Value gate:** add a test only when you can name the behaviour it protects (a state change, conditional rendering, data shaping, the outcome of a user action), a credible regression that would make it fail, and why no existing test already catches it. Never test copy, layout, styling or class names, that a static element renders, or what a library already guarantees (TanStack Router, TanStack Query, React); typecheck, lint and the build cover wiring.
+- **Test audit:** before finishing, reread every test you added and delete the ones that only check that something exists, take their expected value from the code under test, assert what a mock returned, or repeat another test. Keep a test only when deleting it would let a credible regression through. Coverage is reported, not a target: never add a test only to raise it.
+
 ## Layout Reasoning (read BEFORE choosing any layout)
 
 The admin sidebar is ONE preset, not THE default. Before building views, resolve the
