@@ -19,7 +19,7 @@
 		"pretypecheck": "pnpm route:generate",
 		"typecheck": "tsc --noEmit",
 		"verify": "biome check src && tsc --noEmit && vitest run --passWithNoTests",
-		"prepare": "lefthook install"
+		"prepare": "test ! -e .git || lefthook install || echo 'WARNING: lefthook install failed (with a global core.hooksPath, the hooks in that folder must run lefthook)' >&2"
 	},
 	"dependencies": {
 		"@better-auth/oauth-provider": "1.7.7",
